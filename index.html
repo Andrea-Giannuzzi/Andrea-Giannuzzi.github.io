@@ -3,31 +3,73 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Andrea Giannuzzi</title>
-  <meta name="description" content="Sito personale di Andrea Giannuzzi.">
-  <link rel="stylesheet" href="styles.css">
+  <meta name="color-scheme" content="dark">
+  <meta name="author" content="Andrea Giannuzzi">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/content.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <title data-i18n="meta.homeTitle">Andrea Giannuzzi</title>
+  <meta name="description" data-i18n-content="meta.homeDescription" content="Portfolio accademico di Andrea Giannuzzi.">
 </head>
-<body>
-  <main class="page">
-    <section class="intro" aria-labelledby="title">
-      <p class="eyebrow">Sito personale</p>
-      <h1 id="title">Andrea Giannuzzi</h1>
-      <p class="lead">
-        Studente e appassionato di fisica, laboratorio, calcolo scientifico e strumenti digitali.
-      </p>
-      <div class="actions" aria-label="Collegamenti principali">
-        <a href="https://github.com/Andrea-Giannuzzi">GitHub</a>
-        <a href="https://github.com/Andrea-Giannuzzi?tab=repositories">Repository</a>
+<body data-page="home">
+  <a class="skip-link" href="#main" data-i18n="common.skip">Salta al contenuto</a>
+  <header class="site-header">
+    <a class="site-brand" href="index.html" data-i18n="common.brand">Andrea Giannuzzi</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n-aria-label="common.menuLabel">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
+      <a href="index.html" data-nav="home" data-i18n="nav.home">Home</a>
+      <a href="about.html" data-nav="about" data-i18n="nav.about">About</a>
+      <a href="projects.html" data-nav="projects" data-i18n="nav.projects">Projects</a>
+      <a href="notes.html" data-nav="notes" data-i18n="nav.notes">Notes</a>
+      <a href="blog.html" data-nav="blog" data-i18n="nav.blog">Articles</a>
+      <a href="cv.html" data-nav="cv" data-i18n="nav.cv">CV</a>
+      <a href="contact.html" data-nav="contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="language-switch" aria-label="Language selector">
+      <button type="button" data-lang="it" aria-pressed="true">IT</button>
+      <span aria-hidden="true">|</span>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero section-shell">
+      <div class="hero-copy reveal">
+        <p class="eyebrow" data-i18n="home.eyebrow">Portfolio accademico</p>
+        <h1 data-i18n="home.name">Andrea Giannuzzi</h1>
+        <p class="subtitle" data-i18n="home.subtitle">Studente triennale in Fisica</p>
+        <p class="lead" data-i18n="home.bio">Studente triennale in Fisica interessato alla fisica teorica, alla relativita generale e ai metodi matematici per la fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.</p>
+        <div class="actions">
+          <a class="button primary" href="https://github.com/Andrea-Giannuzzi" data-i18n="common.github">GitHub</a>
+          <a class="button ghost" href="contact.html" data-i18n="home.contact">Contact me</a>
+        </div>
       </div>
+      <aside class="profile-card reveal" aria-label="Profile image placeholder">
+        <!-- Add your profile photo at assets/images/profile.jpg. The placeholder below keeps the layout stable while the file is missing. -->
+        <div class="profile-placeholder" data-i18n="common.profilePlaceholder">Profile photo</div>
+        <dl>
+          <div><dt data-i18n="common.focusLabel">Focus</dt><dd data-i18n="home.focus">Theoretical physics and computational methods</dd></div>
+          <div><dt data-i18n="common.locationLabel">Based in</dt><dd>Naples, Italy</dd></div>
+        </dl>
+      </aside>
     </section>
 
-    <section class="panel" aria-labelledby="projects">
-      <h2 id="projects">Progetti</h2>
-      <p>
-        Questa pagina e pronta per GitHub Pages. Qui potrai aggiungere curriculum,
-        appunti, progetti universitari e collegamenti ai repository.
-      </p>
+    <section class="section-shell grid-two reveal">
+      <article class="text-card">
+        <h2 data-i18n="home.currentWorkTitle">Current direction</h2>
+        <p data-i18n="home.currentWork">I am building a compact academic portfolio around physics notes, laboratory data analysis, and small computational tools. The site is intended to grow with coursework, projects, and future applications to master's programs.</p>
+      </article>
+      <article class="text-card">
+        <h2 data-i18n="home.quickLinksTitle">Explore</h2>
+        <ul class="plain-list">
+          <li><a href="projects.html" data-i18n="nav.projects">Projects</a></li>
+          <li><a href="notes.html" data-i18n="nav.notes">Notes</a></li>
+          <li><a href="cv.html" data-i18n="nav.cv">CV</a></li>
+        </ul>
+      </article>
     </section>
   </main>
+  <footer class="site-footer">
+    <p data-i18n="common.footer">Built with plain HTML, CSS, and JavaScript. Hosted with GitHub Pages.</p>
+  </footer>
 </body>
 </html>

@@ -1,0 +1,13 @@
+# macOS
+.DS_Store
+
+# Editor files
+.vscode/
+.idea/
+
+# Local temporary files
+*.log
+.tmp/
+
+# Python local server/cache artifacts
+__pycache__/

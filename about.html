@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="author" content="Andrea Giannuzzi">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script src="assets/js/content.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <title data-i18n="meta.aboutTitle">Andrea Giannuzzi</title>
+  <meta name="description" data-i18n-content="meta.aboutDescription" content="Portfolio accademico di Andrea Giannuzzi.">
+</head>
+<body data-page="about">
+  <a class="skip-link" href="#main" data-i18n="common.skip">Salta al contenuto</a>
+  <header class="site-header">
+    <a class="site-brand" href="index.html" data-i18n="common.brand">Andrea Giannuzzi</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n-aria-label="common.menuLabel">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
+      <a href="index.html" data-nav="home" data-i18n="nav.home">Home</a>
+      <a href="about.html" data-nav="about" data-i18n="nav.about">About</a>
+      <a href="projects.html" data-nav="projects" data-i18n="nav.projects">Projects</a>
+      <a href="notes.html" data-nav="notes" data-i18n="nav.notes">Notes</a>
+      <a href="blog.html" data-nav="blog" data-i18n="nav.blog">Articles</a>
+      <a href="cv.html" data-nav="cv" data-i18n="nav.cv">CV</a>
+      <a href="contact.html" data-nav="contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="language-switch" aria-label="Language selector">
+      <button type="button" data-lang="it" aria-pressed="true">IT</button>
+      <span aria-hidden="true">|</span>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+  <main id="main">
+    <section class="section-shell page-title reveal">
+      <p class="eyebrow" data-i18n="about.eyebrow">About</p>
+      <h1 data-i18n="about.title">About Andrea</h1>
+      <p data-i18n="about.intro">Sono uno studente triennale in Fisica presso l'Universita degli Studi di Napoli Federico II. I miei interessi si concentrano sulla fisica teorica, sulla relativita generale e sui metodi matematici che permettono di formulare modelli fisici in modo rigoroso.</p>
+    </section>
+
+    <section class="section-shell content-grid">
+      <article class="text-card reveal">
+        <h2 data-i18n="about.academicPathTitle">Academic path</h2>
+        <p data-i18n="about.academicPath">Sto seguendo una Laurea triennale in Fisica, con attenzione particolare agli strumenti matematici, al calcolo scientifico e all'analisi dei dati sperimentali. Questo portfolio raccoglie progetti e appunti che documentano il mio percorso in modo ordinato e verificabile.</p>
+        <dl class="info-list">
+          <div><dt data-i18n="about.universityLabel">Universita</dt><dd data-i18n="about.university">Universita degli Studi di Napoli Federico II</dd></div>
+          <div><dt data-i18n="about.degreeLabel">Corso di laurea</dt><dd data-i18n="about.degree">Laurea triennale in Fisica</dd></div>
+        </dl>
+      </article>
+
+      <article class="text-card reveal">
+        <h2 data-i18n="about.researchTitle">Research interests</h2>
+        <div class="tag-list" data-list="researchInterests"></div>
+      </article>
+
+      <article class="text-card wide reveal">
+        <h2 data-i18n="about.skillsTitle">Skills</h2>
+        <div class="skills-grid" data-skills></div>
+      </article>
+
+      <article class="text-card reveal">
+        <h2 data-i18n="about.personalTitle">Personal notes</h2>
+        <p data-i18n="about.personal">Fuori dallo studio accademico, coltivo interessi discreti per gli scacchi, la storia e la divulgazione scientifica. Li considero modi complementari per allenare attenzione, contesto e chiarezza espositiva.</p>
+      </article>
+    </section>
+  </main>
+  <footer class="site-footer">
+    <p data-i18n="common.footer">Built with plain HTML, CSS, and JavaScript. Hosted with GitHub Pages.</p>
+  </footer>
+</body>
+</html>
