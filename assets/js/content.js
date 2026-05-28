@@ -34,7 +34,7 @@ window.PORTFOLIO_CONTENT = {
       eyebrow: "Portfolio accademico",
       name: "Andrea Giannuzzi",
       subtitle: "Studente triennale in Fisica",
-      bio: "Studente triennale in Fisica interessato alla fisica teorica, alla relativita generale e ai metodi matematici per la fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.",
+      bio: "Studente triennale in Fisica interessato alla Fisica Teorica, alla Relativita Generale e ai Metodi Matematici per la Fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.",
       contact: "Contact me",
       focus: "Fisica teorica e metodi computazionali",
       currentWorkTitle: "Direzione attuale",
