@@ -50,7 +50,7 @@ window.PORTFOLIO_CONTENT = {
       universityLabel: "Universita",
       university: "Universita degli Studi di Napoli Federico II",
       degreeLabel: "Corso di laurea",
-      degree: "Laurea triennale in Fisica",
+      degree: "Laureando in Fisica, laurea triennale",
       researchTitle: "Research interests",
       skillsTitle: "Competenze",
       personalTitle: "Nota personale",
@@ -80,11 +80,9 @@ window.PORTFOLIO_CONTENT = {
     cv: {
       eyebrow: "CV / Resume",
       title: "CV accademico",
-      intro: "Una versione sintetica del mio percorso accademico, pronta per essere estesa e affiancata a un PDF scaricabile.",
       downloadDisabled: "PDF CV non ancora caricato",
       downloadCv: "Scarica CV",
       educationTitle: "Education",
-      educationText: "Laurea triennale in Fisica, Universita degli Studi di Napoli Federico II.",
       interestsTitle: "Academic interests",
       skillsTitle: "Technical skills",
       projectsTitle: "Projects",
@@ -115,6 +113,10 @@ window.PORTFOLIO_CONTENT = {
       section4Text: "Le serie di Fourier collegano analisi matematica e fisica: compaiono nello studio delle onde, della conduzione del calore, dei segnali e dei metodi numerici."
     },
     lists: {
+      educationItems: [
+        "Laureando in Fisica presso l'Universita degli Studi di Napoli Federico II.",
+        "Diploma di maturità scientifica conseguito con 100 e lode presso il Liceo Scientifico Statale \"Arturo Labriola\"."
+      ],
       researchInterests: ["Fisica teorica", "Relativita generale", "Cosmologia", "Geometria differenziale", "Metodi matematici per la fisica", "Analisi dati di laboratorio"],
       fourierTags: ["Analisi", "Fisica matematica", "Python"]
     },
@@ -209,7 +211,7 @@ window.PORTFOLIO_CONTENT = {
       universityLabel: "University",
       university: "University of Naples Federico II",
       degreeLabel: "Degree program",
-      degree: "Bachelor's Degree in Physics",
+      degree: "Bachelor's Degree candidate in Physics",
       researchTitle: "Research interests",
       skillsTitle: "Skills",
       personalTitle: "Personal notes",
@@ -239,11 +241,9 @@ window.PORTFOLIO_CONTENT = {
     cv: {
       eyebrow: "CV / Resume",
       title: "Academic CV",
-      intro: "A concise version of my academic profile, ready to be extended and paired with a downloadable PDF.",
       downloadDisabled: "PDF CV not uploaded yet",
       downloadCv: "Download CV",
       educationTitle: "Education",
-      educationText: "Bachelor's Degree in Physics, University of Naples Federico II.",
       interestsTitle: "Academic interests",
       skillsTitle: "Technical skills",
       projectsTitle: "Projects",
@@ -274,6 +274,10 @@ window.PORTFOLIO_CONTENT = {
       section4Text: "Fourier series connect mathematical analysis and physics: they appear in wave motion, heat conduction, signal analysis, and numerical methods."
     },
     lists: {
+      educationItems: [
+        "Bachelor's Degree candidate in Physics at the University of Naples Federico II.",
+        "Scientific high school diploma with final mark 100/100 cum laude from Liceo Scientifico Statale \"Arturo Labriola\"."
+      ],
       researchInterests: ["Theoretical Physics", "General Relativity", "Cosmology", "Differential Geometry", "Mathematical Methods for Physics", "Laboratory Data Analysis"],
       fourierTags: ["Analysis", "Mathematical Physics", "Python"]
     },
