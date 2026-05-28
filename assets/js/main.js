@@ -137,6 +137,27 @@ function setupRevealAnimations() {
   elements.forEach((element) => observer.observe(element));
 }
 
+function setupProfileImage() {
+  const image = document.querySelector("[data-profile-image]");
+  const placeholder = document.querySelector("[data-profile-placeholder]");
+  if (!image || !placeholder) return;
+
+  image.addEventListener("load", () => {
+    image.hidden = false;
+    placeholder.hidden = true;
+  });
+
+  image.addEventListener("error", () => {
+    image.hidden = true;
+    placeholder.hidden = false;
+  });
+
+  if (image.complete && image.naturalWidth > 0) {
+    image.hidden = false;
+    placeholder.hidden = true;
+  }
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const savedLanguage = localStorage.getItem("portfolio-language") || DEFAULT_LANGUAGE;
   document.querySelectorAll("[data-lang]").forEach((button) => {
@@ -146,5 +167,6 @@ document.addEventListener("DOMContentLoaded", () => {
   markActiveNavigation();
   setupNavigationToggle();
   setupRevealAnimations();
+  setupProfileImage();
   setLanguage(savedLanguage);
 });

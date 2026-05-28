@@ -251,12 +251,24 @@ h3 {
   padding: 20px;
 }
 
+.profile-image,
+.profile-placeholder {
+  width: 100%;
+  aspect-ratio: 1;
+  border-radius: 8px;
+}
+
+.profile-image {
+  display: block;
+  object-fit: cover;
+  border: 1px solid var(--line);
+  background: var(--surface-soft);
+}
+
 .profile-placeholder {
   display: grid;
   place-items: center;
-  aspect-ratio: 1;
   border: 1px dashed var(--line);
-  border-radius: 8px;
   color: var(--muted);
   background: var(--surface-soft);
 }

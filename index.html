@@ -43,9 +43,10 @@
           <a class="button ghost" href="contact.html" data-i18n="home.contact">Contact me</a>
         </div>
       </div>
-      <aside class="profile-card reveal" aria-label="Profile image placeholder">
-        <!-- Add your profile photo at assets/images/profile.jpg. The placeholder below keeps the layout stable while the file is missing. -->
-        <div class="profile-placeholder" data-i18n="common.profilePlaceholder">Profile photo</div>
+      <aside class="profile-card reveal" aria-label="Profile image">
+        <!-- Put your profile photo at assets/images/profile.jpg. If the file is missing, the placeholder remains visible. -->
+        <img class="profile-image" src="assets/images/profile.jpg" alt="Andrea Giannuzzi profile photo" data-profile-image hidden>
+        <div class="profile-placeholder" data-profile-placeholder data-i18n="common.profilePlaceholder">Profile photo</div>
         <dl>
           <div><dt data-i18n="common.focusLabel">Focus</dt><dd data-i18n="home.focus">Theoretical physics and computational methods</dd></div>
           <div><dt data-i18n="common.locationLabel">Based in</dt><dd>Naples, Italy</dd></div>
