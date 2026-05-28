@@ -44,11 +44,11 @@ window.PORTFOLIO_CONTENT = {
     about: {
       eyebrow: "About",
       title: "About Andrea",
-      intro: "Sono uno studente triennale in Fisica presso l'Universita degli Studi di Napoli Federico II. I miei interessi si concentrano sulla fisica teorica, sulla relativita generale e sui metodi matematici che permettono di formulare modelli fisici in modo rigoroso.",
+      intro: "Sono uno studente triennale in Fisica presso l'Università degli Studi di Napoli Federico II. I miei interessi si concentrano sulla fisica teorica, sulla relativita generale e sui metodi matematici che permettono di formulare modelli fisici in modo rigoroso.",
       academicPathTitle: "Percorso accademico",
       academicPath: "Sto seguendo una Laurea triennale in Fisica, con attenzione particolare agli strumenti matematici, al calcolo scientifico e all'analisi dei dati sperimentali. Questo portfolio raccoglie progetti e appunti che documentano il mio percorso in modo ordinato e verificabile.",
-      universityLabel: "Universita",
-      university: "Universita degli Studi di Napoli Federico II",
+      universityLabel: "Università",
+      university: "Università degli Studi di Napoli Federico II",
       degreeLabel: "Corso di laurea",
       degree: "Laureando in Fisica, laurea triennale",
       researchTitle: "Research interests",
@@ -114,7 +114,7 @@ window.PORTFOLIO_CONTENT = {
     },
     lists: {
       educationItems: [
-        "Laureando in Fisica presso l'Universita degli Studi di Napoli Federico II.",
+        "Laureando in Fisica presso l'Università degli Studi di Napoli Federico II.",
         "Diploma di maturità scientifica conseguito con 100 e lode presso il Liceo Scientifico Statale \"Arturo Labriola\"."
       ],
       researchInterests: ["Fisica teorica", "Relativita generale", "Cosmologia", "Geometria differenziale", "Metodi matematici per la fisica", "Analisi dati di laboratorio"],
