@@ -27,7 +27,7 @@ window.PORTFOLIO_CONTENT = {
       footer: "Costruito con HTML, CSS e JavaScript puri. Pubblicato con GitHub Pages.",
       profilePlaceholder: "Foto profilo",
       focusLabel: "Focus",
-      locationLabel: "Base"
+      locationLabel: "Situato a"
     },
     nav: { home: "Home", about: "About", projects: "Projects", notes: "Notes", blog: "Articles", cv: "CV", contact: "Contact" },
     home: {
@@ -54,7 +54,7 @@ window.PORTFOLIO_CONTENT = {
       researchTitle: "Research interests",
       skillsTitle: "Competenze",
       personalTitle: "Nota personale",
-      personal: "Fuori dallo studio accademico, coltivo interessi discreti per gli scacchi, la storia e la divulgazione scientifica. Li considero modi complementari per allenare attenzione, contesto e chiarezza espositiva."
+      personal: "Fuori dallo studio accademico, coltivo interesse per gli scacchi, la storia e la divulgazione scientifica. Mi piace trovare pattern nei dati e nei concetti. Li considero modi complementari per allenare attenzione e chiarezza espositiva."
     },
     projects: {
       eyebrow: "Projects",
@@ -193,7 +193,7 @@ window.PORTFOLIO_CONTENT = {
       eyebrow: "Academic portfolio",
       name: "Andrea Giannuzzi",
       subtitle: "Bachelor Student in Physics",
-      bio: "Bachelor student in Physics interested in theoretical physics, general relativity, and mathematical methods for physics. I use Python and computational tools to develop small projects, simulations, and data analysis workflows related to my academic path.",
+      bio: "Bachelor student in Physics interested in Theoretical Physics, General Relativity, and Mathematical Methods for Physics. I use Python and computational tools to develop small projects, simulations, and data analysis workflows related to my academic path.",
       contact: "Contact me",
       focus: "Theoretical physics and computational methods",
       currentWorkTitle: "Current direction",
@@ -213,7 +213,7 @@ window.PORTFOLIO_CONTENT = {
       researchTitle: "Research interests",
       skillsTitle: "Skills",
       personalTitle: "Personal notes",
-      personal: "Outside academic study, I keep a quiet interest in chess, history, and science communication. I see them as complementary ways to train attention, context, and clarity of explanation."
+      personal: "Outside my academic studies, I cultivate an interest in chess, history, and science communication. I enjoy finding patterns in data and concepts. I consider them complementary ways to train attention and clarity of exposition."
     },
     projects: {
       eyebrow: "Projects",

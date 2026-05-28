@@ -39,7 +39,9 @@ function renderLists(language) {
   const content = getContent(language);
   document.querySelectorAll("[data-list]").forEach((container) => {
     const items = content.lists?.[container.dataset.list] || [];
-    container.innerHTML = items.map((item) => `<span>${item}</span>`).join("");
+    const tagName = container.tagName.toLowerCase();
+    const itemTag = tagName === "ul" || tagName === "ol" ? "li" : "span";
+    container.innerHTML = items.map((item) => `<${itemTag}>${item}</${itemTag}>`).join("");
   });
 }
 
