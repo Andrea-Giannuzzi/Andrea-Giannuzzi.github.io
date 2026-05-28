@@ -29,7 +29,13 @@ This repository hosts the personal academic website of Andrea Giannuzzi, Bachelo
 │   └── fourier-series.html
 └── notes/
     ├── mathematical-physics/
+    │   ├── index.html
+    │   ├── fourier-series.html
+    │   └── pdf/
     ├── analytical-mechanics/
+    │   ├── index.html
+    │   ├── lagrangian-mechanics.html
+    │   └── pdf/
     ├── general-relativity/
     ├── cosmology/
     ├── mathematical-methods/
@@ -38,7 +44,13 @@ This repository hosts the personal academic website of Andrea Giannuzzi, Bachelo
 
 ## Notes Refactor
 
-The old `Articles` section has been replaced by the new `Notes` library. The public entry point is now:
+The old `Articles` section has been replaced by the new `Notes` library. The structure is hierarchical:
+
+```text
+notes.html -> subject page -> note detail page -> PDF placeholder/download
+```
+
+The public entry point is:
 
 ```text
 notes.html
@@ -59,22 +71,24 @@ Edit the `it` and `en` objects in parallel. The language selector `IT | EN` upda
 ## Adding a New Note
 
 1. Choose or create a subject folder under `notes/`, using lowercase names without spaces.
-2. Create a new note page, for example:
+2. Make sure the subject folder has an `index.html`; this page lists the data placeholders for that subject.
+3. Create a new note detail page, for example:
 
 ```text
 notes/general-relativity/new-note.html
 ```
 
-3. Copy the structure of an existing note page and change only `data-note-detail`.
-4. Add the note object to `noteItems` in both language blocks of `assets/js/content.js`.
-5. If the subject is new, add it to `noteSubjects` in both language blocks.
-6. Put the PDF in the matching `pdf/` folder, for example:
+4. Copy the structure of an existing note detail page and change only `data-note-detail`.
+5. Add the note object to `noteItems` in both language blocks of `assets/js/content.js`.
+6. The note will appear as a data placeholder inside its subject page, based on `subjectId`.
+7. If the subject is new, add it to `noteSubjects` in both language blocks, including its `url`.
+8. Put the PDF in the matching `pdf/` folder, for example:
 
 ```text
 notes/general-relativity/pdf/new-note.pdf
 ```
 
-7. In `assets/js/content.js`, set:
+9. In `assets/js/content.js`, set:
 
 ```js
 pdf: "notes/general-relativity/pdf/new-note.pdf",
@@ -93,8 +107,9 @@ notes/quantum-mechanics/pdf/
 ```
 
 2. Add a `README.md` in the subject folder and in `pdf/`.
-3. Add the subject to `noteSubjects` in `assets/js/content.js`.
-4. Add one or more notes to `noteItems`.
+3. Add an `index.html` subject page with `data-subject-notes="subject-id"`.
+4. Add the subject to `noteSubjects` in `assets/js/content.js`.
+5. Add one or more notes to `noteItems`.
 
 ## Replacing the Profile Photo
 
@@ -134,9 +149,11 @@ For this static site, check links manually after changes:
 
 1. Open `http://localhost:8000`.
 2. Visit Home, About, Projects, Notes, CV, and Contact.
-3. Open every note card from `notes.html`.
-4. Confirm that PDF buttons show `PDF coming soon` unless a real PDF exists.
-5. Test both `IT` and `EN`.
+3. Open every subject card from `notes.html`.
+4. Open every note placeholder from each subject page.
+5. Confirm that every note detail page has README content and a PDF section.
+6. Confirm that PDF buttons show `PDF coming soon` unless a real PDF exists.
+7. Test both `IT` and `EN`.
 
 ## GitHub Pages Deployment
 

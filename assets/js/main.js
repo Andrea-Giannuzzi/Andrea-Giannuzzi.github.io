@@ -96,47 +96,54 @@ function renderNoteSubjects(language) {
   });
 
   container.innerHTML = (content.noteSubjects || []).map((subject) => `
-    <article class="subject-card reveal">
+    <article class="subject-card reveal visible">
       <p class="status">${notesBySubject.get(subject.id) || 0} ${content.notes.noteCountLabel}</p>
-      <h2>${subject.title}</h2>
+      <h2><a href="${getBasePath()}${subject.url}">${subject.title}</a></h2>
       <p>${subject.description}</p>
+      <a class="text-link" href="${getBasePath()}${subject.url}">${content.notes.subjectOpen}</a>
     </article>
   `).join("");
 }
 
-function renderNoteLibrary(language) {
+function renderSubjectNotes(language) {
   const content = getContent(language);
-  const container = document.querySelector("[data-note-library]");
+  const container = document.querySelector("[data-subject-notes]");
   if (!container) return;
 
   const notes = content.noteItems || [];
-  container.innerHTML = (content.noteSubjects || []).map((subject) => {
-    const subjectNotes = notes.filter((note) => note.subjectId === subject.id);
-    const noteCards = subjectNotes.length
-      ? subjectNotes.map((note) => `
-          <article class="note-card reveal">
-            <p class="status">${note.status}</p>
-            <h3><a href="${getBasePath()}${note.url}">${note.title}</a></h3>
-            <p>${note.description}</p>
-            <dl class="note-meta">
-              <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
-              <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
-            </dl>
-            <a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>
-          </article>
-        `).join("")
-      : `<p class="muted">${content.notes.emptySubject}</p>`;
+  const subjectId = container.dataset.subjectNotes;
+  const subject = (content.noteSubjects || []).find((item) => item.id === subjectId);
+  const subjectNotes = notes.filter((note) => note.subjectId === subjectId);
 
-    return `
-      <section class="note-subject reveal" id="${subject.id}">
-        <div class="note-subject-heading">
-          <h2>${subject.title}</h2>
-          <p>${subject.description}</p>
-        </div>
-        <div class="note-card-grid">${noteCards}</div>
-      </section>
-    `;
-  }).join("");
+  if (!subject) {
+    container.innerHTML = `<p class="muted">${content.notes.emptySubject}</p>`;
+    return;
+  }
+
+  const noteCards = subjectNotes.length
+    ? subjectNotes.map((note) => `
+        <article class="note-card reveal visible">
+          <p class="status">${note.status}</p>
+          <h3><a href="${getBasePath()}${note.url}">${note.title}</a></h3>
+          <p>${note.description}</p>
+          <dl class="note-meta">
+            <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
+            <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
+          </dl>
+          <a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>
+        </article>
+      `).join("")
+    : `<p class="muted">${content.notes.emptySubject}</p>`;
+
+  container.innerHTML = `
+    <div class="note-subject-heading">
+      <p class="eyebrow">${content.notes.eyebrow}</p>
+      <h1>${subject.title}</h1>
+      <p>${subject.description}</p>
+      <a class="text-link" href="${getBasePath()}notes.html">${content.notes.subjectBack}</a>
+    </div>
+    <div class="note-card-grid">${noteCards}</div>
+  `;
 }
 
 function renderNoteDetail(language) {
@@ -200,7 +207,7 @@ function setLanguage(language) {
   renderSkills(nextLanguage);
   renderProjects(nextLanguage);
   renderNoteSubjects(nextLanguage);
-  renderNoteLibrary(nextLanguage);
+  renderSubjectNotes(nextLanguage);
   renderNoteDetail(nextLanguage);
 
   if (window.MathJax?.typesetPromise) {

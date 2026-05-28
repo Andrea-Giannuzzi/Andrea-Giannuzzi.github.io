@@ -68,6 +68,8 @@ window.PORTFOLIO_CONTENT = {
       subjectsTitle: "Materie",
       notesTitle: "Appunti disponibili e placeholder",
       noteCountLabel: "note",
+      subjectOpen: "Apri materia",
+      subjectBack: "Torna alle materie",
       emptySubject: "Nessun appunto ancora presente per questa materia.",
       openNote: "Apri nota",
       categoryLabel: "Categoria",
@@ -171,31 +173,37 @@ window.PORTFOLIO_CONTENT = {
       {
         id: "mathematical-physics",
         title: "Mathematical Physics",
+        url: "notes/mathematical-physics/",
         description: "Appunti su strutture matematiche e modelli fisici, con esempi orientati a onde, operatori e metodi analitici."
       },
       {
         id: "analytical-mechanics",
         title: "Analytical Mechanics",
+        url: "notes/analytical-mechanics/",
         description: "Placeholder per note su formulazione lagrangiana, hamiltoniana, simmetrie e principi variazionali."
       },
       {
         id: "general-relativity",
         title: "General Relativity",
+        url: "notes/general-relativity/",
         description: "Spazio per appunti su geometria dello spaziotempo, tensori, metriche e principi della relativita generale."
       },
       {
         id: "cosmology",
         title: "Cosmology",
+        url: "notes/cosmology/",
         description: "Placeholder per note su modelli cosmologici, espansione dell'universo e osservabili principali."
       },
       {
         id: "mathematical-methods",
         title: "Mathematical Methods",
+        url: "notes/mathematical-methods/",
         description: "Appunti futuri su metodi matematici per la fisica, geometria differenziale e strumenti analitici."
       },
       {
         id: "computational-physics",
         title: "Computational Physics",
+        url: "notes/computational-physics/",
         description: "Note su metodi numerici, simulazioni, analisi dati e workflow computazionali in Python."
       }
     ],
@@ -378,6 +386,8 @@ window.PORTFOLIO_CONTENT = {
       subjectsTitle: "Subjects",
       notesTitle: "Available notes and placeholders",
       noteCountLabel: "notes",
+      subjectOpen: "Open subject",
+      subjectBack: "Back to subjects",
       emptySubject: "No notes have been added for this subject yet.",
       openNote: "Open note",
       categoryLabel: "Category",
@@ -481,31 +491,37 @@ window.PORTFOLIO_CONTENT = {
       {
         id: "mathematical-physics",
         title: "Mathematical Physics",
+        url: "notes/mathematical-physics/",
         description: "Notes on mathematical structures and physical models, with examples oriented toward waves, operators, and analytical methods."
       },
       {
         id: "analytical-mechanics",
         title: "Analytical Mechanics",
+        url: "notes/analytical-mechanics/",
         description: "Placeholder for notes on Lagrangian and Hamiltonian formulations, symmetries, and variational principles."
       },
       {
         id: "general-relativity",
         title: "General Relativity",
+        url: "notes/general-relativity/",
         description: "Space for notes on spacetime geometry, tensors, metrics, and the principles of general relativity."
       },
       {
         id: "cosmology",
         title: "Cosmology",
+        url: "notes/cosmology/",
         description: "Placeholder for notes on cosmological models, the expansion of the universe, and basic observables."
       },
       {
         id: "mathematical-methods",
         title: "Mathematical Methods",
+        url: "notes/mathematical-methods/",
         description: "Future notes on mathematical methods for physics, differential geometry, and analytical tools."
       },
       {
         id: "computational-physics",
         title: "Computational Physics",
+        url: "notes/computational-physics/",
         description: "Notes on numerical methods, simulations, data analysis, and computational workflows in Python."
       }
     ],

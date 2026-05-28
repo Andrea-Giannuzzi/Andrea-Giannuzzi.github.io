@@ -492,6 +492,10 @@ code {
   color: var(--text);
 }
 
+.subject-card h2 a {
+  color: var(--text);
+}
+
 .note-meta,
 .note-detail-meta {
   display: grid;
@@ -509,6 +513,10 @@ code {
 
 .note-detail {
   max-width: 860px;
+  padding: 72px 0;
+}
+
+.subject-page {
   padding: 72px 0;
 }
 
