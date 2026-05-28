@@ -8,12 +8,8 @@
   <link rel="stylesheet" href="assets/css/styles.css">
   <script src="assets/js/content.js" defer></script>
   <script src="assets/js/main.js" defer></script>
-  <title data-i18n="meta.notesTitle">Andrea Giannuzzi</title>
-  <meta name="description" data-i18n-content="meta.notesDescription" content="Portfolio accademico di Andrea Giannuzzi.">
-  <script>
-    window.MathJax = { tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }, svg: { fontCache: 'global' } };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <title data-i18n="meta.notesTitle">Notes | Andrea Giannuzzi</title>
+  <meta name="description" data-i18n-content="meta.notesDescription" content="Appunti scientifici di Andrea Giannuzzi.">
 </head>
 <body data-page="notes">
   <a class="skip-link" href="#main" data-i18n="common.skip">Salta al contenuto</a>
@@ -25,7 +21,6 @@
       <a href="about.html" data-nav="about" data-i18n="nav.about">About</a>
       <a href="projects.html" data-nav="projects" data-i18n="nav.projects">Projects</a>
       <a href="notes.html" data-nav="notes" data-i18n="nav.notes">Notes</a>
-      <a href="blog.html" data-nav="blog" data-i18n="nav.blog">Articles</a>
       <a href="cv.html" data-nav="cv" data-i18n="nav.cv">CV</a>
       <a href="contact.html" data-nav="contact" data-i18n="nav.contact">Contact</a>
     </nav>
@@ -38,21 +33,18 @@
   <main id="main">
     <section class="section-shell page-title reveal">
       <p class="eyebrow" data-i18n="notes.eyebrow">Notes</p>
-      <h1 data-i18n="notes.title">Scientific notes</h1>
-      <p data-i18n="notes.intro">Questa sezione raccogliera appunti di fisica, matematica e metodi computazionali. La struttura supporta formule LaTeX, blocchi di codice e categorie future.</p>
+      <h1 data-i18n="notes.title">Notes</h1>
+      <p data-i18n="notes.intro">Una libreria ordinata di appunti scientifici divisi per materia.</p>
     </section>
 
-    <section class="section-shell content-grid">
-      <article class="text-card wide reveal">
-        <h2 data-i18n="notes.exampleTitle">Example structure</h2>
-        <p data-i18n="notes.exampleText">Un appunto potra contenere testo, formule come \( e^{i\pi}+1=0 \), e codice leggibile.</p>
-        <pre><code>import numpy as np
-x = np.linspace(0, 2*np.pi, 200)</code></pre>
-      </article>
-      <article class="text-card reveal"><h2>Coming soon</h2><p data-i18n="notes.comingSoon">Indice provvisorio per appunti futuri.</p></article>
-      <article class="text-card reveal"><h2>Fourier Analysis</h2><p data-i18n="notes.placeholderFourier">Serie, trasformate e applicazioni fisiche.</p></article>
-      <article class="text-card reveal"><h2>General Relativity</h2><p data-i18n="notes.placeholderGR">Geometria, metriche e principi fisici.</p></article>
-      <article class="text-card reveal"><h2>Mathematical Methods</h2><p data-i18n="notes.placeholderMethods">Strumenti matematici per la fisica teorica.</p></article>
+    <section class="section-shell reveal">
+      <h2 data-i18n="notes.subjectsTitle">Materie</h2>
+      <div class="subject-grid" data-note-subjects></div>
+    </section>
+
+    <section class="section-shell notes-library">
+      <h2 data-i18n="notes.notesTitle">Appunti disponibili e placeholder</h2>
+      <div data-note-library></div>
     </section>
   </main>
   <footer class="site-footer">

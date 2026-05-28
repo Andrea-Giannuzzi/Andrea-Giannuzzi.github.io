@@ -81,6 +81,110 @@ function renderProjects(language) {
   `).join("");
 }
 
+function getBasePath() {
+  return window.PORTFOLIO_BASE_PATH || "";
+}
+
+function renderNoteSubjects(language) {
+  const content = getContent(language);
+  const container = document.querySelector("[data-note-subjects]");
+  if (!container) return;
+
+  const notesBySubject = new Map();
+  (content.noteItems || []).forEach((note) => {
+    notesBySubject.set(note.subjectId, (notesBySubject.get(note.subjectId) || 0) + 1);
+  });
+
+  container.innerHTML = (content.noteSubjects || []).map((subject) => `
+    <article class="subject-card reveal">
+      <p class="status">${notesBySubject.get(subject.id) || 0} ${content.notes.noteCountLabel}</p>
+      <h2>${subject.title}</h2>
+      <p>${subject.description}</p>
+    </article>
+  `).join("");
+}
+
+function renderNoteLibrary(language) {
+  const content = getContent(language);
+  const container = document.querySelector("[data-note-library]");
+  if (!container) return;
+
+  const notes = content.noteItems || [];
+  container.innerHTML = (content.noteSubjects || []).map((subject) => {
+    const subjectNotes = notes.filter((note) => note.subjectId === subject.id);
+    const noteCards = subjectNotes.length
+      ? subjectNotes.map((note) => `
+          <article class="note-card reveal">
+            <p class="status">${note.status}</p>
+            <h3><a href="${getBasePath()}${note.url}">${note.title}</a></h3>
+            <p>${note.description}</p>
+            <dl class="note-meta">
+              <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
+              <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
+            </dl>
+            <a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>
+          </article>
+        `).join("")
+      : `<p class="muted">${content.notes.emptySubject}</p>`;
+
+    return `
+      <section class="note-subject reveal" id="${subject.id}">
+        <div class="note-subject-heading">
+          <h2>${subject.title}</h2>
+          <p>${subject.description}</p>
+        </div>
+        <div class="note-card-grid">${noteCards}</div>
+      </section>
+    `;
+  }).join("");
+}
+
+function renderNoteDetail(language) {
+  const content = getContent(language);
+  const container = document.querySelector("[data-note-detail]");
+  if (!container) return;
+
+  const note = (content.noteItems || []).find((item) => item.id === container.dataset.noteDetail);
+  if (!note) {
+    container.innerHTML = `<p class="muted">${content.notes.emptySubject}</p>`;
+    return;
+  }
+
+  const pdfMarkup = note.pdfAvailable
+    ? `<a class="button primary" href="${getBasePath()}${note.pdf}" download>${content.notes.downloadPdf}</a>`
+    : `<span class="button disabled" aria-disabled="true">${content.notes.pdfComingSoon}</span>`;
+
+  container.innerHTML = `
+    <p class="eyebrow">${content.notes.eyebrow}</p>
+    <h1>${note.title}</h1>
+    <dl class="note-detail-meta">
+      <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
+      <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
+      <div><dt>${content.notes.statusLabel}</dt><dd>${note.status}</dd></div>
+    </dl>
+
+    <section>
+      <h2>${content.notes.readmeTitle}</h2>
+      <p>${note.readme}</p>
+      <ul class="plain-list">
+        <li><strong>${content.notes.abstractTitle}:</strong> ${note.abstract}</li>
+        <li><strong>${content.notes.topicsLabel}:</strong> ${note.topics.join(", ")}</li>
+        <li><strong>${content.notes.prerequisitesLabel}:</strong> ${note.prerequisites}</li>
+        <li><strong>${content.notes.referencesLabel}:</strong> ${note.references}</li>
+        <li><strong>${content.notes.documentStatusLabel}:</strong> ${note.documentStatus}</li>
+      </ul>
+    </section>
+
+    <section class="download-panel">
+      <h2>${content.notes.downloadTitle}</h2>
+      <p>${note.documentStatus}</p>
+      ${pdfMarkup}
+    </section>
+
+    <a class="text-link" href="${getBasePath()}notes.html">${content.notes.backToNotes}</a>
+  `;
+}
+
 function setLanguage(language) {
   const nextLanguage = SUPPORTED_LANGUAGES.includes(language) ? language : DEFAULT_LANGUAGE;
   localStorage.setItem("portfolio-language", nextLanguage);
@@ -95,6 +199,9 @@ function setLanguage(language) {
   renderLists(nextLanguage);
   renderSkills(nextLanguage);
   renderProjects(nextLanguage);
+  renderNoteSubjects(nextLanguage);
+  renderNoteLibrary(nextLanguage);
+  renderNoteDetail(nextLanguage);
 
   if (window.MathJax?.typesetPromise) {
     window.MathJax.typesetPromise();

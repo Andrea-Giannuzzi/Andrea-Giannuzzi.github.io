@@ -235,7 +235,10 @@ h3 {
 .text-card,
 .project-card,
 .article-preview,
-.cv-section {
+.cv-section,
+.subject-card,
+.note-card,
+.download-panel {
   border: 1px solid var(--line);
   border-radius: 8px;
   background: var(--surface);
@@ -247,7 +250,9 @@ h3 {
 .text-card:hover,
 .project-card:hover,
 .article-preview:hover,
-.cv-section:hover {
+.cv-section:hover,
+.subject-card:hover,
+.note-card:hover {
   transform: translateY(-2px);
 }
 
@@ -303,7 +308,9 @@ dd {
 .content-grid,
 .contact-grid,
 .cv-layout,
-.article-list {
+.article-list,
+.subject-grid,
+.note-card-grid {
   display: grid;
   gap: 18px;
   padding-bottom: 72px;
@@ -315,13 +322,17 @@ dd {
 }
 
 .content-grid,
-.cv-layout {
+.cv-layout,
+.subject-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .text-card,
 .article-preview,
-.cv-section {
+.cv-section,
+.subject-card,
+.note-card,
+.download-panel {
   padding: 24px;
 }
 
@@ -412,7 +423,11 @@ dd {
 .project-body p,
 .text-card p,
 .article-preview p,
-.cv-section p {
+.cv-section p,
+.subject-card p,
+.note-card p,
+.download-panel p,
+.muted {
   color: var(--muted);
 }
 
@@ -442,8 +457,68 @@ code {
   padding: 72px 0;
 }
 
-.article-page section {
+.article-page section,
+.note-detail section {
   margin-top: 38px;
+}
+
+.notes-library {
+  padding-bottom: 72px;
+}
+
+.notes-library > h2 {
+  margin-top: 36px;
+}
+
+.note-subject {
+  margin-top: 30px;
+}
+
+.note-subject-heading {
+  max-width: 760px;
+  margin-bottom: 18px;
+}
+
+.note-subject-heading p {
+  color: var(--muted);
+}
+
+.note-card-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding-bottom: 10px;
+}
+
+.note-card h3 a {
+  color: var(--text);
+}
+
+.note-meta,
+.note-detail-meta {
+  display: grid;
+  gap: 8px;
+  margin: 18px 0 0;
+}
+
+.note-meta div,
+.note-detail-meta div {
+  display: grid;
+  gap: 4px;
+  padding-top: 10px;
+  border-top: 1px solid var(--line);
+}
+
+.note-detail {
+  max-width: 860px;
+  padding: 72px 0;
+}
+
+.note-detail-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 24px 0 0;
+}
+
+.download-panel {
+  box-shadow: none;
 }
 
 .formula {
@@ -501,6 +576,9 @@ code {
   .contact-grid,
   .cv-layout,
   .project-grid,
+  .subject-grid,
+  .note-card-grid,
+  .note-detail-meta,
   .skills-grid,
   .skills-grid.compact {
     grid-template-columns: 1fr;

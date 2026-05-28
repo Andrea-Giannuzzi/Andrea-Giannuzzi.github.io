@@ -3,80 +3,11 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="color-scheme" content="dark">
-  <meta name="author" content="Andrea Giannuzzi">
-  <link rel="stylesheet" href="../assets/css/styles.css">
-  <script src="../assets/js/content.js" defer></script>
-  <script src="../assets/js/main.js" defer></script>
-  <title data-i18n="meta.fourierTitle">Andrea Giannuzzi</title>
-  <meta name="description" data-i18n-content="meta.fourierDescription" content="Portfolio accademico di Andrea Giannuzzi.">
-  <script>
-    window.MathJax = { tex: { inlineMath: [['\\(', '\\)'], ['$', '$']] }, svg: { fontCache: 'global' } };
-  </script>
-  <script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+  <meta http-equiv="refresh" content="0; url=../notes/mathematical-physics/fourier-series.html">
+  <link rel="canonical" href="../notes/mathematical-physics/fourier-series.html">
+  <title>Redirect to Fourier Series Note</title>
 </head>
-<body data-page="blog">
-  <a class="skip-link" href="#main" data-i18n="common.skip">Salta al contenuto</a>
-  <header class="site-header">
-    <a class="site-brand" href="../index.html" data-i18n="common.brand">Andrea Giannuzzi</a>
-    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n-aria-label="common.menuLabel">Menu</button>
-    <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
-      <a href="../index.html" data-nav="home" data-i18n="nav.home">Home</a>
-      <a href="../about.html" data-nav="about" data-i18n="nav.about">About</a>
-      <a href="../projects.html" data-nav="projects" data-i18n="nav.projects">Projects</a>
-      <a href="../notes.html" data-nav="notes" data-i18n="nav.notes">Notes</a>
-      <a href="../blog.html" data-nav="blog" data-i18n="nav.blog">Articles</a>
-      <a href="../cv.html" data-nav="cv" data-i18n="nav.cv">CV</a>
-      <a href="../contact.html" data-nav="contact" data-i18n="nav.contact">Contact</a>
-    </nav>
-    <div class="language-switch" aria-label="Language selector">
-      <button type="button" data-lang="it" aria-pressed="true">IT</button>
-      <span aria-hidden="true">|</span>
-      <button type="button" data-lang="en" aria-pressed="false">EN</button>
-    </div>
-  </header>
-  <main id="main">
-    <article class="section-shell article-page reveal">
-      <p class="eyebrow" data-i18n="articleFourier.eyebrow">Example article</p>
-      <h1 data-i18n="articleFourier.title">Serie di Fourier</h1>
-      <p class="date" data-i18n="articleFourier.date">Data placeholder</p>
-      <p class="lead" data-i18n="articleFourier.abstract">Un esempio compatto di articolo scientifico con formule LaTeX, codice Python e struttura modificabile.</p>
-      <div class="tag-list small" data-list="fourierTags"></div>
-
-      <section>
-        <h2 data-i18n="articleFourier.section1Title">Idea generale</h2>
-        <p data-i18n="articleFourier.section1Text">Le serie di Fourier descrivono funzioni periodiche come combinazioni di seni e coseni. Per una funzione con periodo \(2\pi\), una forma comune e:</p>
-        <p class="formula">\[ f(x) \sim \frac{a_0}{2} + \sum_{n=1}^{\infty} \left(a_n\cos nx + b_n\sin nx\right). \]</p>
-      </section>
-
-      <section>
-        <h2 data-i18n="articleFourier.section2Title">Coefficienti</h2>
-        <p data-i18n="articleFourier.section2Text">I coefficienti misurano quanto ogni modo armonico contribuisce alla funzione. In notazione reale:</p>
-        <p class="formula">\[ a_n = \frac{1}{\pi}\int_{-\pi}^{\pi} f(x)\cos(nx)\,dx, \quad b_n = \frac{1}{\pi}\int_{-\pi}^{\pi} f(x)\sin(nx)\,dx. \]</p>
-      </section>
-
-      <section>
-        <h2 data-i18n="articleFourier.section3Title">Esempio computazionale</h2>
-        <p data-i18n="articleFourier.section3Text">Un semplice script puo approssimare un'onda quadra sommando armoniche dispari.</p>
-        <pre><code>import numpy as np
-
-x = np.linspace(-np.pi, np.pi, 1000)
-approx = np.zeros_like(x)
-for n in range(1, 20, 2):
-    approx += (4 / np.pi) * np.sin(n * x) / n</code></pre>
-      </section>
-
-      <section>
-        <h2 data-i18n="articleFourier.section4Title">Perche e utile</h2>
-        <p data-i18n="articleFourier.section4Text">Le serie di Fourier collegano analisi matematica e fisica: compaiono nello studio delle onde, della conduzione del calore, dei segnali e dei metodi numerici.</p>
-      </section>
-    </article>
-  </main>
-  <footer class="site-footer">
-    <p data-i18n="common.footer">Built with plain HTML, CSS, and JavaScript. Hosted with GitHub Pages.</p>
-  </footer>
-  <script>
-    window.PORTFOLIO_BASE_PATH = "../";
-  </script>
+<body>
+  <p>Questo articolo e stato spostato nella sezione Notes: <a href="../notes/mathematical-physics/fourier-series.html">Fourier Series</a>.</p>
 </body>
 </html>
