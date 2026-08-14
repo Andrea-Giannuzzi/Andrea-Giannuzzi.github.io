@@ -167,6 +167,27 @@ window.PORTFOLIO_CONTENT = {
         url: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
         repoNote: "Repository piu pertinente trovato: strumenti-calcolo.",
         preview: "Symbolic"
+      },
+      {
+        id: "lambda-cdm",
+        title: "ΛCDM",
+        short: "Progetto didattico che calcola e visualizza l'evoluzione di un modello Lambda-CDM in funzione del fattore di scala a.",
+        detail: "Confronta il parametro di Hubble normalizzato con quello fisico e mostra i contributi di radiazione, barioni, materia oscura fredda, materia totale e costante cosmologica.",
+        type: "Modello cosmologico",
+        tech: ["Python", "NumPy", "Matplotlib"],
+        status: "Disponibile",
+        url: "projects/lambda-cdm.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/LambdaCDM",
+        preview: "ΛCDM",
+        overview: "Il progetto calcola e visualizza l'evoluzione di un modello Lambda-CDM in funzione del fattore di scala a, confrontando il parametro di Hubble normalizzato con quello fisico.",
+        method: "Usa la prima equazione di Friedmann nella forma normalizzata E²(a) = H²(a)/H0², includendo i contributi di radiazione, barioni, materia oscura fredda, curvatura e costante cosmologica, e calcola direttamente H²(a) = H0² E²(a).",
+        results: [
+          "Determina l'uguaglianza radiazione-materia.",
+          "Determina l'uguaglianza materia-costante cosmologica.",
+          "Calcola numericamente la transizione dall'espansione decelerata a quella accelerata.",
+          "Genera un grafico di E(a) e un grafico del parametro di Hubble fisico H(a), con i relativi contributi frazionari."
+        ],
+        requirements: "Python 3 con NumPy e Matplotlib."
       }
     ],
     noteSubjects: [
@@ -485,6 +506,27 @@ window.PORTFOLIO_CONTENT = {
         url: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
         repoNote: "Most relevant repository found: strumenti-calcolo.",
         preview: "Symbolic"
+      },
+      {
+        id: "lambda-cdm",
+        title: "ΛCDM",
+        short: "An educational project that calculates and visualizes the evolution of a Lambda-CDM model as a function of the scale factor a.",
+        detail: "It compares the normalized Hubble parameter with the physical one and shows the contributions from radiation, baryons, cold dark matter, total matter, and the cosmological constant.",
+        type: "Cosmological model",
+        tech: ["Python", "NumPy", "Matplotlib"],
+        status: "Available",
+        url: "projects/lambda-cdm.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/LambdaCDM",
+        preview: "ΛCDM",
+        overview: "The project calculates and visualizes the evolution of a Lambda-CDM model as a function of the scale factor a, comparing the normalized Hubble parameter with the physical one.",
+        method: "It uses the first Friedmann equation in normalized form, E²(a) = H²(a)/H0², including contributions from radiation, baryons, cold dark matter, curvature, and the cosmological constant, and directly calculates H²(a) = H0² E²(a).",
+        results: [
+          "Determines radiation-matter equality.",
+          "Determines matter-Lambda equality.",
+          "Numerically calculates the transition from decelerated to accelerated expansion.",
+          "Generates a plot of E(a) and a plot of the physical Hubble parameter H(a), together with their fractional contributions."
+        ],
+        requirements: "Python 3 with NumPy and Matplotlib."
       }
     ],
     noteSubjects: [
