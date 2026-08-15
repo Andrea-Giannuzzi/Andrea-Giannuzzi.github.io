@@ -10,6 +10,8 @@ window.PORTFOLIO_CONTENT = {
       projectsDescription: "Progetti GitHub di fisica, calcolo scientifico e analisi dati.",
       notesTitle: "Notes | Andrea Giannuzzi",
       notesDescription: "Appunti scientifici futuri su fisica, matematica e metodi computazionali.",
+      researchTitle: "Research | Andrea Giannuzzi",
+      researchDescription: "Lavori di ricerca di Andrea Giannuzzi in fisica teorica.",
       blogTitle: "Notes | Andrea Giannuzzi",
       blogDescription: "Redirect alla nuova sezione Notes di Andrea Giannuzzi.",
       cvTitle: "CV | Andrea Giannuzzi",
@@ -29,7 +31,7 @@ window.PORTFOLIO_CONTENT = {
       focusLabel: "Focus",
       locationLabel: "Situato a"
     },
-    nav: { home: "Home", about: "About", projects: "Projects", notes: "Notes", cv: "CV", contact: "Contact" },
+    nav: { home: "Home", about: "About", projects: "Projects", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
     home: {
       eyebrow: "Portfolio accademico",
       name: "Andrea Giannuzzi",
@@ -59,15 +61,29 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "Progetti GitHub",
-      intro: "Una selezione iniziale di piccoli progetti legati a simulazioni, strumenti di calcolo e analisi dati. Le card sono pensate per essere aggiornate facilmente da assets/js/content.js."
+      intro: "Quattro progetti di fisica computazionale e calcolo simbolico, documentati attraverso pagine dedicate e repository GitHub.",
+      openProject: "Apri progetto",
+      typeLabel: "Tipologia",
+      statusLabel: "Stato",
+      technologiesLabel: "Tecnologie",
+      overviewTitle: "Panoramica",
+      methodTitle: "Modello e metodo",
+      resultsTitle: "Funzionalità e risultati",
+      requirementsTitle: "Requisiti",
+      repositoryTitle: "Repository GitHub",
+      repositoryText: "Il codice sorgente e la documentazione completa sono disponibili nella repository del progetto.",
+      repositoryLink: "Apri repository",
+      backToProjects: "Torna a Projects",
+      unavailableProject: "Progetto non disponibile."
     },
     notes: {
       eyebrow: "Notes",
       title: "Notes",
-      intro: "Una libreria ordinata di appunti scientifici divisi per materia. Ogni scheda e un placeholder modificabile e porta a una pagina dedicata con README, stato del PDF e istruzioni per il download.",
+      intro: "Una libreria ordinata di appunti scientifici divisi per materia, con pagine dedicate e download dei PDF disponibili.",
       subjectsTitle: "Materie",
-      notesTitle: "Appunti disponibili e placeholder",
+      notesTitle: "Appunti disponibili",
       noteCountLabel: "note",
+      noteCountSingular: "nota",
       subjectOpen: "Apri materia",
       subjectBack: "Torna alle materie",
       emptySubject: "Nessun appunto ancora presente per questa materia.",
@@ -85,6 +101,16 @@ window.PORTFOLIO_CONTENT = {
       prerequisitesLabel: "Prerequisiti",
       referencesLabel: "Riferimenti",
       documentStatusLabel: "Stato del documento"
+    },
+    research: {
+      eyebrow: "Research",
+      title: "Research",
+      intro: "Una raccolta di lavori di ricerca in fisica teorica, con abstract e documenti disponibili.",
+      dateLabel: "Data",
+      typeLabel: "Tipologia",
+      abstractTitle: "Abstract",
+      readPaper: "Leggi il paper",
+      downloadPdf: "Download PDF"
     },
     cv: {
       eyebrow: "CV / Resume",
@@ -127,6 +153,7 @@ window.PORTFOLIO_CONTENT = {
         "Diploma di maturità scientifica conseguito con 100 e lode presso il Liceo Scientifico Statale \"Arturo Labriola\"."
       ],
       researchInterests: ["Fisica teorica", "Relativita generale", "Cosmologia", "Geometria differenziale", "Metodi matematici per la fisica", "Analisi dati di laboratorio"],
+      cvProjectItems: ["Pendolo semplice", "Pendolo per piccole oscillazioni", "Derivate simboliche in Python", "ΛCDM"],
       fourierTags: ["Analisi", "Fisica matematica", "Python"]
     },
     skills: {
@@ -139,34 +166,67 @@ window.PORTFOLIO_CONTENT = {
     },
     projectItems: [
       {
-        title: "Pendolo semplice",
-        short: "Simulazione e studio numerico del pendolo semplice.",
-        detail: "Il progetto introduce il moto oscillatorio attraverso il modello del pendolo, con attenzione al collegamento tra equazioni differenziali, approssimazioni e visualizzazione dei risultati.",
-        tech: ["Python", "NumPy", "Matplotlib"],
-        status: "In sviluppo",
-        url: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
-        repoNote: "Repository corrispondente trovato su GitHub.",
-        preview: "Pendulum"
+        id: "pendolo-semplice-numerico",
+        title: "Pendolo semplice non lineare",
+        short: "Simulazione numerica del moto di un pendolo semplice senza approssimazione per piccoli angoli.",
+        detail: "L'equazione non lineare viene integrata numericamente per studiare posizione, velocità e accelerazione angolare nel tempo.",
+        type: "Simulazione numerica",
+        tech: ["Python", "NumPy", "SciPy", "Matplotlib", "Jupyter"],
+        status: "Disponibile",
+        url: "projects/pendolo-semplice-numerico.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
+        preview: "Nonlinear pendulum",
+        overview: "Il progetto collega il modello fisico del pendolo semplice alla sua implementazione computazionale. Mantiene il termine non lineare sin(θ), così da descrivere anche oscillazioni per cui l'approssimazione armonica non è più adeguata.",
+        method: "L'equazione θ''(t) + (g/L) sin(θ(t)) = 0 viene riscritta come un sistema del primo ordine e integrata con scipy.integrate.solve_ivp a partire dall'angolo e dalla velocità angolare iniziali.",
+        results: [
+          "Calcolo della posizione angolare θ(t).",
+          "Calcolo della velocità angolare ω(t).",
+          "Calcolo dell'accelerazione angolare α(t) = −(g/L) sin(θ).",
+          "Generazione di tre grafici separati, disponibili nella repository."
+        ],
+        requirements: "Python con NumPy, SciPy e Matplotlib; Jupyter è necessario soltanto per aprire ed eseguire il notebook."
       },
       {
+        id: "pendolo-piccole-oscillazioni",
         title: "Pendolo per piccole oscillazioni",
-        short: "Studio dell'approssimazione per piccoli angoli e confronto con il comportamento non lineare.",
-        detail: "Scheletro di progetto per discutere il limite armonico, la linearizzazione di sin(theta) e il ruolo delle approssimazioni nei modelli fisici.",
-        tech: ["Python", "Jupyter", "Data analysis"],
-        status: "Placeholder strutturato",
-        url: "https://github.com/Andrea-Giannuzzi/Data-analysis",
-        repoNote: "Repository piu vicino trovato: Data-analysis.",
-        preview: "Small angles"
+        short: "Studio analitico del pendolo nel limite delle piccole oscillazioni.",
+        detail: "L'approssimazione sin(θ) ≈ θ trasforma il sistema in un oscillatore armonico e permette di descriverne analiticamente il moto e il periodo.",
+        type: "Modello analitico",
+        tech: ["Python", "NumPy", "Matplotlib", "Jupyter"],
+        status: "Disponibile",
+        url: "projects/pendolo-piccole-oscillazioni.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
+        preview: "Small oscillations",
+        overview: "Il progetto studia il pendolo semplice nel regime in cui l'angolo, espresso in radianti, è sufficientemente piccolo da rendere valida la linearizzazione del seno.",
+        method: "Usando sin(θ) ≈ θ, l'equazione diventa θ''(t) + (g/L)θ(t) = 0. La soluzione è armonica, con frequenza naturale √(g/L) e periodo T = 2π√(L/g), determinati insieme alle condizioni iniziali.",
+        results: [
+          "Soluzione analitica per posizione, velocità e accelerazione angolare.",
+          "Calcolo del periodo proprio del pendolo.",
+          "Grafici delle tre grandezze dinamiche.",
+          "Base per confrontare il modello linearizzato con quello non lineare."
+        ],
+        requirements: "Python con NumPy e Matplotlib; Jupyter è necessario soltanto per aprire ed eseguire il notebook."
       },
       {
+        id: "derivate-simboliche",
         title: "Derivate simboliche in Python",
-        short: "Strumenti di calcolo simbolico per derivate e manipolazioni elementari.",
-        detail: "Progetto orientato all'uso di Python come supporto allo studio dei metodi matematici, con possibili estensioni verso SymPy e notebook didattici.",
-        tech: ["Python", "SymPy", "LaTeX"],
-        status: "In sviluppo",
-        url: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
-        repoNote: "Repository piu pertinente trovato: strumenti-calcolo.",
-        preview: "Symbolic"
+        short: "Esempi guidati di derivazione simbolica con dipendenze funzionali esplicite.",
+        detail: "Uno strumento didattico basato su SymPy per derivate ordinarie, parziali, composte e termini dell'equazione di Eulero-Lagrange.",
+        type: "Calcolo simbolico",
+        tech: ["Python", "SymPy"],
+        status: "Disponibile",
+        url: "projects/derivate-simboliche.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
+        preview: "Symbolic derivatives",
+        overview: "Il progetto mostra come usare Python come supporto allo studio dei metodi matematici, distinguendo chiaramente variabili indipendenti, funzioni e dipendenze funzionali.",
+        method: "SymPy permette di definire simboli, funzioni non specificate e derivate formali. Lo script usa symbols(), Function() e diff() per mantenere leggibile il legame tra notazione matematica e implementazione.",
+        results: [
+          "Derivate prime e seconde di una funzione di una variabile.",
+          "Derivate parziali e miste di una funzione di più variabili.",
+          "Derivata totale di una funzione composta V(q(t)).",
+          "Costruzione dei termini simbolici dell'equazione di Eulero-Lagrange."
+        ],
+        requirements: "Python e SymPy; lo script può essere eseguito direttamente dal terminale senza input interattivo."
       },
       {
         id: "lambda-cdm",
@@ -190,152 +250,145 @@ window.PORTFOLIO_CONTENT = {
         requirements: "Python 3 con NumPy e Matplotlib."
       }
     ],
+    researchItems: [
+      {
+        id: "order-e0-scalar-function-f-phi",
+        title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
+        summary: "Il lavoro estrae il coefficiente di ordine e^0 di F_φ che entra nella corrente scalare regolarizzata di Pauli–Villars, mostra la cancellazione delle singolarità apparenti 1/λ², riduce l'integrale residuo mediante l'identità di riflessione della funzione digamma e verifica l'espressione risultante nei limiti rilevanti.",
+        date: "15 agosto 2026",
+        type: "Nota di ricerca",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
+      }
+    ],
     noteSubjects: [
       {
-        id: "mathematical-physics",
-        title: "Mathematical Physics",
-        url: "notes/mathematical-physics/",
-        description: "Appunti su strutture matematiche e modelli fisici, con esempi orientati a onde, operatori e metodi analitici."
+        id: "electromagnetism",
+        title: "Elettromagnetismo",
+        url: "notes/electromagnetism/",
+        description: "Note su campi elettrici e magnetici, potenziali ed equazioni dell'elettromagnetismo."
       },
       {
         id: "analytical-mechanics",
-        title: "Analytical Mechanics",
+        title: "Meccanica Analitica",
         url: "notes/analytical-mechanics/",
-        description: "Placeholder per note su formulazione lagrangiana, hamiltoniana, simmetrie e principi variazionali."
+        description: "Note su principi variazionali, formulazione lagrangiana e dinamica dei sistemi meccanici."
       },
       {
         id: "general-relativity",
-        title: "General Relativity",
+        title: "Relatività",
         url: "notes/general-relativity/",
-        description: "Spazio per appunti su geometria dello spaziotempo, tensori, metriche e principi della relativita generale."
+        description: "Note su relatività, geometria dello spaziotempo e gravità."
       },
       {
         id: "cosmology",
-        title: "Cosmology",
+        title: "Cosmologia",
         url: "notes/cosmology/",
-        description: "Placeholder per note su modelli cosmologici, espansione dell'universo e osservabili principali."
+        description: "Note su modelli cosmologici, espansione dell'universo e osservabili principali."
       },
       {
         id: "mathematical-methods",
-        title: "Mathematical Methods",
+        title: "Metodi Matematici per la Fisica",
         url: "notes/mathematical-methods/",
-        description: "Appunti futuri su metodi matematici per la fisica, geometria differenziale e strumenti analitici."
+        description: "Note su metodi matematici, strumenti analitici e applicazioni alla fisica."
       },
       {
         id: "computational-physics",
-        title: "Computational Physics",
+        title: "Fisica Computazionale",
         url: "notes/computational-physics/",
         description: "Note su metodi numerici, simulazioni, analisi dati e workflow computazionali in Python."
       }
     ],
     noteItems: [
       {
-        id: "fourier-series",
-        subjectId: "mathematical-physics",
-        title: "Serie di Fourier",
-        subject: "Mathematical Physics",
-        date: "Data placeholder",
-        status: "Draft",
-        description: "Nota introduttiva sulle serie di Fourier, pensata come ponte tra analisi matematica e applicazioni fisiche.",
-        url: "notes/mathematical-physics/fourier-series.html",
-        pdf: "notes/mathematical-physics/pdf/fourier-series.pdf",
-        pdfAvailable: false,
-        readme: "Questa pagina e un template per una futura nota completa sulle serie di Fourier. Il contenuto puo essere esteso con formule, esempi, grafici e codice.",
-        abstract: "Obiettivo: raccogliere definizioni, interpretazione dei coefficienti, condizioni di convergenza e un esempio computazionale.",
-        topics: ["Serie trigonometriche", "Coefficienti di Fourier", "Applicazioni a onde e segnali"],
-        prerequisites: "Analisi matematica di base, integrali definiti, funzioni periodiche.",
-        references: "Riferimenti da aggiungere nella versione PDF.",
-        documentStatus: "Bozza strutturale. PDF non ancora caricato."
+        id: "electromagnetism-notes",
+        subjectId: "electromagnetism",
+        title: "Appunti di elettromagnetismo",
+        subject: "Elettromagnetismo",
+        date: "14 agosto 2026",
+        status: "PDF disponibile",
+        description: "Note di elettromagnetismo disponibili in formato PDF.",
+        url: "notes/electromagnetism/electromagnetism.html",
+        pdf: "notes/electromagnetism/pdf/electromagnetism.pdf",
+        pdfAvailable: true,
+        readme: "Appunti dedicati all'elettromagnetismo, disponibili come documento PDF.",
+        abstract: "Raccogliere in un unico documento le note di elettromagnetismo.",
+        topics: ["Elettromagnetismo"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       },
       {
         id: "lagrangian-mechanics",
         subjectId: "analytical-mechanics",
-        title: "Meccanica lagrangiana",
-        subject: "Analytical Mechanics",
-        date: "Data placeholder",
-        status: "Coming soon",
-        description: "Placeholder per una nota sui principi variazionali e sulle equazioni di Eulero-Lagrange.",
+        title: "Appunti di meccanica analitica",
+        subject: "Meccanica Analitica",
+        date: "14 agosto 2026",
+        status: "PDF disponibile",
+        description: "Note di meccanica analitica disponibili in formato PDF.",
         url: "notes/analytical-mechanics/lagrangian-mechanics.html",
-        pdf: "notes/analytical-mechanics/pdf/lagrangian-mechanics.pdf",
-        pdfAvailable: false,
-        readme: "Template per appunti futuri di meccanica analitica, con spazio per definizioni, esempi e derivazioni.",
-        abstract: "Obiettivo: introdurre coordinate generalizzate, azione, lagrangiana e interpretazione fisica delle equazioni del moto.",
-        topics: ["Principio di Hamilton", "Equazioni di Eulero-Lagrange", "Coordinate generalizzate"],
-        prerequisites: "Meccanica classica di base e calcolo differenziale.",
-        references: "Riferimenti da aggiungere.",
-        documentStatus: "Placeholder. PDF non ancora caricato."
+        pdf: "notes/analytical-mechanics/pdf/analytical-mechanics.pdf",
+        pdfAvailable: true,
+        readme: "Appunti dedicati alla meccanica analitica, disponibili come documento PDF.",
+        abstract: "Raccogliere in un unico documento le note di meccanica analitica.",
+        topics: ["Meccanica analitica"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       },
       {
         id: "spacetime-geometry",
         subjectId: "general-relativity",
-        title: "Geometria dello spaziotempo",
-        subject: "General Relativity",
-        date: "Data placeholder",
-        status: "Coming soon",
-        description: "Placeholder per una nota introduttiva su metriche, intervallo e oggetti geometrici in relativita generale.",
+        title: "Appunti di relatività",
+        subject: "Relatività",
+        date: "14 agosto 2026",
+        status: "PDF disponibile",
+        description: "Note di relatività disponibili in formato PDF.",
         url: "notes/general-relativity/spacetime-geometry.html",
-        pdf: "notes/general-relativity/pdf/spacetime-geometry.pdf",
-        pdfAvailable: false,
-        readme: "Template per una nota di relativita generale orientata alla geometria differenziale applicata.",
-        abstract: "Obiettivo: organizzare concetti base su varieta, metrica, geodetiche e significato fisico della curvatura.",
-        topics: ["Metrica", "Geodetiche", "Curvatura"],
-        prerequisites: "Relativita speciale, algebra lineare e nozioni iniziali di geometria differenziale.",
-        references: "Riferimenti da aggiungere.",
-        documentStatus: "Placeholder. PDF non ancora caricato."
+        pdf: "notes/general-relativity/pdf/relativity.pdf",
+        pdfAvailable: true,
+        readme: "Appunti dedicati alla relatività, disponibili come documento PDF.",
+        abstract: "Raccogliere in un unico documento le note di relatività.",
+        topics: ["Relatività"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       },
       {
         id: "expanding-universe",
         subjectId: "cosmology",
-        title: "Universo in espansione",
-        subject: "Cosmology",
-        date: "Data placeholder",
-        status: "Coming soon",
-        description: "Placeholder per una nota sui modelli FLRW, fattore di scala e interpretazione fisica dell'espansione.",
+        title: "Appunti di cosmologia",
+        subject: "Cosmologia",
+        date: "14 agosto 2026",
+        status: "PDF disponibile",
+        description: "Note di cosmologia disponibili in formato PDF.",
         url: "notes/cosmology/expanding-universe.html",
-        pdf: "notes/cosmology/pdf/expanding-universe.pdf",
-        pdfAvailable: false,
-        readme: "Template per appunti futuri di cosmologia, con attenzione ai modelli omogenei e isotropi.",
-        abstract: "Obiettivo: raccogliere definizioni essenziali su redshift, fattore di scala e parametri cosmologici.",
-        topics: ["Metriche FLRW", "Redshift", "Fattore di scala"],
-        prerequisites: "Relativita generale introduttiva e calcolo differenziale.",
-        references: "Riferimenti da aggiungere.",
-        documentStatus: "Placeholder. PDF non ancora caricato."
+        pdf: "notes/cosmology/pdf/cosmology.pdf",
+        pdfAvailable: true,
+        readme: "Appunti dedicati alla cosmologia, disponibili come documento PDF.",
+        abstract: "Raccogliere in un unico documento le note di cosmologia.",
+        topics: ["Cosmologia"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       },
       {
         id: "differential-geometry",
         subjectId: "mathematical-methods",
-        title: "Geometria differenziale",
-        subject: "Mathematical Methods",
-        date: "Data placeholder",
-        status: "Coming soon",
-        description: "Placeholder per una nota sui concetti geometrici usati in fisica teorica.",
+        title: "Appunti di metodi matematici per la fisica",
+        subject: "Metodi Matematici per la Fisica",
+        date: "14 agosto 2026",
+        status: "PDF disponibile",
+        description: "Note di metodi matematici per la fisica disponibili in formato PDF.",
         url: "notes/mathematical-methods/differential-geometry.html",
-        pdf: "notes/mathematical-methods/pdf/differential-geometry.pdf",
-        pdfAvailable: false,
-        readme: "Template per appunti su varieta, campi vettoriali, forme differenziali e tensori.",
-        abstract: "Obiettivo: creare una base consultabile per i metodi geometrici ricorrenti in relativita e fisica matematica.",
-        topics: ["Varieta", "Tensori", "Forme differenziali"],
-        prerequisites: "Algebra lineare e calcolo multivariabile.",
-        references: "Riferimenti da aggiungere.",
-        documentStatus: "Placeholder. PDF non ancora caricato."
-      },
-      {
-        id: "numerical-methods",
-        subjectId: "computational-physics",
-        title: "Metodi numerici in Python",
-        subject: "Computational Physics",
-        date: "Data placeholder",
-        status: "Coming soon",
-        description: "Placeholder per una nota su integrazione numerica, simulazioni e analisi dati con Python.",
-        url: "notes/computational-physics/numerical-methods.html",
-        pdf: "notes/computational-physics/pdf/numerical-methods.pdf",
-        pdfAvailable: false,
-        readme: "Template per documentare workflow computazionali, snippet riproducibili e risultati numerici.",
-        abstract: "Obiettivo: raccogliere esempi di metodi numerici utili per laboratorio e fisica computazionale.",
-        topics: ["Python scientifico", "Integrazione numerica", "Visualizzazione dati"],
-        prerequisites: "Python di base, NumPy e calcolo numerico introduttivo.",
-        references: "Riferimenti da aggiungere.",
-        documentStatus: "Placeholder. PDF non ancora caricato."
+        pdf: "notes/mathematical-methods/pdf/mathematical-methods-for-physics.pdf",
+        pdfAvailable: true,
+        readme: "Appunti dedicati ai metodi matematici per la fisica, disponibili come documento PDF.",
+        abstract: "Raccogliere in un unico documento le note di metodi matematici per la fisica.",
+        topics: ["Metodi matematici per la fisica"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       }
     ]
   },
@@ -349,6 +402,8 @@ window.PORTFOLIO_CONTENT = {
       projectsDescription: "GitHub projects in physics, scientific computing, and data analysis.",
       notesTitle: "Notes | Andrea Giannuzzi",
       notesDescription: "Future scientific notes on physics, mathematics, and computational methods.",
+      researchTitle: "Research | Andrea Giannuzzi",
+      researchDescription: "Research work by Andrea Giannuzzi in theoretical physics.",
       blogTitle: "Notes | Andrea Giannuzzi",
       blogDescription: "Redirect to Andrea Giannuzzi's new Notes section.",
       cvTitle: "CV | Andrea Giannuzzi",
@@ -368,7 +423,7 @@ window.PORTFOLIO_CONTENT = {
       focusLabel: "Focus",
       locationLabel: "Based in"
     },
-    nav: { home: "Home", about: "About", projects: "Projects", notes: "Notes", cv: "CV", contact: "Contact" },
+    nav: { home: "Home", about: "About", projects: "Projects", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
     home: {
       eyebrow: "Academic portfolio",
       name: "Andrea Giannuzzi",
@@ -398,15 +453,29 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "GitHub projects",
-      intro: "An initial selection of small projects related to simulations, calculation tools, and data analysis. The cards are designed to be updated easily from assets/js/content.js."
+      intro: "Four computational physics and symbolic calculation projects, documented through dedicated pages and GitHub repositories.",
+      openProject: "Open project",
+      typeLabel: "Type",
+      statusLabel: "Status",
+      technologiesLabel: "Technologies",
+      overviewTitle: "Overview",
+      methodTitle: "Model and method",
+      resultsTitle: "Features and results",
+      requirementsTitle: "Requirements",
+      repositoryTitle: "GitHub repository",
+      repositoryText: "The source code and full documentation are available in the project's repository.",
+      repositoryLink: "Open repository",
+      backToProjects: "Back to Projects",
+      unavailableProject: "Project not available."
     },
     notes: {
       eyebrow: "Notes",
       title: "Notes",
-      intro: "An organized library of scientific notes grouped by subject. Each card is an editable placeholder and opens a dedicated note page with a README, PDF status, and download instructions.",
+      intro: "An organized library of scientific notes grouped by subject, with dedicated pages and downloads for available PDFs.",
       subjectsTitle: "Subjects",
-      notesTitle: "Available notes and placeholders",
+      notesTitle: "Available notes",
       noteCountLabel: "notes",
+      noteCountSingular: "note",
       subjectOpen: "Open subject",
       subjectBack: "Back to subjects",
       emptySubject: "No notes have been added for this subject yet.",
@@ -424,6 +493,16 @@ window.PORTFOLIO_CONTENT = {
       prerequisitesLabel: "Prerequisites",
       referencesLabel: "References",
       documentStatusLabel: "Document status"
+    },
+    research: {
+      eyebrow: "Research",
+      title: "Research",
+      intro: "A collection of research work in theoretical physics, with abstracts and available documents.",
+      dateLabel: "Date",
+      typeLabel: "Type",
+      abstractTitle: "Abstract",
+      readPaper: "Read paper",
+      downloadPdf: "Download PDF"
     },
     cv: {
       eyebrow: "CV / Resume",
@@ -466,6 +545,7 @@ window.PORTFOLIO_CONTENT = {
         "Scientific high school diploma with final mark 100/100 cum laude from Liceo Scientifico Statale \"Arturo Labriola\"."
       ],
       researchInterests: ["Theoretical Physics", "General Relativity", "Cosmology", "Differential Geometry", "Mathematical Methods for Physics", "Laboratory Data Analysis"],
+      cvProjectItems: ["Simple Pendulum", "Pendulum for Small Oscillations", "Symbolic Derivatives in Python", "ΛCDM"],
       fourierTags: ["Analysis", "Mathematical Physics", "Python"]
     },
     skills: {
@@ -478,34 +558,67 @@ window.PORTFOLIO_CONTENT = {
     },
     projectItems: [
       {
-        title: "Simple Pendulum",
-        short: "Simulation and numerical study of the simple pendulum.",
-        detail: "The project introduces oscillatory motion through the pendulum model, with attention to the link between differential equations, approximations, and visualization of results.",
-        tech: ["Python", "NumPy", "Matplotlib"],
-        status: "In progress",
-        url: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
-        repoNote: "Matching repository found on GitHub.",
-        preview: "Pendulum"
+        id: "pendolo-semplice-numerico",
+        title: "Nonlinear Simple Pendulum",
+        short: "Numerical simulation of a simple pendulum without the small-angle approximation.",
+        detail: "The nonlinear equation is integrated numerically to study angular position, velocity, and acceleration over time.",
+        type: "Numerical simulation",
+        tech: ["Python", "NumPy", "SciPy", "Matplotlib", "Jupyter"],
+        status: "Available",
+        url: "projects/pendolo-semplice-numerico.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
+        preview: "Nonlinear pendulum",
+        overview: "This project connects the physical model of a simple pendulum with its computational implementation. It retains the nonlinear sin(θ) term, allowing it to describe oscillations for which the harmonic approximation is no longer adequate.",
+        method: "The equation θ''(t) + (g/L) sin(θ(t)) = 0 is rewritten as a first-order system and integrated with scipy.integrate.solve_ivp from the initial angle and angular velocity.",
+        results: [
+          "Calculation of angular position θ(t).",
+          "Calculation of angular velocity ω(t).",
+          "Calculation of angular acceleration α(t) = −(g/L) sin(θ).",
+          "Generation of three separate plots available in the repository."
+        ],
+        requirements: "Python with NumPy, SciPy, and Matplotlib; Jupyter is only required to open and run the notebook."
       },
       {
+        id: "pendolo-piccole-oscillazioni",
         title: "Pendulum for Small Oscillations",
-        short: "Study of the small-angle approximation and comparison with nonlinear behavior.",
-        detail: "Structured project placeholder for discussing the harmonic limit, the linearization of sin(theta), and the role of approximations in physical models.",
-        tech: ["Python", "Jupyter", "Data analysis"],
-        status: "Structured placeholder",
-        url: "https://github.com/Andrea-Giannuzzi/Data-analysis",
-        repoNote: "Closest repository found: Data-analysis.",
-        preview: "Small angles"
+        short: "Analytical study of the pendulum in the small-oscillation limit.",
+        detail: "The approximation sin(θ) ≈ θ turns the system into a harmonic oscillator and gives an analytical description of its motion and period.",
+        type: "Analytical model",
+        tech: ["Python", "NumPy", "Matplotlib", "Jupyter"],
+        status: "Available",
+        url: "projects/pendolo-piccole-oscillazioni.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/Pendolo-semplice",
+        preview: "Small oscillations",
+        overview: "This project studies the simple pendulum in the regime where the angle, expressed in radians, is small enough for the sine linearization to remain valid.",
+        method: "Using sin(θ) ≈ θ, the equation becomes θ''(t) + (g/L)θ(t) = 0. The solution is harmonic, with natural frequency √(g/L) and period T = 2π√(L/g), determined together with the initial conditions.",
+        results: [
+          "Analytical solution for angular position, velocity, and acceleration.",
+          "Calculation of the pendulum's natural period.",
+          "Plots of the three dynamical quantities.",
+          "A basis for comparing the linearized and nonlinear models."
+        ],
+        requirements: "Python with NumPy and Matplotlib; Jupyter is only required to open and run the notebook."
       },
       {
+        id: "derivate-simboliche",
         title: "Symbolic Derivatives in Python",
-        short: "Symbolic calculation tools for derivatives and elementary manipulation.",
-        detail: "Project oriented toward using Python as a support for mathematical methods, with possible extensions to SymPy and educational notebooks.",
-        tech: ["Python", "SymPy", "LaTeX"],
-        status: "In progress",
-        url: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
-        repoNote: "Most relevant repository found: strumenti-calcolo.",
-        preview: "Symbolic"
+        short: "Guided examples of symbolic differentiation with explicit functional dependencies.",
+        detail: "A SymPy-based educational tool for ordinary, partial, and composite derivatives and the terms of the Euler-Lagrange equation.",
+        type: "Symbolic calculation",
+        tech: ["Python", "SymPy"],
+        status: "Available",
+        url: "projects/derivate-simboliche.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/strumenti-calcolo",
+        preview: "Symbolic derivatives",
+        overview: "This project shows how Python can support the study of mathematical methods by clearly distinguishing independent variables, functions, and functional dependencies.",
+        method: "SymPy can define symbols, unspecified functions, and formal derivatives. The script uses symbols(), Function(), and diff() to keep the relationship between mathematical notation and implementation readable.",
+        results: [
+          "First and second derivatives of a single-variable function.",
+          "Partial and mixed derivatives of a multivariable function.",
+          "Total derivative of a composite function V(q(t)).",
+          "Construction of the symbolic terms in the Euler-Lagrange equation."
+        ],
+        requirements: "Python and SymPy; the script can be run directly from the terminal without interactive input."
       },
       {
         id: "lambda-cdm",
@@ -529,36 +642,47 @@ window.PORTFOLIO_CONTENT = {
         requirements: "Python 3 with NumPy and Matplotlib."
       }
     ],
+    researchItems: [
+      {
+        id: "order-e0-scalar-function-f-phi",
+        title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
+        summary: "This work extracts the order-e^0 coefficient of F_φ entering the Pauli–Villars regularized scalar current, shows the cancellation of the apparent 1/λ² singularities, reduces the remaining integral using the digamma reflection identity, and checks the resulting expression in relevant limits.",
+        date: "August 15, 2026",
+        type: "Research note",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
+      }
+    ],
     noteSubjects: [
       {
-        id: "mathematical-physics",
-        title: "Mathematical Physics",
-        url: "notes/mathematical-physics/",
-        description: "Notes on mathematical structures and physical models, with examples oriented toward waves, operators, and analytical methods."
+        id: "electromagnetism",
+        title: "Electromagnetism",
+        url: "notes/electromagnetism/",
+        description: "Notes on electric and magnetic fields, potentials, and the equations of electromagnetism."
       },
       {
         id: "analytical-mechanics",
         title: "Analytical Mechanics",
         url: "notes/analytical-mechanics/",
-        description: "Placeholder for notes on Lagrangian and Hamiltonian formulations, symmetries, and variational principles."
+        description: "Notes on variational principles, Lagrangian formulation, and the dynamics of mechanical systems."
       },
       {
         id: "general-relativity",
-        title: "General Relativity",
+        title: "Relativity",
         url: "notes/general-relativity/",
-        description: "Space for notes on spacetime geometry, tensors, metrics, and the principles of general relativity."
+        description: "Notes on relativity, spacetime geometry, and gravity."
       },
       {
         id: "cosmology",
         title: "Cosmology",
         url: "notes/cosmology/",
-        description: "Placeholder for notes on cosmological models, the expansion of the universe, and basic observables."
+        description: "Notes on cosmological models, the expansion of the universe, and key observables."
       },
       {
         id: "mathematical-methods",
-        title: "Mathematical Methods",
+        title: "Mathematical Methods for Physics",
         url: "notes/mathematical-methods/",
-        description: "Future notes on mathematical methods for physics, differential geometry, and analytical tools."
+        description: "Notes on mathematical methods, analytical tools, and applications to physics."
       },
       {
         id: "computational-physics",
@@ -569,112 +693,94 @@ window.PORTFOLIO_CONTENT = {
     ],
     noteItems: [
       {
-        id: "fourier-series",
-        subjectId: "mathematical-physics",
-        title: "Fourier Series",
-        subject: "Mathematical Physics",
-        date: "Date placeholder",
-        status: "Draft",
-        description: "Introductory note on Fourier series, intended as a bridge between mathematical analysis and physical applications.",
-        url: "notes/mathematical-physics/fourier-series.html",
-        pdf: "notes/mathematical-physics/pdf/fourier-series.pdf",
-        pdfAvailable: false,
-        readme: "This page is a template for a future complete note on Fourier series. The content can be extended with formulas, examples, plots, and code.",
-        abstract: "Objective: collect definitions, interpretation of coefficients, convergence conditions, and a computational example.",
-        topics: ["Trigonometric series", "Fourier coefficients", "Applications to waves and signals"],
-        prerequisites: "Basic mathematical analysis, definite integrals, and periodic functions.",
-        references: "References to be added in the PDF version.",
-        documentStatus: "Structural draft. PDF not uploaded yet."
+        id: "electromagnetism-notes",
+        subjectId: "electromagnetism",
+        title: "Electromagnetism Notes",
+        subject: "Electromagnetism",
+        date: "August 14, 2026",
+        status: "PDF available",
+        description: "Electromagnetism notes available in PDF format.",
+        url: "notes/electromagnetism/electromagnetism.html",
+        pdf: "notes/electromagnetism/pdf/electromagnetism.pdf",
+        pdfAvailable: true,
+        readme: "Notes dedicated to electromagnetism, available as a PDF document.",
+        abstract: "Collect the electromagnetism notes in a single document.",
+        topics: ["Electromagnetism"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       },
       {
         id: "lagrangian-mechanics",
         subjectId: "analytical-mechanics",
-        title: "Lagrangian Mechanics",
+        title: "Analytical Mechanics Notes",
         subject: "Analytical Mechanics",
-        date: "Date placeholder",
-        status: "Coming soon",
-        description: "Placeholder for a note on variational principles and the Euler-Lagrange equations.",
+        date: "August 14, 2026",
+        status: "PDF available",
+        description: "Analytical mechanics notes available in PDF format.",
         url: "notes/analytical-mechanics/lagrangian-mechanics.html",
-        pdf: "notes/analytical-mechanics/pdf/lagrangian-mechanics.pdf",
-        pdfAvailable: false,
-        readme: "Template for future analytical mechanics notes, with space for definitions, examples, and derivations.",
-        abstract: "Objective: introduce generalized coordinates, action, the Lagrangian, and the physical meaning of the equations of motion.",
-        topics: ["Hamilton's principle", "Euler-Lagrange equations", "Generalized coordinates"],
-        prerequisites: "Basic classical mechanics and differential calculus.",
-        references: "References to be added.",
-        documentStatus: "Placeholder. PDF not uploaded yet."
+        pdf: "notes/analytical-mechanics/pdf/analytical-mechanics.pdf",
+        pdfAvailable: true,
+        readme: "Notes dedicated to analytical mechanics, available as a PDF document.",
+        abstract: "Collect the analytical mechanics notes in a single document.",
+        topics: ["Analytical mechanics"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       },
       {
         id: "spacetime-geometry",
         subjectId: "general-relativity",
-        title: "Spacetime Geometry",
-        subject: "General Relativity",
-        date: "Date placeholder",
-        status: "Coming soon",
-        description: "Placeholder for an introductory note on metrics, intervals, and geometric objects in general relativity.",
+        title: "Relativity Notes",
+        subject: "Relativity",
+        date: "August 14, 2026",
+        status: "PDF available",
+        description: "Relativity notes available in PDF format.",
         url: "notes/general-relativity/spacetime-geometry.html",
-        pdf: "notes/general-relativity/pdf/spacetime-geometry.pdf",
-        pdfAvailable: false,
-        readme: "Template for a general relativity note oriented toward applied differential geometry.",
-        abstract: "Objective: organize basic concepts on manifolds, metrics, geodesics, and the physical meaning of curvature.",
-        topics: ["Metric", "Geodesics", "Curvature"],
-        prerequisites: "Special relativity, linear algebra, and introductory differential geometry.",
-        references: "References to be added.",
-        documentStatus: "Placeholder. PDF not uploaded yet."
+        pdf: "notes/general-relativity/pdf/relativity.pdf",
+        pdfAvailable: true,
+        readme: "Notes dedicated to relativity, available as a PDF document.",
+        abstract: "Collect the relativity notes in a single document.",
+        topics: ["Relativity"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       },
       {
         id: "expanding-universe",
         subjectId: "cosmology",
-        title: "Expanding Universe",
+        title: "Cosmology Notes",
         subject: "Cosmology",
-        date: "Date placeholder",
-        status: "Coming soon",
-        description: "Placeholder for a note on FLRW models, the scale factor, and the physical interpretation of expansion.",
+        date: "August 14, 2026",
+        status: "PDF available",
+        description: "Cosmology notes available in PDF format.",
         url: "notes/cosmology/expanding-universe.html",
-        pdf: "notes/cosmology/pdf/expanding-universe.pdf",
-        pdfAvailable: false,
-        readme: "Template for future cosmology notes, with attention to homogeneous and isotropic models.",
-        abstract: "Objective: collect essential definitions on redshift, scale factor, and cosmological parameters.",
-        topics: ["FLRW metrics", "Redshift", "Scale factor"],
-        prerequisites: "Introductory general relativity and differential calculus.",
-        references: "References to be added.",
-        documentStatus: "Placeholder. PDF not uploaded yet."
+        pdf: "notes/cosmology/pdf/cosmology.pdf",
+        pdfAvailable: true,
+        readme: "Notes dedicated to cosmology, available as a PDF document.",
+        abstract: "Collect the cosmology notes in a single document.",
+        topics: ["Cosmology"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       },
       {
         id: "differential-geometry",
         subjectId: "mathematical-methods",
-        title: "Differential Geometry",
-        subject: "Mathematical Methods",
-        date: "Date placeholder",
-        status: "Coming soon",
-        description: "Placeholder for a note on geometric concepts used in theoretical physics.",
+        title: "Mathematical Methods for Physics Notes",
+        subject: "Mathematical Methods for Physics",
+        date: "August 14, 2026",
+        status: "PDF available",
+        description: "Mathematical methods for physics notes available in PDF format.",
         url: "notes/mathematical-methods/differential-geometry.html",
-        pdf: "notes/mathematical-methods/pdf/differential-geometry.pdf",
-        pdfAvailable: false,
-        readme: "Template for notes on manifolds, vector fields, differential forms, and tensors.",
-        abstract: "Objective: create a reference base for geometric methods used in relativity and mathematical physics.",
-        topics: ["Manifolds", "Tensors", "Differential forms"],
-        prerequisites: "Linear algebra and multivariable calculus.",
-        references: "References to be added.",
-        documentStatus: "Placeholder. PDF not uploaded yet."
-      },
-      {
-        id: "numerical-methods",
-        subjectId: "computational-physics",
-        title: "Numerical Methods in Python",
-        subject: "Computational Physics",
-        date: "Date placeholder",
-        status: "Coming soon",
-        description: "Placeholder for a note on numerical integration, simulations, and data analysis with Python.",
-        url: "notes/computational-physics/numerical-methods.html",
-        pdf: "notes/computational-physics/pdf/numerical-methods.pdf",
-        pdfAvailable: false,
-        readme: "Template for documenting computational workflows, reproducible snippets, and numerical results.",
-        abstract: "Objective: collect examples of numerical methods useful for laboratory work and computational physics.",
-        topics: ["Scientific Python", "Numerical integration", "Data visualization"],
-        prerequisites: "Basic Python, NumPy, and introductory numerical calculus.",
-        references: "References to be added.",
-        documentStatus: "Placeholder. PDF not uploaded yet."
+        pdf: "notes/mathematical-methods/pdf/mathematical-methods-for-physics.pdf",
+        pdfAvailable: true,
+        readme: "Notes dedicated to mathematical methods for physics, available as a PDF document.",
+        abstract: "Collect the mathematical methods for physics notes in a single document.",
+        topics: ["Mathematical methods for physics"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       }
     ]
   }

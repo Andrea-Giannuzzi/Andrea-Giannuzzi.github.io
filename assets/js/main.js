@@ -65,24 +65,125 @@ function renderProjects(language) {
   const container = document.querySelector("[data-projects]");
   if (!container) return;
 
-  container.innerHTML = content.projectItems.map((project) => `
-    <article class="project-card reveal">
+  container.innerHTML = (content.projectItems || []).map((project) => `
+    <article class="project-card reveal visible">
       <div class="project-preview" aria-hidden="true">${project.preview}</div>
       <div class="project-body">
         <p class="status">${project.status}</p>
-        <h2>${project.title}</h2>
+        <h2><a href="${getBasePath()}${project.url}">${project.title}</a></h2>
         <p class="project-short">${project.short}</p>
         <p>${project.detail}</p>
         <div class="tag-list small">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
-        <p class="repo-note">${project.repoNote}</p>
-        <a class="text-link" href="${project.url}">GitHub</a>
+        <a class="text-link" href="${getBasePath()}${project.url}">${content.projects.openProject}</a>
       </div>
     </article>
   `).join("");
 }
 
+function renderProjectDetail(language) {
+  const content = getContent(language);
+  const container = document.querySelector("[data-project-detail]");
+  if (!container) return;
+
+  const project = (content.projectItems || []).find((item) => item.id === container.dataset.projectDetail);
+  if (!project) {
+    container.innerHTML = `<p class="muted">${content.projects.unavailableProject}</p>`;
+    return;
+  }
+
+  document.title = `${project.title} | ${content.projects.eyebrow}`;
+  const description = document.querySelector("meta[data-project-description]");
+  if (description) description.setAttribute("content", project.short);
+
+  container.innerHTML = `
+    <p class="eyebrow">${content.projects.eyebrow}</p>
+    <h1>${project.title}</h1>
+    <p class="lead">${project.short}</p>
+
+    <dl class="project-detail-meta">
+      <div><dt>${content.projects.typeLabel}</dt><dd>${project.type}</dd></div>
+      <div><dt>${content.projects.statusLabel}</dt><dd>${project.status}</dd></div>
+    </dl>
+
+    <section>
+      <h2>${content.projects.technologiesLabel}</h2>
+      <div class="tag-list">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
+    </section>
+
+    <section>
+      <h2>${content.projects.overviewTitle}</h2>
+      <p>${project.overview}</p>
+    </section>
+
+    <section>
+      <h2>${content.projects.methodTitle}</h2>
+      <p>${project.method}</p>
+    </section>
+
+    <section>
+      <h2>${content.projects.resultsTitle}</h2>
+      <ul class="plain-list">${project.results.map((item) => `<li>${item}</li>`).join("")}</ul>
+    </section>
+
+    <section>
+      <h2>${content.projects.requirementsTitle}</h2>
+      <p>${project.requirements}</p>
+    </section>
+
+    <section class="repository-panel">
+      <h2>${content.projects.repositoryTitle}</h2>
+      <p>${content.projects.repositoryText}</p>
+      <a class="button primary" href="${project.githubUrl}">${content.projects.repositoryLink}</a>
+    </section>
+
+    <a class="text-link" href="${getBasePath()}projects.html">${content.projects.backToProjects}</a>
+  `;
+}
+
 function getBasePath() {
   return window.PORTFOLIO_BASE_PATH || "";
+}
+
+function setupResearchNavigation() {
+  document.querySelectorAll(".site-nav").forEach((nav) => {
+    if (nav.querySelector('[data-nav="research"]')) return;
+
+    const link = document.createElement("a");
+    link.href = `${getBasePath()}research.html`;
+    link.dataset.nav = "research";
+    link.dataset.i18n = "nav.research";
+    link.textContent = "Research";
+
+    const notesLink = nav.querySelector('[data-nav="notes"]');
+    nav.insertBefore(link, notesLink || null);
+  });
+}
+
+function renderResearch(language) {
+  const content = getContent(language);
+  const container = document.querySelector("[data-research]");
+  if (!container) return;
+
+  container.innerHTML = (content.researchItems || []).map((item) => `
+    <details class="research-card reveal visible" id="${item.id}">
+      <summary>
+        <h2>${item.title}</h2>
+        <p>${item.summary}</p>
+        <dl class="note-meta research-meta">
+          <div><dt>${content.research.dateLabel}</dt><dd>${item.date}</dd></div>
+          <div><dt>${content.research.typeLabel}</dt><dd>${item.type}</dd></div>
+        </dl>
+      </summary>
+      <div class="research-expanded">
+        <h3>${content.research.abstractTitle}</h3>
+        <p>${item.abstract}</p>
+        <div class="actions">
+          <a class="button ghost" href="${getBasePath()}${item.pdf}" target="_blank" rel="noopener">${content.research.readPaper}</a>
+          <a class="button primary" href="${getBasePath()}${item.pdf}" download>${content.research.downloadPdf}</a>
+        </div>
+      </div>
+    </details>
+  `).join("");
 }
 
 function renderNoteSubjects(language) {
@@ -97,7 +198,7 @@ function renderNoteSubjects(language) {
 
   container.innerHTML = (content.noteSubjects || []).map((subject) => `
     <article class="subject-card reveal visible">
-      <p class="status">${notesBySubject.get(subject.id) || 0} ${content.notes.noteCountLabel}</p>
+      <p class="status">${notesBySubject.get(subject.id) || 0} ${(notesBySubject.get(subject.id) || 0) === 1 ? content.notes.noteCountSingular : content.notes.noteCountLabel}</p>
       <h2><a href="${getBasePath()}${subject.url}">${subject.title}</a></h2>
       <p>${subject.description}</p>
       <a class="text-link" href="${getBasePath()}${subject.url}">${content.notes.subjectOpen}</a>
@@ -206,6 +307,8 @@ function setLanguage(language) {
   renderLists(nextLanguage);
   renderSkills(nextLanguage);
   renderProjects(nextLanguage);
+  renderProjectDetail(nextLanguage);
+  renderResearch(nextLanguage);
   renderNoteSubjects(nextLanguage);
   renderSubjectNotes(nextLanguage);
   renderNoteDetail(nextLanguage);
@@ -280,6 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
 
+  setupResearchNavigation();
   markActiveNavigation();
   setupNavigationToggle();
   setupRevealAnimations();
