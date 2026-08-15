@@ -36,17 +36,17 @@ window.PORTFOLIO_CONTENT = {
       eyebrow: "Portfolio accademico",
       name: "Andrea Giannuzzi",
       subtitle: "Studente triennale in Fisica",
-      bio: "Studente triennale in Fisica interessato alla Fisica Teorica, alla Relativita Generale e ai Metodi Matematici per la Fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.",
+      bio: "Studente triennale in Fisica interessato alla Fisica Teorica, alla Relatività Generale e ai Metodi Matematici per la Fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.",
       contact: "Contact me",
       focus: "Fisica teorica e metodi computazionali",
       currentWorkTitle: "Direzione attuale",
-      currentWork: "Sto costruendo un portfolio accademico compatto attorno ad appunti di fisica, analisi dati di laboratorio e piccoli strumenti computazionali. Il sito e pensato per crescere con corsi, progetti e future candidature a percorsi magistrali.",
+      currentWork: "Sto costruendo un portfolio accademico compatto attorno ad appunti di fisica, analisi dati di laboratorio e piccoli strumenti computazionali. Il sito è pensato per crescere con corsi, progetti e future candidature a percorsi magistrali.",
       quickLinksTitle: "Esplora"
     },
     about: {
       eyebrow: "About",
       title: "About Andrea",
-      intro: "Sono uno studente triennale in Fisica presso l'Università degli Studi di Napoli Federico II. I miei interessi si concentrano sulla fisica teorica, sulla relativita generale e sui metodi matematici che permettono di formulare modelli fisici in modo rigoroso.",
+      intro: "Sono uno studente triennale in Fisica presso l'Università degli Studi di Napoli Federico II. I miei interessi si concentrano sulla fisica teorica, sulla relatività generale e sui metodi matematici che permettono di formulare modelli fisici in modo rigoroso.",
       academicPathTitle: "Percorso accademico",
       academicPath: "Sto seguendo una Laurea triennale in Fisica, con attenzione particolare agli strumenti matematici, al calcolo scientifico e all'analisi dei dati sperimentali. Questo portfolio raccoglie progetti e appunti che documentano il mio percorso in modo ordinato e verificabile.",
       universityLabel: "Università",
@@ -152,12 +152,12 @@ window.PORTFOLIO_CONTENT = {
         "Laureando in Fisica presso l'Università degli Studi di Napoli Federico II.",
         "Diploma di maturità scientifica conseguito con 100 e lode presso il Liceo Scientifico Statale \"Arturo Labriola\"."
       ],
-      researchInterests: ["Fisica teorica", "Relativita generale", "Cosmologia", "Geometria differenziale", "Metodi matematici per la fisica", "Analisi dati di laboratorio"],
+      researchInterests: ["Fisica teorica", "Relatività generale", "Cosmologia", "Geometria differenziale", "Metodi matematici per la fisica", "Analisi dati di laboratorio"],
       cvProjectItems: ["Pendolo semplice", "Pendolo per piccole oscillazioni", "Derivate simboliche in Python", "ΛCDM"],
       fourierTags: ["Analisi", "Fisica matematica", "Python"]
     },
     skills: {
-      Physics: ["Elettromagnetismo", "Relativita generale", "Cosmologia", "Analisi dati di laboratorio"],
+      Physics: ["Elettromagnetismo", "Relatività generale", "Cosmologia", "Analisi dati di laboratorio"],
       Mathematics: ["Geometria differenziale", "Algebra lineare", "Metodi matematici per la fisica"],
       Programming: ["Python", "HTML", "CSS"],
       "Python Libraries": ["NumPy", "SciPy", "Matplotlib", "Pandas", "SymPy"],
