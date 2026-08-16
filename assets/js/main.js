@@ -319,6 +319,7 @@ function renderNoteDetail(language) {
   container.innerHTML = `
     <p class="eyebrow">${content.notes.eyebrow}</p>
     <h1>${note.title}</h1>
+    ${note.subtitle ? `<p class="lead">${note.subtitle}</p>` : ""}
     <dl class="note-detail-meta">
       <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
       <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>

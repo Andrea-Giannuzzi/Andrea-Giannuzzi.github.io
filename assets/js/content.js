@@ -2,10 +2,10 @@
 window.PORTFOLIO_DOCUMENTS = Object.freeze({
   kerrNewmanTheory: Object.freeze({
     title: Object.freeze({
-      it: "Geometria di Kerr–Newman: relatività ed elettromagnetismo",
-      en: "Kerr–Newman Geometry: Relativity and Electromagnetism"
+      it: "Metrica di Kerr–Newman: fondamenti teorici del simulatore",
+      en: "Kerr–Newman Metric: Theoretical Foundations of the Simulator"
     }),
-    path: "assets/kerr-newman-geometry-relativity-electromagnetism.pdf",
+    path: "assets/kerr-newman-metric-theoretical-background.pdf",
     available: false
   })
 });
@@ -167,10 +167,10 @@ window.PORTFOLIO_CONTENT = {
       geodesicsText: "Le geodetiche nulle descrivono fotoni, mentre quelle timelike descrivono particelle massive neutre. Questo MVP integra lo stato completo imponendo inizialmente θ = π/2 e v^θ = 0, e controlla numericamente la conservazione del piano equatoriale.",
       theoryEyebrow: "Documentazione teorica",
       theoryTitle: "Fondamenti teorici",
-      theoryIntro: "Il simulatore non è soltanto una visualizzazione: il documento teorico raccoglierà la geometria e i passaggi matematici utilizzati, collegando relatività generale ed elettromagnetismo.",
-      theoryDetails: "La trattazione presenterà la metrica di Kerr–Newman, il significato dei parametri M, Q e J, la relazione fra geometria gravitazionale e campo elettromagnetico, i limiti Schwarzschild, Reissner–Nordström e Kerr e il formalismo impiegato dal simulatore.",
+      theoryIntro: "Il simulatore non è soltanto una visualizzazione: il futuro documento raccoglierà i fondamenti teorici della metrica di Kerr–Newman e delle quantità utilizzate dalla simulazione.",
+      theoryDetails: "La trattazione presenterà il significato fisico della massa M, della carica Q, del momento angolare J e del parametro di spin a, insieme alle convenzioni, ai casi limite e al formalismo necessari per comprendere le impostazioni del simulatore.",
       theoryDocumentLabel: "Documento condiviso",
-      theoryDocumentDescription: "Una nota interdisciplinare destinata alle sezioni Relatività ed Elettromagnetismo delle Notes e alla documentazione del simulatore.",
+      theoryDocumentDescription: "Un futuro documento sulla metrica di Kerr–Newman, condiviso tra le Notes di Relatività e la documentazione del simulatore.",
       demoEyebrow: "Web Demo",
       demoTitle: "Geodetiche equatoriali di Kerr–Newman",
       demoIntro: "La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.",
@@ -506,14 +506,23 @@ window.PORTFOLIO_CONTENT = {
         documentStatus: "PDF disponibile per il download."
       },
       {
-        id: "kerr-newman-theory-electromagnetism",
+        id: "maxwell-electromagnetic-field-tensor",
         subjectId: "electromagnetism",
-        documentId: "kerrNewmanTheory",
-        title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.it,
+        title: "From Maxwell to the Electromagnetic Field Tensor",
+        subtitle: "A Logical Construction of the Covariant Structure of Classical Electromagnetism",
         subject: "Elettromagnetismo",
-        date: "—",
-        status: "In preparazione",
-        description: "Nota interdisciplinare sulla geometria di Kerr–Newman e sul ruolo del campo elettromagnetico nella soluzione di Einstein–Maxwell."
+        date: "17 agosto 2026",
+        status: "PDF disponibile",
+        description: "Trattazione della formulazione relativistica e covariante dell'elettromagnetismo classico, dalle equazioni di Maxwell al tensore elettromagnetico.",
+        url: "notes/electromagnetism/maxwell-field-tensor.html",
+        pdf: "notes/electromagnetism/pdf/from-maxwell-to-the-electromagnetic-field-tensor.pdf",
+        pdfAvailable: true,
+        readme: "A Logical Construction of the Covariant Structure of Classical Electromagnetism: una costruzione logica della formulazione covariante dell'elettromagnetismo classico.",
+        abstract: "Sviluppare il quadrivettore corrente, la forza di Lorentz relativistica e il tensore elettromagnetico fino alla forma covariante delle equazioni di Maxwell.",
+        topics: ["Quadrivettore corrente", "Forza di Lorentz relativistica", "Tensore elettromagnetico", "Antisimmetria di F_{μν}", "Relazione relativistica tra campi elettrici e magnetici", "Equazioni di Maxwell covarianti", "Forme differenziali e quadripotenziale", "Conservazione della carica", "Libertà di gauge"],
+        prerequisites: "Indicati nel PDF.",
+        references: "Incluse nel PDF, se presenti.",
+        documentStatus: "PDF disponibile per il download."
       },
       {
         id: "lagrangian-mechanics",
@@ -559,7 +568,7 @@ window.PORTFOLIO_CONTENT = {
         subject: "Relatività",
         date: "—",
         status: "In preparazione",
-        description: "Studio della geometria di Kerr–Newman e del collegamento fra relatività generale ed elettromagnetismo."
+        description: "Futuro documento dedicato alla metrica di Kerr–Newman, ai suoi parametri fisici e alle convenzioni teoriche utilizzate dal simulatore."
       },
       {
         id: "expanding-universe",
@@ -755,10 +764,10 @@ window.PORTFOLIO_CONTENT = {
       geodesicsText: "Null geodesics describe photons, while timelike geodesics describe neutral massive particles. This MVP integrates the full state with initial θ = π/2 and v^θ = 0, and numerically checks preservation of the equatorial plane.",
       theoryEyebrow: "Theoretical documentation",
       theoryTitle: "Theoretical Background",
-      theoryIntro: "The simulator is more than a visualization: the theoretical document will collect the geometry and mathematical steps used by the implementation, connecting general relativity and electromagnetism.",
-      theoryDetails: "It will present the Kerr–Newman metric, the meaning of M, Q, and J, the relation between gravitational geometry and the electromagnetic field, the Schwarzschild, Reissner–Nordström, and Kerr limits, and the formalism used by the simulator.",
+      theoryIntro: "The simulator is more than a visualization: the future document will collect the theoretical foundations of the Kerr–Newman metric and the quantities used by the simulation.",
+      theoryDetails: "It will present the physical meaning of mass M, electric charge Q, angular momentum J, and spin parameter a, together with the conventions, limiting cases, and formalism needed to understand the simulator settings.",
       theoryDocumentLabel: "Shared document",
-      theoryDocumentDescription: "An interdisciplinary note intended for the Relativity and Electromagnetism sections of Notes and for the simulator documentation.",
+      theoryDocumentDescription: "A future document on the Kerr–Newman metric, shared between the Relativity Notes and the simulator documentation.",
       demoEyebrow: "Web Demo",
       demoTitle: "Equatorial Kerr–Newman geodesics",
       demoIntro: "Geometry updates immediately; the geodesic is recalculated only when Run Simulation is pressed.",
@@ -1094,14 +1103,23 @@ window.PORTFOLIO_CONTENT = {
         documentStatus: "PDF available for download."
       },
       {
-        id: "kerr-newman-theory-electromagnetism",
+        id: "maxwell-electromagnetic-field-tensor",
         subjectId: "electromagnetism",
-        documentId: "kerrNewmanTheory",
-        title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.en,
+        title: "From Maxwell to the Electromagnetic Field Tensor",
+        subtitle: "A Logical Construction of the Covariant Structure of Classical Electromagnetism",
         subject: "Electromagnetism",
-        date: "—",
-        status: "Work in progress",
-        description: "An interdisciplinary note on Kerr–Newman geometry and the role of the electromagnetic field in the Einstein–Maxwell solution."
+        date: "August 17, 2026",
+        status: "PDF available",
+        description: "A treatment of the relativistic and covariant formulation of classical electromagnetism, from Maxwell's equations to the electromagnetic field tensor.",
+        url: "notes/electromagnetism/maxwell-field-tensor.html",
+        pdf: "notes/electromagnetism/pdf/from-maxwell-to-the-electromagnetic-field-tensor.pdf",
+        pdfAvailable: true,
+        readme: "A Logical Construction of the Covariant Structure of Classical Electromagnetism: a logical development of the covariant formulation of classical electromagnetism.",
+        abstract: "Develop the four-current, relativistic Lorentz force, and electromagnetic field tensor through to the covariant form of Maxwell's equations.",
+        topics: ["Four-current", "Relativistic Lorentz force", "Electromagnetic field tensor", "Antisymmetry of F_{μν}", "Relativistic relation between electric and magnetic fields", "Covariant Maxwell equations", "Differential forms and four-potential", "Charge conservation", "Gauge freedom"],
+        prerequisites: "Specified in the PDF.",
+        references: "Included in the PDF, if present.",
+        documentStatus: "PDF available for download."
       },
       {
         id: "lagrangian-mechanics",
@@ -1147,7 +1165,7 @@ window.PORTFOLIO_CONTENT = {
         subject: "Relativity",
         date: "—",
         status: "Work in progress",
-        description: "A study of Kerr–Newman geometry and the connection between general relativity and electromagnetism."
+        description: "A future document dedicated to the Kerr–Newman metric, its physical parameters, and the theoretical conventions used by the simulator."
       },
       {
         id: "expanding-universe",
