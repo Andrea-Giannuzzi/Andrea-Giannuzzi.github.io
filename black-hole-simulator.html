@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <meta name="author" content="Andrea Giannuzzi">
+  <link rel="stylesheet" href="assets/css/styles.css">
+  <script>
+    window.MathJax = {
+      tex: { inlineMath: [["\\(", "\\)"]], displayMath: [["\\[", "\\]"]] },
+      options: { skipHtmlTags: ["script", "noscript", "style", "textarea", "pre", "code"] }
+    };
+  </script>
+  <script src="assets/js/content.js" defer></script>
+  <script src="assets/js/black-hole-physics.js" defer></script>
+  <script src="assets/js/main.js" defer></script>
+  <script src="assets/js/black-hole-simulator.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" defer></script>
+  <title data-i18n="meta.blackHoleSimulatorTitle">Kerr–Newman Black Hole Simulator | Andrea Giannuzzi</title>
+  <meta name="description" data-i18n-content="meta.blackHoleSimulatorDescription" content="Simulatore relativistico interattivo di geodetiche equatoriali nella geometria di Kerr–Newman.">
+</head>
+<body data-page="black-hole-simulator" class="black-hole-page">
+  <a class="skip-link" href="#main" data-i18n="common.skip">Salta al contenuto</a>
+  <header class="site-header">
+    <a class="site-brand" href="index.html" data-i18n="common.brand">Andrea Giannuzzi</a>
+    <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="site-nav" data-i18n-aria-label="common.menuLabel">Menu</button>
+    <nav class="site-nav" id="site-nav" aria-label="Primary navigation">
+      <a href="index.html" data-nav="home" data-i18n="nav.home">Home</a>
+      <a href="about.html" data-nav="about" data-i18n="nav.about">About</a>
+      <a href="projects.html" data-nav="projects" data-i18n="nav.projects">Projects</a>
+      <a href="black-hole-simulator.html" data-nav="black-hole-simulator" data-i18n="nav.blackHoleSimulator">Black Hole Simulator</a>
+      <a href="research.html" data-nav="research" data-i18n="nav.research">Research</a>
+      <a href="notes.html" data-nav="notes" data-i18n="nav.notes">Notes</a>
+      <a href="cv.html" data-nav="cv" data-i18n="nav.cv">CV</a>
+      <a href="contact.html" data-nav="contact" data-i18n="nav.contact">Contact</a>
+    </nav>
+    <div class="language-switch" aria-label="Language selector">
+      <button type="button" data-lang="it" aria-pressed="true">IT</button>
+      <span aria-hidden="true">|</span>
+      <button type="button" data-lang="en" aria-pressed="false">EN</button>
+    </div>
+  </header>
+
+  <main id="main">
+    <section class="simulator-hero section-shell reveal">
+      <div>
+        <p class="eyebrow" data-i18n="blackHoleSimulator.eyebrow">Simulazione relativistica interattiva</p>
+        <h1 data-i18n="blackHoleSimulator.title">Kerr–Newman Black Hole Simulator</h1>
+        <p class="lead" data-i18n="blackHoleSimulator.subtitle">Simulatore relativistico interattivo per geometrie di buchi neri, geodetiche, traiettorie fotoniche e fenomeni di campo forte.</p>
+        <div class="actions">
+          <a class="button primary" href="#web-demo" data-i18n="blackHoleSimulator.launchDemo">Avvia la Web Demo</a>
+          <span class="button disabled" aria-disabled="true" data-i18n="blackHoleSimulator.fullProgress">Full Simulator — Lavori in corso</span>
+        </div>
+      </div>
+      <div class="simulator-hero-diagram" aria-hidden="true">
+        <span class="diagram-ring ring-outer"></span>
+        <span class="diagram-ring ring-inner"></span>
+        <span class="diagram-core"></span>
+        <span class="diagram-orbit"></span>
+      </div>
+    </section>
+
+    <section class="section-shell simulator-section reveal">
+      <h2 data-i18n="blackHoleSimulator.comparisonTitle">Web Demo e Full Simulator</h2>
+      <div class="simulator-comparison">
+        <article class="simulator-panel available-panel">
+          <p class="status" data-i18n="blackHoleSimulator.availableNow">Disponibile ora</p>
+          <h3 data-i18n="blackHoleSimulator.webDemoTitle">Web Demo</h3>
+          <p data-i18n="blackHoleSimulator.webDemoIntro">MVP trasparente eseguito interamente nel browser, dedicato al moto equatoriale di particelle neutre.</p>
+          <ul class="plain-list" data-simulator-list="webFeatures"></ul>
+        </article>
+        <article class="simulator-panel future-panel">
+          <p class="status" data-i18n="blackHoleSimulator.workInProgress">Lavori in corso</p>
+          <h3 data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</h3>
+          <p data-i18n="blackHoleSimulator.fullSimulatorIntro">Applicazione desktop futura. Le funzionalità seguenti non sono presenti nella Web Demo.</p>
+          <ul class="plain-list" data-simulator-list="fullFeatures"></ul>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell simulator-section simulator-physics reveal">
+      <p class="eyebrow">Kerr–Newman</p>
+      <h2 data-i18n="blackHoleSimulator.physicsTitle">Fisica del modello</h2>
+      <div class="grid-two">
+        <p data-i18n="blackHoleSimulator.physicsIntro">La geometria di Kerr–Newman descrive la soluzione stazionaria e assialsimmetrica di Einstein–Maxwell per un oggetto di massa M, carica Q e momento angolare J. In unità geometrizzate a = J/M.</p>
+        <p data-i18n="blackHoleSimulator.limitsText">I limiti Q = J = 0, J = 0 e Q = 0 restituiscono rispettivamente Schwarzschild, Reissner–Nordström e Kerr.</p>
+      </div>
+      <p data-i18n="blackHoleSimulator.geodesicsText">Le geodetiche nulle descrivono fotoni, mentre quelle timelike descrivono particelle massive neutre. Questo MVP integra lo stato completo e controlla il piano equatoriale.</p>
+    </section>
+
+    <section class="section-shell simulator-section simulator-theory reveal">
+      <div class="theory-copy">
+        <p class="eyebrow" data-i18n="blackHoleSimulator.theoryEyebrow">Documentazione teorica</p>
+        <h2 data-i18n="blackHoleSimulator.theoryTitle">Fondamenti teorici</h2>
+        <p data-i18n="blackHoleSimulator.theoryIntro">Il simulatore non è soltanto una visualizzazione: il documento teorico raccoglierà la geometria e i passaggi matematici utilizzati, collegando relatività generale ed elettromagnetismo.</p>
+        <p data-i18n="blackHoleSimulator.theoryDetails">La trattazione presenterà la metrica di Kerr–Newman, il significato dei parametri M, Q e J, la relazione fra geometria gravitazionale e campo elettromagnetico, i casi limite e il formalismo impiegato dal simulatore.</p>
+      </div>
+      <article class="theory-document-card" data-shared-document="kerrNewmanTheory">
+        <span class="document-motif" aria-hidden="true"></span>
+        <p class="status" data-i18n="blackHoleSimulator.theoryDocumentLabel">Documento condiviso</p>
+        <h3 data-shared-document-title>Geometria di Kerr–Newman: relatività ed elettromagnetismo</h3>
+        <p data-i18n="blackHoleSimulator.theoryDocumentDescription">Una nota interdisciplinare destinata alle sezioni Relatività ed Elettromagnetismo delle Notes e alla documentazione del simulatore.</p>
+        <div class="theory-document-action" data-shared-document-action>
+          <span class="button disabled" aria-disabled="true">PDF — In preparazione</span>
+        </div>
+      </article>
+    </section>
+
+    <section class="section-shell simulator-demo reveal" id="web-demo">
+      <header class="demo-heading">
+        <p class="eyebrow" data-i18n="blackHoleSimulator.demoEyebrow">Web Demo</p>
+        <h2 data-i18n="blackHoleSimulator.demoTitle">Geodetiche equatoriali di Kerr–Newman</h2>
+        <p data-i18n="blackHoleSimulator.demoIntro">La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.</p>
+      </header>
+
+      <div class="simulator-workspace">
+        <form class="simulator-controls" data-simulator-form>
+          <h3 data-i18n="blackHoleSimulator.controlsTitle">Parametri e condizioni iniziali</h3>
+          <div class="segmented-control" role="group" aria-label="Units" data-i18n-aria-label="blackHoleSimulator.unitsSelectorLabel">
+            <button type="button" class="active" data-unit-mode="physical" aria-pressed="true" data-i18n="blackHoleSimulator.physicalUnits">Fisiche</button>
+            <button type="button" data-unit-mode="geometrized" aria-pressed="false" data-i18n="blackHoleSimulator.geometrizedUnits">Geometrizzate</button>
+          </div>
+          <p class="units-note" data-i18n="blackHoleSimulator.unitsStatement">Unità geometrizzate: G = c = 4πε₀ = 1. L'integrazione usa inoltre M = 1.</p>
+
+          <label>
+            <span data-mass-label data-i18n="blackHoleSimulator.massLabelPhysical">Massa M (M☉)</span>
+            <input id="bh-mass" name="mass" type="number" min="0.000001" step="any" required>
+          </label>
+          <small class="field-help"><span data-i18n="blackHoleSimulator.massEquivalent">Equivalente in kg</span>: <output data-mass-kg></output></small>
+          <label>
+            <span data-charge-label data-i18n="blackHoleSimulator.chargeLabelPhysical">Carica Q (C)</span>
+            <input id="bh-charge" name="charge" type="number" step="any" required>
+          </label>
+          <label>
+            <span data-angular-momentum-label data-i18n="blackHoleSimulator.angularMomentumLabelPhysical">Momento angolare J (kg·m²/s)</span>
+            <input id="bh-angular-momentum" name="angularMomentum" type="number" step="any" required>
+          </label>
+          <label>
+            <span data-i18n="blackHoleSimulator.testObject">Oggetto di prova</span>
+            <select id="bh-object" name="object">
+              <option value="photon" data-i18n="blackHoleSimulator.photon">Fotone</option>
+              <option value="massive" data-i18n="blackHoleSimulator.massiveParticle">Particella massiva</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="blackHoleSimulator.preset">Preset</span>
+            <select id="bh-preset" name="preset">
+              <option value="custom" disabled data-i18n="blackHoleSimulator.customOption">Personalizzata</option>
+              <option value="photonCircular" data-i18n="blackHoleSimulator.presets.photonCircular">Fotone circolare — Schwarzschild r = 3M</option>
+              <option value="photonCapture" data-i18n="blackHoleSimulator.presets.photonCapture">Cattura fotonica — Kerr a* = 0,7</option>
+              <option value="photonScattering" data-i18n="blackHoleSimulator.presets.photonScattering">Scattering fotonico — Schwarzschild</option>
+              <option value="massiveCircular" data-i18n="blackHoleSimulator.presets.massiveCircular">Orbita massiva circolare — Schwarzschild r = 8M</option>
+              <option value="massiveInfall" data-i18n="blackHoleSimulator.presets.massiveInfall">Caduta massiva — Kerr a* = 0,7</option>
+              <option value="massiveFlyby" data-i18n="blackHoleSimulator.presets.massiveFlyby">Flyby massivo — Schwarzschild</option>
+            </select>
+          </label>
+          <p class="preset-state" data-preset-state></p>
+
+          <details class="advanced-controls">
+            <summary data-i18n="blackHoleSimulator.advancedSettings">Impostazioni avanzate</summary>
+            <div class="advanced-grid">
+              <label>
+                <span data-i18n="blackHoleSimulator.initialRadius">Raggio iniziale r₀ / M</span>
+                <input id="bh-radius" name="radius" type="number" min="0.05" step="any" required>
+              </label>
+              <label>
+                <span data-i18n="blackHoleSimulator.specificEnergy">Energia specifica E</span>
+                <input id="bh-energy" name="energy" type="number" min="0.000001" step="any" required>
+              </label>
+              <label>
+                <span data-i18n="blackHoleSimulator.axialMomentum">Momento angolare assiale L_z / M</span>
+                <input id="bh-lz" name="angularMomentumConstant" type="number" step="any" required>
+              </label>
+              <p class="field-help"><span data-i18n="blackHoleSimulator.impactParameter">Parametro d'impatto b = L_z/E</span>: <output data-impact-parameter></output></p>
+              <label>
+                <span data-i18n="blackHoleSimulator.radialDirection">Direzione radiale</span>
+                <select id="bh-direction" name="direction">
+                  <option value="ingoing" data-i18n="blackHoleSimulator.ingoing">Entrante</option>
+                  <option value="outgoing" data-i18n="blackHoleSimulator.outgoing">Uscente</option>
+                </select>
+              </label>
+            </div>
+          </details>
+
+          <button class="button primary run-simulation" type="submit" data-i18n="blackHoleSimulator.runSimulation">Esegui simulazione</button>
+          <p class="simulation-status" data-simulation-status aria-live="polite"></p>
+        </form>
+
+        <div class="simulator-output">
+          <section class="spacetime-card">
+            <p class="status" data-i18n="blackHoleSimulator.currentSpacetime">Spaziotempo corrente</p>
+            <h3 data-spacetime-name>Kerr</h3>
+            <p class="warning-panel" data-extremality-warning hidden data-i18n="blackHoleSimulator.overExtremalWarning">I parametri selezionati sono sovra-estremali.</p>
+          </section>
+
+          <section class="properties-panel">
+            <h3 data-i18n="blackHoleSimulator.propertiesTitle">Proprietà del buco nero</h3>
+            <dl class="property-grid" data-properties></dl>
+          </section>
+
+          <section class="metric-panel">
+            <h3 data-i18n="blackHoleSimulator.metricTitle">Metrica corrente</h3>
+            <p data-i18n="blackHoleSimulator.metricCoordinates">Elemento di linea completo in coordinate di Boyer–Lindquist, con segnatura (−+++).</p>
+            <div class="metric-latex" data-metric-latex></div>
+          </section>
+        </div>
+      </div>
+
+      <section class="visualization-panel">
+        <div class="visualization-heading">
+          <div>
+            <h3 data-i18n="blackHoleSimulator.visualizationTitle">Visualizzazione geodetica equatoriale — θ = π/2</h3>
+            <p data-i18n="blackHoleSimulator.visualizationNote">Proiezione coordinata di Boyer–Lindquist; non è un embedding euclideo.</p>
+          </div>
+          <div class="plot-legend" data-plot-legend></div>
+        </div>
+        <div class="canvas-shell">
+          <canvas data-geodesic-canvas width="1000" height="720" data-i18n="blackHoleSimulator.canvasFallback">Grafico della geodetica equatoriale</canvas>
+        </div>
+      </section>
+
+      <div class="results-grid">
+        <section class="checks-panel">
+          <h3 data-i18n="blackHoleSimulator.numericalChecks">Controlli numerici</h3>
+          <dl class="checks-grid" data-numerical-checks></dl>
+        </section>
+        <details class="calculation-panel">
+          <summary data-i18n="blackHoleSimulator.calculationDetails">Dettagli di calcolo</summary>
+          <div class="calculation-content">
+            <h4 data-i18n="blackHoleSimulator.currentMetric">Metrica al punto iniziale</h4>
+            <pre data-initial-metric></pre>
+            <h4 data-i18n="blackHoleSimulator.inverseMetric">Metrica inversa al punto iniziale</h4>
+            <pre data-inverse-metric></pre>
+            <h4 data-i18n="blackHoleSimulator.initialVector">Quadrivelocità/quadrivettore iniziale</h4>
+            <pre data-initial-vector></pre>
+            <h4 data-i18n="blackHoleSimulator.integrationParameters">Parametri d'integrazione</h4>
+            <pre data-integration-parameters></pre>
+            <details class="christoffel-panel">
+              <summary data-i18n="blackHoleSimulator.christoffelDetails">Simboli di Christoffel non nulli al punto iniziale</summary>
+              <pre data-christoffel></pre>
+            </details>
+          </div>
+        </details>
+      </div>
+
+      <a class="text-link simulator-back-link" href="projects.html" data-i18n="blackHoleSimulator.backToProjects">Torna a Projects</a>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p data-i18n="common.footer">Built with plain HTML, CSS, and JavaScript. Hosted with GitHub Pages.</p>
+  </footer>
+</body>
+</html>

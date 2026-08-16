@@ -65,7 +65,13 @@ function renderProjects(language) {
   const container = document.querySelector("[data-projects]");
   if (!container) return;
 
-  container.innerHTML = (content.projectItems || []).map((project) => `
+  container.innerHTML = (content.projectItems || []).map((project) => {
+    const repositoryAction = project.repositoryAction
+      ? project.githubUrl
+        ? `<a class="text-link" href="${project.githubUrl}">${content.projects.repositoryCardLink}</a>`
+        : `<span class="text-link unavailable" aria-disabled="true">${content.projects.repositoryUnavailable}</span>`
+      : "";
+    return `
     <article class="project-card reveal visible">
       <div class="project-preview" aria-hidden="true">${project.preview}</div>
       <div class="project-body">
@@ -74,10 +80,14 @@ function renderProjects(language) {
         <p class="project-short">${project.short}</p>
         <p>${project.detail}</p>
         <div class="tag-list small">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
-        <a class="text-link" href="${getBasePath()}${project.url}">${content.projects.openProject}</a>
+        <div class="project-actions">
+          <a class="text-link" href="${getBasePath()}${project.url}">${content.projects.openProject}</a>
+          ${repositoryAction}
+        </div>
       </div>
     </article>
-  `).join("");
+  `;
+  }).join("");
 }
 
 function renderProjectDetail(language) {
@@ -144,18 +154,27 @@ function getBasePath() {
   return window.PORTFOLIO_BASE_PATH || "";
 }
 
-function setupResearchNavigation() {
+function setupExtendedNavigation() {
   document.querySelectorAll(".site-nav").forEach((nav) => {
-    if (nav.querySelector('[data-nav="research"]')) return;
+    if (!nav.querySelector('[data-nav="research"]')) {
+      const researchLink = document.createElement("a");
+      researchLink.href = `${getBasePath()}research.html`;
+      researchLink.dataset.nav = "research";
+      researchLink.dataset.i18n = "nav.research";
+      researchLink.textContent = "Research";
+      const notesLink = nav.querySelector('[data-nav="notes"]');
+      nav.insertBefore(researchLink, notesLink || null);
+    }
 
-    const link = document.createElement("a");
-    link.href = `${getBasePath()}research.html`;
-    link.dataset.nav = "research";
-    link.dataset.i18n = "nav.research";
-    link.textContent = "Research";
-
-    const notesLink = nav.querySelector('[data-nav="notes"]');
-    nav.insertBefore(link, notesLink || null);
+    if (!nav.querySelector('[data-nav="black-hole-simulator"]')) {
+      const simulatorLink = document.createElement("a");
+      simulatorLink.href = `${getBasePath()}black-hole-simulator.html`;
+      simulatorLink.dataset.nav = "black-hole-simulator";
+      simulatorLink.dataset.i18n = "nav.blackHoleSimulator";
+      simulatorLink.textContent = "Black Hole Simulator";
+      const researchLink = nav.querySelector('[data-nav="research"]');
+      nav.insertBefore(simulatorLink, researchLink || null);
+    }
   });
 }
 
@@ -206,6 +225,26 @@ function renderNoteSubjects(language) {
   `).join("");
 }
 
+function getSharedDocument(documentId) {
+  return documentId ? window.PORTFOLIO_DOCUMENTS?.[documentId] : null;
+}
+
+function renderSharedDocuments(language) {
+  const content = getContent(language);
+  document.querySelectorAll("[data-shared-document]").forEach((container) => {
+    const documentResource = getSharedDocument(container.dataset.sharedDocument);
+    if (!documentResource) return;
+    const title = documentResource.title?.[language] || "";
+    const titleElement = container.querySelector("[data-shared-document-title]");
+    const actionElement = container.querySelector("[data-shared-document-action]");
+    if (titleElement) titleElement.textContent = title;
+    if (!actionElement) return;
+    actionElement.innerHTML = documentResource.available && documentResource.path
+      ? `<a class="button primary" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>`
+      : `<span class="button disabled" aria-disabled="true" aria-label="${content.sharedDocuments.pending}: ${title}">${content.sharedDocuments.pending}</span>`;
+  });
+}
+
 function renderSubjectNotes(language) {
   const content = getContent(language);
   const container = document.querySelector("[data-subject-notes]");
@@ -222,18 +261,33 @@ function renderSubjectNotes(language) {
   }
 
   const noteCards = subjectNotes.length
-    ? subjectNotes.map((note) => `
-        <article class="note-card reveal visible">
-          <p class="status">${note.status}</p>
-          <h3><a href="${getBasePath()}${note.url}">${note.title}</a></h3>
-          <p>${note.description}</p>
-          <dl class="note-meta">
-            <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
-            <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
-          </dl>
-          <a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>
-        </article>
-      `).join("")
+    ? subjectNotes.map((note) => {
+        const documentResource = getSharedDocument(note.documentId);
+        const title = documentResource?.title?.[language] || note.title;
+        const documentAvailable = Boolean(documentResource?.available && documentResource.path);
+        const titleMarkup = documentResource
+          ? documentAvailable
+            ? `<h3><a href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${title}</a></h3>`
+            : `<h3>${title}</h3>`
+          : `<h3><a href="${getBasePath()}${note.url}">${title}</a></h3>`;
+        const actionMarkup = documentResource
+          ? documentAvailable
+            ? `<a class="text-link" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>`
+            : `<span class="text-link unavailable" aria-disabled="true">${content.sharedDocuments.pending}</span>`
+          : `<a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>`;
+        return `
+          <article class="note-card reveal visible">
+            <p class="status">${note.status}</p>
+            ${titleMarkup}
+            <p>${note.description}</p>
+            <dl class="note-meta">
+              <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
+              <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
+            </dl>
+            ${actionMarkup}
+          </article>
+        `;
+      }).join("")
     : `<p class="muted">${content.notes.emptySubject}</p>`;
 
   container.innerHTML = `
@@ -309,9 +363,14 @@ function setLanguage(language) {
   renderProjects(nextLanguage);
   renderProjectDetail(nextLanguage);
   renderResearch(nextLanguage);
+  renderSharedDocuments(nextLanguage);
   renderNoteSubjects(nextLanguage);
   renderSubjectNotes(nextLanguage);
   renderNoteDetail(nextLanguage);
+
+  if (window.updateBlackHoleSimulatorLanguage) {
+    window.updateBlackHoleSimulatorLanguage(nextLanguage);
+  }
 
   if (window.MathJax?.typesetPromise) {
     window.MathJax.typesetPromise();
@@ -383,7 +442,7 @@ document.addEventListener("DOMContentLoaded", () => {
     button.addEventListener("click", () => setLanguage(button.dataset.lang));
   });
 
-  setupResearchNavigation();
+  setupExtendedNavigation();
   markActiveNavigation();
   setupNavigationToggle();
   setupRevealAnimations();

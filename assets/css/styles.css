@@ -447,6 +447,18 @@ dd {
   font-weight: 700;
 }
 
+.project-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+}
+
+.text-link.unavailable {
+  color: var(--muted);
+  cursor: not-allowed;
+  opacity: 0.72;
+}
+
 pre {
   overflow-x: auto;
   padding: 16px;
@@ -613,6 +625,478 @@ code {
   margin-top: 24px;
 }
 
+/* Kerr-Newman simulator */
+.black-hole-page {
+  background:
+    radial-gradient(circle at 78% 8%, rgba(72, 91, 117, 0.16), transparent 32rem),
+    var(--bg);
+}
+
+.simulator-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 56px;
+  align-items: center;
+  min-height: 680px;
+  padding: 82px 0;
+}
+
+.simulator-hero h1 {
+  max-width: 820px;
+  font-size: clamp(3.4rem, 7vw, 6rem);
+}
+
+.simulator-hero-diagram {
+  position: relative;
+  width: 280px;
+  aspect-ratio: 1;
+  margin-inline: auto;
+}
+
+.diagram-ring,
+.diagram-core,
+.diagram-orbit {
+  position: absolute;
+  inset: 50% auto auto 50%;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.diagram-ring {
+  border: 1px solid rgba(155, 183, 212, 0.58);
+}
+
+.ring-outer {
+  width: 62%;
+  aspect-ratio: 1;
+  box-shadow: 0 0 50px rgba(155, 183, 212, 0.12);
+}
+
+.ring-inner {
+  width: 34%;
+  aspect-ratio: 1;
+  border-style: dashed;
+}
+
+.diagram-core {
+  width: 22%;
+  aspect-ratio: 1;
+  background: #05070a;
+  border: 1px solid var(--accent-strong);
+  box-shadow: 0 0 38px rgba(212, 180, 131, 0.2);
+}
+
+.diagram-orbit {
+  width: 96%;
+  height: 38%;
+  border: 1px solid rgba(212, 180, 131, 0.5);
+  transform: translate(-50%, -50%) rotate(-18deg);
+}
+
+.simulator-section,
+.simulator-demo {
+  padding: 46px 0 76px;
+}
+
+.simulator-comparison,
+.simulator-workspace,
+.results-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.simulator-comparison {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.simulator-panel,
+.simulator-controls,
+.spacetime-card,
+.properties-panel,
+.metric-panel,
+.visualization-panel,
+.checks-panel,
+.calculation-panel {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--surface);
+  box-shadow: 0 18px 40px var(--shadow);
+}
+
+.simulator-panel,
+.spacetime-card,
+.properties-panel,
+.metric-panel,
+.checks-panel {
+  padding: 24px;
+}
+
+.available-panel {
+  border-color: rgba(155, 183, 212, 0.72);
+}
+
+.future-panel {
+  background: rgba(21, 25, 34, 0.66);
+}
+
+.simulator-panel > p,
+.simulator-physics p,
+.demo-heading > p,
+.metric-panel > p,
+.visualization-heading p,
+.units-note,
+.field-help {
+  color: var(--muted);
+  overflow-wrap: anywhere;
+}
+
+.simulator-physics {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.simulator-theory {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  gap: 28px;
+  align-items: center;
+}
+
+.simulator-theory p,
+.theory-document-card p {
+  color: var(--muted);
+}
+
+.theory-document-card {
+  position: relative;
+  overflow: hidden;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: linear-gradient(145deg, rgba(155, 183, 212, 0.09), rgba(16, 20, 28, 0.96));
+}
+
+.document-motif {
+  position: relative;
+  display: block;
+  width: 42px;
+  height: 52px;
+  margin-bottom: 18px;
+  border: 1px solid var(--accent);
+  border-radius: 5px;
+}
+
+.document-motif::before,
+.document-motif::after {
+  position: absolute;
+  left: 8px;
+  width: 24px;
+  height: 1px;
+  background: var(--accent);
+  content: "";
+}
+
+.document-motif::before {
+  top: 18px;
+}
+
+.document-motif::after {
+  top: 28px;
+}
+
+.theory-document-action {
+  margin-top: 20px;
+}
+
+.demo-heading {
+  max-width: 820px;
+  margin-bottom: 28px;
+}
+
+.simulator-workspace {
+  grid-template-columns: minmax(280px, 0.76fr) minmax(0, 1.5fr);
+  align-items: start;
+}
+
+.simulator-controls {
+  position: sticky;
+  top: 94px;
+  display: grid;
+  gap: 14px;
+  padding: 24px;
+}
+
+.simulator-controls label,
+.advanced-grid label {
+  display: grid;
+  gap: 6px;
+  color: var(--text);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.simulator-controls input,
+.simulator-controls select {
+  width: 100%;
+  min-height: 42px;
+  padding: 8px 10px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  outline: none;
+  background: #0b0e13;
+  color: var(--text);
+  font: inherit;
+}
+
+.simulator-controls input:focus,
+.simulator-controls select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(155, 183, 212, 0.14);
+}
+
+.segmented-control {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #0b0e13;
+}
+
+.segmented-control button {
+  min-height: 36px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--muted);
+  cursor: pointer;
+  font: inherit;
+}
+
+.segmented-control button.active {
+  background: var(--surface-soft);
+  color: var(--text);
+}
+
+.units-note,
+.field-help {
+  margin: -4px 0 0;
+  font-size: 0.8rem;
+  font-weight: 400;
+}
+
+.advanced-controls,
+.christoffel-panel {
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+  padding: 10px 0;
+}
+
+.advanced-controls summary,
+.christoffel-panel summary,
+.calculation-panel > summary {
+  color: var(--accent);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.advanced-grid {
+  display: grid;
+  gap: 14px;
+  padding-top: 16px;
+}
+
+.run-simulation {
+  width: 100%;
+  margin-top: 4px;
+  cursor: pointer;
+}
+
+.simulation-status {
+  min-height: 1.6em;
+  margin: 0;
+  color: var(--accent-strong);
+  font-size: 0.86rem;
+}
+
+.preset-state {
+  width: fit-content;
+  margin: -4px 0 0;
+  padding: 4px 9px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  color: var(--accent-strong);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.simulator-output {
+  display: grid;
+  gap: 18px;
+}
+
+.spacetime-card h3 {
+  margin: 0;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 2rem;
+}
+
+.warning-panel {
+  margin: 18px 0 0;
+  padding: 14px;
+  border: 1px solid #9d6f55;
+  border-radius: 7px;
+  background: rgba(157, 111, 85, 0.12);
+  color: #e6b99f;
+}
+
+.property-grid,
+.checks-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0 18px;
+  margin: 0;
+}
+
+.property-grid div,
+.checks-grid div {
+  min-width: 0;
+  padding: 11px 0;
+  border-top: 1px solid var(--line);
+}
+
+.property-grid dd,
+.checks-grid dd {
+  overflow-wrap: anywhere;
+}
+
+.metric-panel {
+  overflow: hidden;
+}
+
+.metric-latex {
+  overflow-x: auto;
+  padding: 10px 0;
+  color: var(--text);
+  font-size: 0.94rem;
+}
+
+.visualization-panel {
+  margin-top: 18px;
+  padding: 24px;
+}
+
+.visualization-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.plot-legend {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px 14px;
+  max-width: 420px;
+  color: var(--muted);
+  font-size: 0.78rem;
+}
+
+.plot-legend span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.legend-swatch {
+  width: 14px;
+  height: 3px;
+  background: var(--accent);
+}
+
+.legend-swatch.initial {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text);
+}
+
+.legend-swatch.outer-horizon {
+  background: var(--accent-strong);
+}
+
+.legend-swatch.inner-horizon {
+  border-top: 2px dashed var(--accent);
+  background: transparent;
+}
+
+.legend-swatch.ergoregion {
+  height: 8px;
+  background: rgba(212, 180, 131, 0.28);
+  border: 1px solid rgba(212, 180, 131, 0.65);
+}
+
+.canvas-shell {
+  overflow: hidden;
+  margin-top: 18px;
+  border: 1px solid var(--line);
+  border-radius: 7px;
+  background: #080b10;
+}
+
+.canvas-shell canvas {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.results-grid {
+  grid-template-columns: minmax(280px, 0.72fr) minmax(0, 1.28fr);
+  align-items: start;
+  margin-top: 18px;
+}
+
+.checks-grid {
+  grid-template-columns: 1fr;
+}
+
+.calculation-panel {
+  overflow: hidden;
+}
+
+.calculation-panel > summary {
+  padding: 24px;
+}
+
+.calculation-content {
+  padding: 0 24px 24px;
+  border-top: 1px solid var(--line);
+}
+
+.calculation-content h4 {
+  margin: 24px 0 8px;
+}
+
+.calculation-content pre {
+  max-height: 360px;
+  margin: 0;
+  font-size: 0.78rem;
+}
+
+.christoffel-panel {
+  margin-top: 24px;
+}
+
+.christoffel-panel pre {
+  margin-top: 14px;
+}
+
+.simulator-back-link {
+  margin: 34px 0 12px;
+}
+
 .formula {
   overflow-x: auto;
   padding: 16px;
@@ -678,6 +1162,34 @@ code {
     grid-template-columns: 1fr;
   }
 
+  .simulator-hero,
+  .simulator-theory,
+  .simulator-comparison,
+  .simulator-workspace,
+  .results-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .simulator-hero > *,
+  .simulator-theory > *,
+  .simulator-comparison > *,
+  .simulator-workspace > *,
+  .results-grid > * {
+    min-width: 0;
+  }
+
+  .simulator-hero {
+    min-height: 0;
+  }
+
+  .simulator-hero-diagram {
+    width: min(260px, 72vw);
+  }
+
+  .simulator-controls {
+    position: static;
+  }
+
   .hero {
     min-height: 0;
     padding: 54px 0;
@@ -733,6 +1245,38 @@ code {
   .research-card summary::after {
     top: 17px;
     right: 18px;
+  }
+
+  .simulator-hero {
+    padding: 56px 0;
+  }
+
+  .simulator-hero h1 {
+    font-size: 2.7rem;
+  }
+
+  .simulator-panel,
+  .simulator-controls,
+  .spacetime-card,
+  .properties-panel,
+  .metric-panel,
+  .visualization-panel,
+  .checks-panel,
+  .calculation-panel > summary,
+  .calculation-content {
+    padding: 18px;
+  }
+
+  .property-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .visualization-heading {
+    display: block;
+  }
+
+  .plot-legend {
+    justify-content: flex-start;
   }
 }
 
