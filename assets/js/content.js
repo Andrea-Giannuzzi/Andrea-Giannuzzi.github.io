@@ -5,8 +5,11 @@ window.PORTFOLIO_DOCUMENTS = Object.freeze({
       it: "Metrica di Kerr–Newman: fondamenti teorici del simulatore",
       en: "Kerr–Newman Metric: Theoretical Foundations of the Simulator"
     }),
+    officialTitle: "Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric",
+    pages: 86,
+    language: "en",
     path: "assets/kerr-newman-metric-theoretical-background.pdf",
-    available: false
+    available: true
   })
 });
 
@@ -46,6 +49,7 @@ window.PORTFOLIO_CONTENT = {
     },
     sharedDocuments: {
       openPdf: "Apri PDF",
+      downloadPdf: "Scarica PDF",
       pending: "PDF — In preparazione"
     },
     nav: { home: "Home", about: "About", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
@@ -167,10 +171,10 @@ window.PORTFOLIO_CONTENT = {
       geodesicsText: "Le geodetiche nulle descrivono fotoni, mentre quelle timelike descrivono particelle massive neutre. Questo MVP integra lo stato completo imponendo inizialmente θ = π/2 e v^θ = 0, e controlla numericamente la conservazione del piano equatoriale.",
       theoryEyebrow: "Documentazione teorica",
       theoryTitle: "Fondamenti teorici",
-      theoryIntro: "Il simulatore non è soltanto una visualizzazione: il futuro documento raccoglierà i fondamenti teorici della metrica di Kerr–Newman e delle quantità utilizzate dalla simulazione.",
-      theoryDetails: "La trattazione presenterà il significato fisico della massa M, della carica Q, del momento angolare J e del parametro di spin a, insieme alle convenzioni, ai casi limite e al formalismo necessari per comprendere le impostazioni del simulatore.",
-      theoryDocumentLabel: "Documento condiviso",
-      theoryDocumentDescription: "Un futuro documento sulla metrica di Kerr–Newman, condiviso tra le Notes di Relatività e la documentazione del simulatore.",
+      theoryIntro: "Partendo da massa, carica e momento angolare, questo documento sviluppa il percorso attraverso la teoria di Einstein–Maxwell fino a Reissner–Nordström, Kerr, le coordinate di Boyer–Lindquist e, infine, la geometria di Kerr–Newman.",
+      theoryDetails: "Titolo ufficiale: «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric». La trattazione comprende orizzonti, ergoregione, geodetiche e integrazione numerica.",
+      theoryDocumentLabel: "PDF in inglese · 86 pagine",
+      theoryDocumentDescription: "Documenta le formule, le convenzioni, le unità e le quantità fisiche effettivamente utilizzate dal simulatore.",
       demoEyebrow: "Web Demo",
       demoTitle: "Geodetiche equatoriali di Kerr–Newman",
       demoIntro: "La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.",
@@ -446,6 +450,16 @@ window.PORTFOLIO_CONTENT = {
         type: "Nota di ricerca",
         abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
+      },
+      {
+        id: "kerr-newman-theoretical-foundations",
+        documentId: "kerrNewmanTheory",
+        title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.it,
+        summary: "Progetto teorico ed espositivo avanzato di 86 pagine, sviluppato insieme al Kerr–Newman Black Hole Simulator per collegare il formalismo fisico alla sua implementazione numerica. PDF in inglese.",
+        date: "18 agosto 2026",
+        type: "Progetto teorico",
+        pdf: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.path,
+        abstract: "«Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric» sviluppa il percorso da massa, carica e momento angolare attraverso Einstein–Maxwell, Reissner–Nordström, Kerr e le coordinate di Boyer–Lindquist fino a Kerr–Newman. Copre orizzonti, ergoregione, geodetiche e integrazione numerica, documentando formule, convenzioni, unità e quantità fisiche usate dal simulatore senza presentare risultati di ricerca originali."
       }
     ],
     noteSubjects: [
@@ -566,9 +580,13 @@ window.PORTFOLIO_CONTENT = {
         documentId: "kerrNewmanTheory",
         title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.it,
         subject: "Relatività",
-        date: "—",
-        status: "In preparazione",
-        description: "Futuro documento dedicato alla metrica di Kerr–Newman, ai suoi parametri fisici e alle convenzioni teoriche utilizzate dal simulatore."
+        date: "18 agosto 2026",
+        status: "PDF disponibile — in inglese",
+        description: "Il documento completo «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric» accompagna il Kerr–Newman Black Hole Simulator.",
+        abstract: "Trattazione teorico-espositiva di 86 pagine che sviluppa il percorso da Einstein–Maxwell e Reissner–Nordström attraverso Kerr e le coordinate di Boyer–Lindquist fino a Kerr–Newman, collegando la teoria all'implementazione numerica.",
+        topics: ["Einstein–Maxwell", "Reissner–Nordström", "Kerr", "Kerr–Newman", "Coordinate di Boyer–Lindquist", "Orizzonti ed ergoregione", "Geodetiche", "Implementazione numerica"],
+        pdfAvailable: true,
+        documentStatus: "PDF in inglese disponibile per apertura e download."
       },
       {
         id: "expanding-universe",
@@ -643,6 +661,7 @@ window.PORTFOLIO_CONTENT = {
     },
     sharedDocuments: {
       openPdf: "Open PDF",
+      downloadPdf: "Download PDF",
       pending: "PDF — Work in progress"
     },
     nav: { home: "Home", about: "About", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
@@ -764,10 +783,10 @@ window.PORTFOLIO_CONTENT = {
       geodesicsText: "Null geodesics describe photons, while timelike geodesics describe neutral massive particles. This MVP integrates the full state with initial θ = π/2 and v^θ = 0, and numerically checks preservation of the equatorial plane.",
       theoryEyebrow: "Theoretical documentation",
       theoryTitle: "Theoretical Background",
-      theoryIntro: "The simulator is more than a visualization: the future document will collect the theoretical foundations of the Kerr–Newman metric and the quantities used by the simulation.",
-      theoryDetails: "It will present the physical meaning of mass M, electric charge Q, angular momentum J, and spin parameter a, together with the conventions, limiting cases, and formalism needed to understand the simulator settings.",
-      theoryDocumentLabel: "Shared document",
-      theoryDocumentDescription: "A future document on the Kerr–Newman metric, shared between the Relativity Notes and the simulator documentation.",
+      theoryIntro: "Starting from mass, charge, and angular momentum, this document develops the path through Einstein–Maxwell theory to Reissner–Nordström, Kerr, Boyer–Lindquist coordinates, and finally the Kerr–Newman geometry.",
+      theoryDetails: "Official title: “Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric”. It covers horizons, the ergoregion, geodesics, and numerical integration.",
+      theoryDocumentLabel: "English PDF · 86 pages",
+      theoryDocumentDescription: "It documents the formulas, conventions, units, and physical quantities actually used by the simulator.",
       demoEyebrow: "Web Demo",
       demoTitle: "Equatorial Kerr–Newman geodesics",
       demoIntro: "Geometry updates immediately; the geodesic is recalculated only when Run Simulation is pressed.",
@@ -1043,6 +1062,16 @@ window.PORTFOLIO_CONTENT = {
         type: "Research note",
         abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
+      },
+      {
+        id: "kerr-newman-theoretical-foundations",
+        documentId: "kerrNewmanTheory",
+        title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.en,
+        summary: "An advanced 86-page theoretical and expository project developed alongside the Kerr–Newman Black Hole Simulator to connect the physical formalism with its numerical implementation. PDF in English.",
+        date: "August 18, 2026",
+        type: "Theoretical Project",
+        pdf: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.path,
+        abstract: "“Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric” develops the route from mass, charge, and angular momentum through Einstein–Maxwell, Reissner–Nordström, Kerr, and Boyer–Lindquist coordinates to Kerr–Newman. It covers horizons, the ergoregion, geodesics, and numerical integration, documenting the formulas, conventions, units, and physical quantities used by the simulator without presenting original research results."
       }
     ],
     noteSubjects: [
@@ -1163,9 +1192,13 @@ window.PORTFOLIO_CONTENT = {
         documentId: "kerrNewmanTheory",
         title: window.PORTFOLIO_DOCUMENTS.kerrNewmanTheory.title.en,
         subject: "Relativity",
-        date: "—",
-        status: "Work in progress",
-        description: "A future document dedicated to the Kerr–Newman metric, its physical parameters, and the theoretical conventions used by the simulator."
+        date: "August 18, 2026",
+        status: "PDF available — in English",
+        description: "The complete document “Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric” supports the Kerr–Newman Black Hole Simulator.",
+        abstract: "An 86-page theoretical and expository treatment developing the route from Einstein–Maxwell and Reissner–Nordström through Kerr and Boyer–Lindquist coordinates to Kerr–Newman, connecting the theory to the numerical implementation.",
+        topics: ["Einstein–Maxwell", "Reissner–Nordström", "Kerr", "Kerr–Newman", "Boyer–Lindquist coordinates", "Horizons and ergoregion", "Geodesics", "Numerical implementation"],
+        pdfAvailable: true,
+        documentStatus: "English PDF available to open and download."
       },
       {
         id: "expanding-universe",

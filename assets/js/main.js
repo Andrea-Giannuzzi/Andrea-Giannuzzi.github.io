@@ -197,7 +197,7 @@ function renderResearch(language) {
         <h3>${content.research.abstractTitle}</h3>
         <p>${item.abstract}</p>
         <div class="actions">
-          <a class="button ghost" href="${getBasePath()}${item.pdf}" target="_blank" rel="noopener">${content.research.readPaper}</a>
+          <a class="button ghost" href="${getBasePath()}${item.pdf}" target="_blank" rel="noopener">${item.documentId ? content.sharedDocuments.openPdf : content.research.readPaper}</a>
           <a class="button primary" href="${getBasePath()}${item.pdf}" download>${content.research.downloadPdf}</a>
         </div>
       </div>
@@ -240,7 +240,8 @@ function renderSharedDocuments(language) {
     if (titleElement) titleElement.textContent = title;
     if (!actionElement) return;
     actionElement.innerHTML = documentResource.available && documentResource.path
-      ? `<a class="button primary" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>`
+      ? `<a class="button ghost" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>
+         <a class="button primary" href="${getBasePath()}${documentResource.path}" download>${content.sharedDocuments.downloadPdf}</a>`
       : `<span class="button disabled" aria-disabled="true" aria-label="${content.sharedDocuments.pending}: ${title}">${content.sharedDocuments.pending}</span>`;
   });
 }
@@ -272,14 +273,22 @@ function renderSubjectNotes(language) {
           : `<h3><a href="${getBasePath()}${note.url}">${title}</a></h3>`;
         const actionMarkup = documentResource
           ? documentAvailable
-            ? `<a class="text-link" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>`
+            ? `<div class="actions">
+                <a class="button ghost" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>
+                <a class="button primary" href="${getBasePath()}${documentResource.path}" download>${content.sharedDocuments.downloadPdf}</a>
+              </div>`
             : `<span class="text-link unavailable" aria-disabled="true">${content.sharedDocuments.pending}</span>`
           : `<a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>`;
+        const sharedDocumentDetails = documentResource
+          ? `${note.abstract ? `<p>${note.abstract}</p>` : ""}
+             ${note.topics?.length ? `<div class="tag-list small">${note.topics.map((topic) => `<span>${topic}</span>`).join("")}</div>` : ""}`
+          : "";
         return `
           <article class="note-card reveal visible">
             <p class="status">${note.status}</p>
             ${titleMarkup}
             <p>${note.description}</p>
+            ${sharedDocumentDetails}
             <dl class="note-meta">
               <div><dt>${content.notes.dateLabel}</dt><dd>${note.date}</dd></div>
               <div><dt>${content.notes.categoryLabel}</dt><dd>${note.subject}</dd></div>
