@@ -23,6 +23,26 @@
     tolerance: 1e-10
   });
 
+  // Central tolerances for controlled regression checks. They are deliberately
+  // looser than machine precision while remaining strict for the current RK4.
+  const VALIDATION_TOLERANCES = Object.freeze({
+    analyticalAbsolute: 1e-12,
+    tensorResidual: 1e-12,
+    christoffelSymmetry: 1e-12,
+    relativeRadialDrift: 1e-8,
+    normalization: 1e-10,
+    relativeConservation: 1e-10,
+    equatorialDrift: 1e-10
+  });
+
+  const VALIDATION_INTEGRATION = Object.freeze({
+    step: 0.01,
+    photonMaxLambda: 10,
+    massiveMaxLambda: 20,
+    sampleEvery: 1,
+    maxSteps: 4000
+  });
+
   const zeroMatrix = () => Array.from({ length: 4 }, () => Array(4).fill(0));
   const cloneMatrix = (matrix) => matrix.map((row) => row.slice());
   const physicsError = (code, message) => {
@@ -438,9 +458,211 @@
       row.reduce((sum, value, k) => sum + value * right[k][j], 0)));
   }
 
+  function maxIdentityResidual(matrix, matrixInverse = inverseMetric(matrix)) {
+    const product = matrixProduct(matrix, matrixInverse);
+    let residual = 0;
+    for (let row = 0; row < 4; row += 1) {
+      for (let column = 0; column < 4; column += 1) {
+        const identityEntry = row === column ? 1 : 0;
+        residual = Math.max(residual, Math.abs(product[row][column] - identityEntry));
+      }
+    }
+    return residual;
+  }
+
+  function maxChristoffelSymmetryResidual(gamma) {
+    let residual = 0;
+    for (let mu = 0; mu < 4; mu += 1) {
+      for (let alpha = 0; alpha < 4; alpha += 1) {
+        for (let beta = 0; beta < 4; beta += 1) {
+          residual = Math.max(
+            residual,
+            Math.abs(gamma[mu][alpha][beta] - gamma[mu][beta][alpha])
+          );
+        }
+      }
+    }
+    return residual;
+  }
+
+  function validationMeasurement(id, computed, tolerance) {
+    return {
+      id,
+      computed,
+      error: Math.abs(computed),
+      tolerance,
+      passed: Number.isFinite(computed) && Math.abs(computed) <= tolerance
+    };
+  }
+
+  function runGeodesicBenchmark(configuration) {
+    const params = { M: 1, a: 0, q: 0 };
+    const initialState = initialStateFromConstants(params, {
+      radius: configuration.radius,
+      energy: configuration.energy,
+      angularMomentum: configuration.angularMomentum,
+      massive: configuration.massive,
+      radialDirection: "outgoing"
+    });
+    const result = integrateGeodesic(params, initialState, {
+      step: VALIDATION_INTEGRATION.step,
+      maxLambda: configuration.maxLambda,
+      maxSteps: VALIDATION_INTEGRATION.maxSteps,
+      sampleEvery: VALIDATION_INTEGRATION.sampleEvery
+    });
+    const states = [...result.points, result.finalState];
+    const radialDrift = states.reduce((maximum, state) => Math.max(
+      maximum,
+      Math.abs(state[1] - configuration.radius) / configuration.radius
+    ), 0);
+    const measurements = [
+      validationMeasurement(
+        "relativeRadialDrift",
+        radialDrift,
+        VALIDATION_TOLERANCES.relativeRadialDrift
+      ),
+      validationMeasurement(
+        "normalization",
+        result.checks.normalizationError,
+        VALIDATION_TOLERANCES.normalization
+      ),
+      validationMeasurement(
+        "relativeEnergy",
+        result.checks.relativeEnergyChange,
+        VALIDATION_TOLERANCES.relativeConservation
+      ),
+      validationMeasurement(
+        "relativeAngularMomentum",
+        result.checks.relativeAngularMomentumChange,
+        VALIDATION_TOLERANCES.relativeConservation
+      ),
+      validationMeasurement(
+        "equatorialDrift",
+        result.checks.thetaDrift,
+        VALIDATION_TOLERANCES.equatorialDrift
+      )
+    ];
+    const completed = result.stopReason === "maximumInterval"
+      && result.lambda >= configuration.maxLambda - VALIDATION_INTEGRATION.step;
+    return {
+      id: configuration.id,
+      radius: configuration.radius,
+      maxLambda: configuration.maxLambda,
+      step: VALIDATION_INTEGRATION.step,
+      completed,
+      stopReason: result.stopReason,
+      measurements,
+      passed: completed && measurements.every((measurement) => measurement.passed)
+    };
+  }
+
+  function runScientificValidation() {
+    const schwarzschild = { M: 1, a: 0, q: 0 };
+    const kerr = { M: 1, a: 0.7, q: 0 };
+    const schwarzschildProperties = geometryProperties(schwarzschild, "schwarzschild");
+    const analyticalCases = [
+      {
+        id: "schwarzschildHorizon",
+        reference: 2,
+        computed: schwarzschildProperties.outer
+      },
+      {
+        id: "schwarzschildPhotonOrbit",
+        reference: 3,
+        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.photon)
+      },
+      {
+        id: "schwarzschildIsco",
+        reference: 6,
+        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.isco)
+      },
+      {
+        id: "kerrHorizon",
+        reference: 1 + Math.sqrt(1 - 0.7 * 0.7),
+        computed: horizonData(kerr).outer
+      }
+    ].map((entry) => {
+      const error = Math.abs(entry.computed - entry.reference);
+      return {
+        ...entry,
+        error,
+        tolerance: VALIDATION_TOLERANCES.analyticalAbsolute,
+        passed: Number.isFinite(entry.computed)
+          && error <= VALIDATION_TOLERANCES.analyticalAbsolute
+      };
+    });
+
+    const familyCases = [
+      { id: "schwarzschildFamily", q: 0, a: 0, reference: "schwarzschild" },
+      { id: "reissnerNordstromFamily", q: 0.2, a: 0, reference: "reissnerNordstrom" },
+      { id: "kerrFamily", q: 0, a: 0.7, reference: "kerr" },
+      { id: "kerrNewmanFamily", q: 0.2, a: 0.7, reference: "kerrNewman" }
+    ].map((entry) => {
+      const computed = classifySpacetime(entry.q !== 0, entry.a !== 0);
+      return { ...entry, computed, passed: computed === entry.reference };
+    });
+
+    const tensorPoint = { params: { M: 1, a: 0.7, q: 0.2 }, r: 10, theta: Math.PI / 3 };
+    const tensorMetric = metric(tensorPoint.params, tensorPoint.r, tensorPoint.theta);
+    const tensorInverse = inverseMetric(tensorMetric);
+    const tensorGamma = christoffelSymbols(
+      tensorPoint.params,
+      tensorPoint.r,
+      tensorPoint.theta
+    );
+    const tensorCases = [
+      validationMeasurement(
+        "metricInverse",
+        maxIdentityResidual(tensorMetric, tensorInverse),
+        VALIDATION_TOLERANCES.tensorResidual
+      ),
+      validationMeasurement(
+        "christoffelSymmetry",
+        maxChristoffelSymmetryResidual(tensorGamma),
+        VALIDATION_TOLERANCES.christoffelSymmetry
+      )
+    ];
+
+    const geodesicCases = [
+      runGeodesicBenchmark({
+        id: "photonCircular",
+        radius: 3,
+        energy: 1,
+        angularMomentum: 3 * Math.sqrt(3),
+        massive: false,
+        maxLambda: VALIDATION_INTEGRATION.photonMaxLambda
+      }),
+      runGeodesicBenchmark({
+        id: "massiveCircular",
+        radius: 8,
+        energy: (1 - 2 / 8) / Math.sqrt(1 - 3 / 8),
+        angularMomentum: Math.sqrt(8) / Math.sqrt(1 - 3 / 8),
+        massive: true,
+        maxLambda: VALIDATION_INTEGRATION.massiveMaxLambda
+      })
+    ];
+
+    const passed = analyticalCases.every((entry) => entry.passed)
+      && familyCases.every((entry) => entry.passed)
+      && tensorCases.every((entry) => entry.passed)
+      && geodesicCases.every((entry) => entry.passed);
+    return {
+      passed,
+      tolerances: VALIDATION_TOLERANCES,
+      integration: VALIDATION_INTEGRATION,
+      analyticalCases,
+      familyCases,
+      tensorPoint,
+      tensorCases,
+      geodesicCases
+    };
+  }
+
   window.KerrNewmanPhysics = Object.freeze({
     SI,
     NUMERICS,
+    VALIDATION_TOLERANCES,
+    VALIDATION_INTEGRATION,
     physicalToGeometrized,
     geometrizedToPhysical,
     angularMomentumForSpin,
@@ -460,6 +682,10 @@
     integrateGeodesic,
     nonzeroChristoffelAt,
     matrixProduct,
+    maxIdentityResidual,
+    maxChristoffelSymmetryResidual,
+    runGeodesicBenchmark,
+    runScientificValidation,
     cloneMatrix
   });
 }());

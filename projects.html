@@ -33,12 +33,24 @@
   <main id="main">
     <section class="section-shell page-title reveal">
       <p class="eyebrow" data-i18n="projects.eyebrow">Projects</p>
-      <h1 data-i18n="projects.title">GitHub projects</h1>
-      <p data-i18n="projects.intro">Una selezione iniziale di piccoli progetti legati a simulazioni, strumenti di calcolo e analisi dati. Le card sono pensate per essere aggiornate facilmente da assets/js/content.js.</p>
+      <h1 data-i18n="projects.title">Projects</h1>
+      <p data-i18n="projects.intro">A selected portfolio of computational and theoretical physics projects.</p>
     </section>
 
-    <section class="section-shell">
-      <div class="project-grid" data-projects></div>
+    <section class="section-shell project-section">
+      <div class="project-section-heading">
+        <h2 data-i18n="projects.featuredTitle">Featured Projects</h2>
+        <p data-i18n="projects.featuredIntro">The most substantial and currently representative scientific work.</p>
+      </div>
+      <div class="project-grid featured-project-grid" data-projects="featured"></div>
+    </section>
+
+    <section class="section-shell project-section earlier-projects-section">
+      <div class="project-section-heading">
+        <h2 data-i18n="projects.earlierTitle">Earlier / Learning Projects</h2>
+        <p data-i18n="projects.earlierIntro">Introductory projects documenting the development of analytical and computational methods.</p>
+      </div>
+      <div class="project-grid earlier-project-grid" data-projects="earlier"></div>
     </section>
   </main>
   <footer class="site-footer">

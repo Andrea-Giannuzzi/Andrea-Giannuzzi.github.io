@@ -43,6 +43,9 @@
   let lastSimulation = null;
   let activePreset = "photonCapture";
   let initialized = false;
+  let validationResult = null;
+  let validationError = null;
+  let validationPromise = null;
 
   const numberValue = (input) => Number.parseFloat(input.value);
   const isFiniteNumber = (value) => Number.isFinite(value);
@@ -92,7 +95,11 @@
       inverseMetric: document.querySelector("[data-inverse-metric]"),
       initialVector: document.querySelector("[data-initial-vector]"),
       integrationParameters: document.querySelector("[data-integration-parameters]"),
-      christoffel: document.querySelector("[data-christoffel]")
+      christoffel: document.querySelector("[data-christoffel]"),
+      calculationPanel: document.querySelector("#calculation-details"),
+      calculationLink: document.querySelector("a[href='#calculation-details']"),
+      validationStatus: document.querySelector("[data-validation-status]"),
+      validationResults: document.querySelector("[data-validation-results]")
     };
   }
 
@@ -518,6 +525,135 @@
     ).map((entry) => `${entry.label} = ${formatNumber(entry.value, 10)}`).join("\n");
   }
 
+  function formatValidationNumber(value) {
+    if (!Number.isFinite(value)) return "N/A";
+    if (value === 0) return "0";
+    const magnitude = Math.abs(value);
+    if (magnitude < 1e-4 || magnitude >= 1e5) return value.toExponential(3);
+    return Number(value.toPrecision(9)).toString();
+  }
+
+  function validationCell(label, value, className = "") {
+    return `<div class="validation-cell ${className}" role="cell"><span class="validation-cell-label">${label}</span>${value}</div>`;
+  }
+
+  function validationRow(name, reference, computed, error, passed) {
+    const copy = content().validation;
+    const status = passed ? copy.pass : copy.fail;
+    return `<div class="validation-row" role="row">
+      ${validationCell(copy.checkColumn, `<strong>${name}</strong>`, "validation-check")}
+      ${validationCell(copy.referenceColumn, reference)}
+      ${validationCell(copy.computedColumn, computed)}
+      ${validationCell(copy.errorColumn, error)}
+      ${validationCell(copy.statusColumn, `<span class="validation-badge ${passed ? "pass" : "fail"}">${status}</span>`)}
+    </div>`;
+  }
+
+  function validationTable(rows) {
+    const copy = content().validation;
+    const header = `<div class="validation-row validation-table-header" role="row">
+      <div role="columnheader">${copy.checkColumn}</div>
+      <div role="columnheader">${copy.referenceColumn}</div>
+      <div role="columnheader">${copy.computedColumn}</div>
+      <div role="columnheader">${copy.errorColumn}</div>
+      <div role="columnheader">${copy.statusColumn}</div>
+    </div>`;
+    return `<div class="validation-table" role="table">${header}${rows.join("")}</div>`;
+  }
+
+  function scientificValue(value, unit = "") {
+    return `${formatValidationNumber(value)}${unit ? ` ${unit}` : ""}`;
+  }
+
+  function renderScientificValidation() {
+    if (!elements?.validationStatus || !elements.validationResults) return;
+    const copy = content().validation || {};
+    if (validationError) {
+      elements.validationStatus.className = "validation-status failed";
+      elements.validationStatus.textContent = copy.unavailable || "Validation unavailable.";
+      elements.validationResults.hidden = true;
+      return;
+    }
+    if (!validationResult) {
+      elements.validationStatus.className = "validation-status running";
+      elements.validationStatus.textContent = content().validationRunning || "Running validation…";
+      elements.validationResults.hidden = true;
+      return;
+    }
+
+    const result = validationResult;
+    elements.validationStatus.className = `validation-status ${result.passed ? "passed" : "failed"}`;
+    elements.validationStatus.innerHTML = `<span class="validation-badge ${result.passed ? "pass" : "fail"}">${result.passed ? copy.pass : copy.fail}</span><span>${result.passed ? copy.overallPass : copy.overallFail}</span>`;
+
+    const analyticalRows = result.analyticalCases.map((entry) => validationRow(
+      copy.benchmarks[entry.id],
+      scientificValue(entry.reference, "M"),
+      scientificValue(entry.computed, "M"),
+      `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
+      entry.passed
+    ));
+    const familyRows = result.familyCases.map((entry) => validationRow(
+      copy.benchmarks[entry.id],
+      spacetimeDisplayName(entry.reference),
+      spacetimeDisplayName(entry.computed),
+      copy.exactMatch,
+      entry.passed
+    ));
+    const tensorRows = result.tensorCases.map((entry) => validationRow(
+      copy.benchmarks[entry.id],
+      "0",
+      scientificValue(entry.computed),
+      `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
+      entry.passed
+    ));
+    const geodesicGroups = result.geodesicCases.map((benchmark) => {
+      const rows = benchmark.measurements.map((entry) => validationRow(
+        copy.measurements[entry.id],
+        "0",
+        scientificValue(entry.computed),
+        `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
+        entry.passed
+      ));
+      const note = benchmark.id === "photonCircular" ? copy.photonNote : copy.massiveNote;
+      const intervalState = benchmark.completed ? copy.completedInterval : copy.incompleteInterval;
+      return `<article class="validation-geodesic">
+        <div class="validation-geodesic-heading">
+          <div><h4>${copy.benchmarks[benchmark.id]}</h4><p>${note}</p></div>
+          <p class="validation-metadata">Δλ = ${formatValidationNumber(benchmark.maxLambda)} · h = ${formatValidationNumber(benchmark.step)} · ${intervalState}</p>
+        </div>
+        ${validationTable(rows)}
+      </article>`;
+    }).join("");
+
+    elements.validationResults.innerHTML = `
+      <section class="validation-group"><h3>${copy.analyticalTitle}</h3>${validationTable(analyticalRows)}</section>
+      <section class="validation-group"><h3>${copy.familyTitle}</h3>${validationTable(familyRows)}</section>
+      <section class="validation-group"><h3>${copy.tensorTitle}</h3><p>${copy.tensorPoint}</p>${validationTable(tensorRows)}</section>
+      <section class="validation-group"><h3>${copy.geodesicTitle}</h3>${geodesicGroups}</section>`;
+    elements.validationResults.hidden = false;
+  }
+
+  function scheduleScientificValidation() {
+    if (!elements.validationResults || validationPromise) return;
+    renderScientificValidation();
+    validationPromise = new Promise((resolve) => {
+      const run = () => {
+        try {
+          validationResult = P.runScientificValidation();
+        } catch (error) {
+          validationError = error;
+        }
+        renderScientificValidation();
+        resolve(validationResult);
+      };
+      if ("requestIdleCallback" in window) {
+        window.requestIdleCallback(run, { timeout: 800 });
+      } else {
+        window.setTimeout(run, 0);
+      }
+    });
+  }
+
   function bindEvents() {
     document.querySelectorAll("[data-unit-mode]").forEach((button) => {
       button.addEventListener("click", () => setUnitMode(button.dataset.unitMode));
@@ -546,6 +682,9 @@
     elements.direction.addEventListener("change", () => {
       markConfigurationCustom();
       markTrajectoryStale();
+    });
+    elements.calculationLink?.addEventListener("click", () => {
+      elements.calculationPanel.open = true;
     });
     elements.form.addEventListener("submit", runSimulation);
     window.addEventListener("resize", () => {
@@ -579,12 +718,14 @@
     bindEvents();
     initialized = true;
     updateGeometry({ preserveTrajectory: false, quiet: true });
+    scheduleScientificValidation();
   }
 
   window.updateBlackHoleSimulatorLanguage = function (nextLanguage) {
     language = nextLanguage;
     renderLists();
     if (!initialized) return;
+    renderScientificValidation();
     updateUnitLabels();
     renderConfigurationState();
     if (currentParams) {

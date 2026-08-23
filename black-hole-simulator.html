@@ -61,51 +61,89 @@
       </div>
     </section>
 
-    <section class="section-shell simulator-section reveal">
-      <h2 data-i18n="blackHoleSimulator.comparisonTitle">Web Demo e Full Simulator</h2>
-      <div class="simulator-comparison">
-        <article class="simulator-panel available-panel">
-          <p class="status" data-i18n="blackHoleSimulator.availableNow">Disponibile ora</p>
-          <h3 data-i18n="blackHoleSimulator.webDemoTitle">Web Demo</h3>
-          <p data-i18n="blackHoleSimulator.webDemoIntro">MVP trasparente eseguito interamente nel browser, dedicato al moto equatoriale di particelle neutre.</p>
-          <ul class="plain-list" data-simulator-list="webFeatures"></ul>
-        </article>
-        <article class="simulator-panel future-panel">
-          <p class="status" data-i18n="blackHoleSimulator.workInProgress">Lavori in corso</p>
-          <h3 data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</h3>
-          <p data-i18n="blackHoleSimulator.fullSimulatorIntro">Applicazione desktop futura. Le funzionalità seguenti non sono presenti nella Web Demo.</p>
-          <ul class="plain-list" data-simulator-list="fullFeatures"></ul>
-        </article>
-      </div>
-    </section>
+    <nav class="section-shell simulator-page-nav reveal" aria-labelledby="simulator-page-nav-title">
+      <p id="simulator-page-nav-title" data-i18n="blackHoleSimulator.onThisPage">In questa pagina</p>
+      <ul>
+        <li><a href="#physics" data-i18n="blackHoleSimulator.sectionPhysics">Fisica</a></li>
+        <li><a href="#numerical-method" data-i18n="blackHoleSimulator.methodTitle">Metodo numerico</a></li>
+        <li><a href="#scientific-validation" data-i18n="blackHoleSimulator.validationTitle">Validazione scientifica</a></li>
+        <li><a href="#limitations" data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito della Web Demo</a></li>
+        <li><a href="#theoretical-background" data-i18n="blackHoleSimulator.theoryTitle">Fondamenti teorici</a></li>
+        <li><a href="#full-simulator" data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</a></li>
+      </ul>
+    </nav>
 
-    <section class="section-shell simulator-section simulator-physics reveal">
+    <section class="section-shell simulator-section simulator-physics reveal" id="physics">
       <p class="eyebrow">Kerr–Newman</p>
-      <h2 data-i18n="blackHoleSimulator.physicsTitle">Fisica del modello</h2>
-      <div class="grid-two">
-        <p data-i18n="blackHoleSimulator.physicsIntro">La geometria di Kerr–Newman descrive la soluzione stazionaria e assialsimmetrica di Einstein–Maxwell per un oggetto di massa M, carica Q e momento angolare J. In unità geometrizzate a = J/M.</p>
-        <p data-i18n="blackHoleSimulator.limitsText">I limiti Q = J = 0, J = 0 e Q = 0 restituiscono rispettivamente Schwarzschild, Reissner–Nordström e Kerr.</p>
-      </div>
-      <p data-i18n="blackHoleSimulator.geodesicsText">Le geodetiche nulle descrivono fotoni, mentre quelle timelike descrivono particelle massive neutre. Questo MVP integra lo stato completo e controlla il piano equatoriale.</p>
-    </section>
-
-    <section class="section-shell simulator-section simulator-theory reveal" id="theoretical-background">
-      <div class="theory-copy">
-        <p class="eyebrow" data-i18n="blackHoleSimulator.theoryEyebrow">Documentazione teorica</p>
-        <h2 data-i18n="blackHoleSimulator.theoryTitle">Fondamenti teorici</h2>
-        <p data-i18n="blackHoleSimulator.theoryIntro">Il documento completo, 86 pagine in inglese, sviluppa il percorso da massa, carica e momento angolare attraverso Einstein–Maxwell, Reissner–Nordström, Kerr, le coordinate di Boyer–Lindquist e Kerr–Newman.</p>
-        <p data-i18n="blackHoleSimulator.theoryDetails">Titolo ufficiale: «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric». La trattazione comprende orizzonti, ergoregione, geodetiche e integrazione numerica.</p>
-      </div>
-      <article class="theory-document-card" data-shared-document="kerrNewmanTheory">
-        <span class="document-motif" aria-hidden="true"></span>
-        <p class="status" data-i18n="blackHoleSimulator.theoryDocumentLabel">PDF in inglese · 86 pagine</p>
-        <h3 data-shared-document-title>Metrica di Kerr–Newman: fondamenti teorici del simulatore</h3>
-        <p data-i18n="blackHoleSimulator.theoryDocumentDescription">Documenta le formule, le convenzioni, le unità e le quantità fisiche effettivamente utilizzate dal simulatore.</p>
-        <div class="actions theory-document-action" data-shared-document-action>
-          <a class="button ghost" href="assets/kerr-newman-metric-theoretical-background.pdf" target="_blank" rel="noopener">Apri PDF</a>
-          <a class="button primary" href="assets/kerr-newman-metric-theoretical-background.pdf" download>Scarica PDF</a>
+      <div class="physics-layout">
+        <div>
+          <h2 data-i18n="blackHoleSimulator.physicsTitle">Fisica del modello</h2>
+          <p data-i18n="blackHoleSimulator.physicsIntro">Il modello utilizza la geometria di Kerr–Newman, che descrive la soluzione stazionaria e assialsimmetrica di Einstein–Maxwell con massa \(M\), carica elettrica \(Q\) e momento angolare \(J\). In unità geometrizzate il parametro di spin è \(a=J/M\).</p>
         </div>
-      </article>
+        <div>
+          <h3 data-i18n="blackHoleSimulator.limitingCasesTitle">Famiglie limite</h3>
+          <dl class="limiting-cases">
+            <div><dt>\(Q=0,\ J=0\)</dt><dd>Schwarzschild</dd></div>
+            <div><dt>\(Q\neq0,\ J=0\)</dt><dd>Reissner–Nordström</dd></div>
+            <div><dt>\(Q=0,\ J\neq0\)</dt><dd>Kerr</dd></div>
+            <div><dt>\(Q\neq0,\ J\neq0\)</dt><dd>Kerr–Newman</dd></div>
+          </dl>
+        </div>
+      </div>
+      <div class="equatorial-orientation">
+        <h3 data-i18n="blackHoleSimulator.equatorialMotionTitle">Moto equatoriale e stato numerico</h3>
+        <p data-i18n="blackHoleSimulator.stateDefinitionText">Il simulatore descrive ogni geodetica mediante il vettore di stato numerico \(Y(\lambda)\), che raccoglie posizione e vettore tangente allo stesso valore del parametro di evoluzione.</p>
+        <div class="equatorial-state formula method-formula">
+          \[
+          Y(\lambda)=\left(x^\mu(\lambda),v^\mu(\lambda)\right)
+          \]
+          \[
+          Y(\lambda)=\left(t,r,\theta,\phi,v^t,v^r,v^\theta,v^\phi\right),
+          \qquad v^\mu=\frac{dx^\mu}{d\lambda}.
+          \]
+        </div>
+        <div class="state-component-grid">
+          <p data-i18n="blackHoleSimulator.stateCoordinatesText">Le prime quattro componenti \((t,r,\theta,\phi)\) specificano la posizione nelle coordinate spazio-temporali di Boyer–Lindquist.</p>
+          <p data-i18n="blackHoleSimulator.stateTangentText">Le ultime quattro \((v^t,v^r,v^\theta,v^\phi)\) sono le componenti del vettore tangente. Per particelle massive si può scegliere \(\lambda=\tau\), ottenendo la quadrivelocità \(v^\mu=u^\mu\); per i fotoni \(\lambda\) è un parametro affine e \(v^\mu\) è un vettore tangente nullo.</p>
+        </div>
+        <div class="polar-motion">
+          <div class="formula method-formula">
+            \[
+            v^\theta=\frac{d\theta}{d\lambda},
+            \qquad
+            \theta_0=\frac{\pi}{2},
+            \qquad
+            v^\theta_0=0.
+            \]
+          </div>
+          <p data-i18n="blackHoleSimulator.geodesicsText">La componente \(v^\theta\) misura il moto polare. Le condizioni iniziali indicano che la traiettoria parte nel piano equatoriale senza moto polare iniziale.</p>
+          <p data-i18n="blackHoleSimulator.fullStateText">Il simulatore continua a integrare \(\theta\), senza bloccarlo artificialmente: la conservazione numerica di \(\theta\simeq\pi/2\) è usata come controllo di consistenza.</p>
+        </div>
+        <div class="state-dynamics">
+          <div>
+            <p data-i18n="blackHoleSimulator.stateDynamicsText">Introducendo \(v^\mu\), l'equazione geodetica del secondo ordine diventa un sistema del primo ordine per le otto componenti di \(Y\).</p>
+            <div class="formula method-formula">
+              \[
+              \frac{dx^\mu}{d\lambda}=v^\mu,
+              \qquad
+              \frac{dv^\mu}{d\lambda}=-\Gamma^\mu_{\alpha\beta}v^\alpha v^\beta.
+              \]
+              \[
+              \boxed{\frac{dY}{d\lambda}=F(Y)}
+              \]
+            </div>
+          </div>
+          <p data-i18n="blackHoleSimulator.stateFunctionText">Le prime quattro componenti di \(F(Y)\) sono \(v^\mu\); le ultime quattro sono le accelerazioni geodetiche \(-\Gamma^\mu_{\alpha\beta}v^\alpha v^\beta\). È questo il sistema avanzato numericamente da RK4.</p>
+        </div>
+        <h4 class="state-workflow-title" data-i18n="blackHoleSimulator.stateWorkflowTitle">Dallo stato iniziale alla visualizzazione</h4>
+        <ol class="state-workflow">
+          <li data-i18n="blackHoleSimulator.stateWorkflowStep1">I parametri scelti e \(E,L_z\) determinano lo stato iniziale \(Y_0\).</li>
+          <li data-i18n="blackHoleSimulator.stateWorkflowStep2">Si impongono \(\theta_0=\pi/2\) e \(v^\theta_0=0\).</li>
+          <li data-i18n="blackHoleSimulator.stateWorkflowStep3">RK4 avanza \(Y_0\to Y_1\to Y_2\to\cdots\).</li>
+          <li data-i18n="blackHoleSimulator.stateWorkflowStep4">Le funzioni \(r(\lambda)\) e \(\phi(\lambda)\) generano la traiettoria 2D.</li>
+          <li data-i18n="blackHoleSimulator.stateWorkflowStep5">Lo stato completo permette di controllare normalizzazione, quantità conservate e drift equatoriale.</li>
+        </ol>
+      </div>
     </section>
 
     <section class="section-shell simulator-demo reveal" id="web-demo">
@@ -224,9 +262,10 @@
       <div class="results-grid">
         <section class="checks-panel">
           <h3 data-i18n="blackHoleSimulator.numericalChecks">Controlli numerici</h3>
+          <p class="panel-context" data-i18n="blackHoleSimulator.liveChecksIntro">Diagnostica della traiettoria selezionata e calcolata dall'utente.</p>
           <dl class="checks-grid" data-numerical-checks></dl>
         </section>
-        <details class="calculation-panel">
+        <details class="calculation-panel" id="calculation-details">
           <summary data-i18n="blackHoleSimulator.calculationDetails">Dettagli di calcolo</summary>
           <div class="calculation-content">
             <h4 data-i18n="blackHoleSimulator.currentMetric">Metrica al punto iniziale</h4>
@@ -246,6 +285,122 @@
       </div>
 
       <a class="text-link simulator-back-link" href="projects.html" data-i18n="blackHoleSimulator.backToProjects">Torna a Projects</a>
+    </section>
+
+    <section class="section-shell simulator-section numerical-method reveal" id="numerical-method">
+      <p class="eyebrow" data-i18n="blackHoleSimulator.methodEyebrow">Implementazione trasparente</p>
+      <h2 data-i18n="blackHoleSimulator.methodTitle">Metodo numerico</h2>
+      <p class="section-intro" data-i18n="blackHoleSimulator.methodIntro">La Web Demo costruisce la dinamica direttamente dalla metrica completa, mantenendo leggibile ogni passaggio del calcolo relativistico.</p>
+      <ol class="method-pipeline" aria-label="Numerical pipeline" data-i18n-aria-label="blackHoleSimulator.methodPipelineLabel">
+        <li>\(g_{\mu\nu}\)</li>
+        <li>\(g^{\mu\nu}\)</li>
+        <li>\(\partial_\alpha g_{\mu\nu}\)</li>
+        <li>\(\Gamma^\mu{}_{\alpha\beta}\)</li>
+        <li data-i18n="blackHoleSimulator.pipelineGeodesic">Sistema geodetico</li>
+        <li>RK4</li>
+      </ol>
+      <div class="method-columns">
+        <div>
+          <h3 data-i18n="blackHoleSimulator.methodGeometryTitle">Metrica, inversa e derivate analitiche</h3>
+          <p data-i18n="blackHoleSimulator.methodGeometryText">La metrica completa di Kerr–Newman in coordinate di Boyer–Lindquist viene valutata dopo la conversione degli input in variabili geometrizzate adimensionali. Le derivate necessarie di \(g_{\mu\nu}\) sono implementate analiticamente, non mediante differenze finite.</p>
+          <div class="formula method-formula">
+            \[g_{\mu\alpha}g^{\alpha\nu}=\delta_\mu{}^\nu.\]
+          </div>
+          <p data-i18n="blackHoleSimulator.inverseMetricMeaning">La quantità \(g^{\mu\nu}\) non è una metrica fisica diversa: è la matrice inversa di \(g_{\mu\nu}\) e serve ad alzare gli indici tensoriali.</p>
+          <h4 data-i18n="blackHoleSimulator.christoffelRoleTitle">A. Simboli di Christoffel</h4>
+          <div class="formula method-formula">
+            \[\Gamma^\mu_{\alpha\beta}=\frac12g^{\mu\nu}\left(\partial_\alpha g_{\nu\beta}+\partial_\beta g_{\nu\alpha}-\partial_\nu g_{\alpha\beta}\right).\]
+          </div>
+          <p data-i18n="blackHoleSimulator.christoffelRoleText">La metrica inversa alza il primo indice e consente di costruire, dalle derivate della metrica, i coefficienti di connessione richiesti dall'equazione geodetica.</p>
+        </div>
+        <div>
+          <h3 data-i18n="blackHoleSimulator.initialVectorRoleTitle">B. Quadrivettore iniziale da \(E\) e \(L_z\)</h3>
+          <p data-i18n="blackHoleSimulator.covariantConstantsText">Le quantità conservate sono naturalmente covarianti: \(p_t=-E\), \(p_\phi=L_z\) e \(p_\mu=g_{\mu\nu}v^\nu\). L'inversa permette quindi di ricavare \(v^\mu=g^{\mu\nu}p_\nu\).</p>
+          <div class="formula method-formula">
+            \[v^t=-g^{tt}E+g^{t\phi}L_z,\qquad v^\phi=-g^{t\phi}E+g^{\phi\phi}L_z.\]
+          </div>
+          <h3 data-i18n="blackHoleSimulator.methodEvolutionTitle">Sistema geodetico e RK4</h3>
+          <p data-i18n="blackHoleSimulator.methodEvolutionText">La connessione genera il sistema del primo ordine per lo stato completo. La Web Demo usa il metodo classico Runge–Kutta del quarto ordine a passo fisso: una scelta trasparente per questa implementazione nel browser, non un integratore di produzione ad alta precisione.</p>
+          <div class="formula method-formula">
+            \[\frac{dx^\mu}{d\lambda}=v^\mu,\qquad \frac{dv^\mu}{d\lambda}=-\Gamma^\mu_{\alpha\beta}v^\alpha v^\beta.\]
+          </div>
+        </div>
+      </div>
+      <div class="method-initial-conditions">
+        <h3 data-i18n="blackHoleSimulator.methodInitialTitle">Condizioni iniziali da \(E\) e \(L_z\)</h3>
+        <p data-i18n="blackHoleSimulator.methodInitialText">Dopo aver ottenuto \(v^t\) e \(v^\phi\), la componente radiale segue dalla normalizzazione; Entrante/Uscente seleziona il segno di \(v^r\).</p>
+        <div class="formula method-formula">
+          \[g_{\mu\nu}v^\mu v^\nu=\kappa,\qquad \kappa=-1\ \mathrm{(timelike)},\qquad \kappa=0\ \mathrm{(null)}.\]
+        </div>
+      </div>
+      <a class="text-link" href="#calculation-details" data-i18n="blackHoleSimulator.openCalculationDetails">Consulta i dettagli di calcolo della Web Demo</a>
+    </section>
+
+    <section class="section-shell simulator-section scientific-validation reveal" id="scientific-validation">
+      <p class="eyebrow" data-i18n="blackHoleSimulator.validationEyebrow">Benchmark controllati</p>
+      <h2 data-i18n="blackHoleSimulator.validationTitle">Validazione scientifica</h2>
+      <p class="section-intro" data-i18n="blackHoleSimulator.validationIntro">Test analitici e di regressione eseguiti una sola volta con lo stesso core KerrNewmanPhysics usato dalla Web Demo. Sono distinti dai controlli numerici della traiettoria scelta dall'utente.</p>
+      <div class="validation-status" data-validation-status aria-live="polite">
+        <span class="validation-spinner" aria-hidden="true"></span>
+        <span data-i18n="blackHoleSimulator.validationRunning">Validazione in corso…</span>
+      </div>
+      <div data-validation-results hidden></div>
+    </section>
+
+    <section class="section-shell simulator-section simulator-limitations reveal" id="limitations">
+      <p class="eyebrow" data-i18n="blackHoleSimulator.limitationsEyebrow">Scelte del modello</p>
+      <h2 data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito della Web Demo</h2>
+      <p class="section-intro" data-i18n="blackHoleSimulator.limitationsIntro">L'ambito seguente definisce con precisione ciò che il modello rappresenta e ciò che resta fuori dall'implementazione nel browser.</p>
+      <div class="limitations-layout">
+        <article>
+          <h3 data-i18n="blackHoleSimulator.webScopeTitle">Web Demo attuale</h3>
+          <dl class="limitations-list">
+            <div><dt data-i18n="blackHoleSimulator.testParticleTitle">Approssimazione di particella di prova</dt><dd data-i18n="blackHoleSimulator.testParticleText">La traiettoria non modifica lo sfondo di Kerr–Newman.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.stationaryGeometryTitle">Geometria stazionaria fissata</dt><dd data-i18n="blackHoleSimulator.stationaryGeometryText">Non è un'evoluzione di relatività numerica di uno spaziotempo dinamico.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.neutralParticlesTitle">Particelle di prova neutre</dt><dd data-i18n="blackHoleSimulator.neutralParticlesText">La Web Demo integra geodetiche senza forza di Lorentz.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.equatorialConditionsTitle">Condizioni iniziali equatoriali</dt><dd data-i18n="blackHoleSimulator.equatorialConditionsText">Si impongono \(\theta_0=\pi/2\) e \(v^\theta_0=0\); lo stato coordinato completo viene integrato e la conservazione del piano è monitorata numericamente.</dd></div>
+          </dl>
+        </article>
+        <article>
+          <h3 data-i18n="blackHoleSimulator.beyondScopeTitle">Oltre la Web Demo</h3>
+          <dl class="limitations-list">
+            <div><dt data-i18n="blackHoleSimulator.coordinatesTitle">Coordinate di Boyer–Lindquist</dt><dd data-i18n="blackHoleSimulator.coordinatesText">Sono naturali per la geometria stazionaria di Kerr–Newman ma presentano una singolarità coordinata agli orizzonti; il solver si arresta vicino all'orizzonte esterno e non implica che la particella termini fisicamente lì.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.backreactionTitle">Nessuna self-force o backreaction</dt><dd data-i18n="blackHoleSimulator.backreactionText">Non sono incluse reazione di radiazione, self-force o modifiche dello spaziotempo di fondo.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.coordinatePlotTitle">Visualizzazione coordinata</dt><dd data-i18n="blackHoleSimulator.coordinatePlotText">Il grafico \(x=r\cos\phi\), \(y=r\sin\phi\) non è un embedding euclideo dello spaziotempo curvo.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.futureScopeTitle">Sviluppi futuri</dt><dd data-i18n="blackHoleSimulator.futureScopeText">Moto 3D non equatoriale, particelle cariche e metodi numerici avanzati appartengono al futuro Full Simulator.</dd></div>
+          </dl>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-shell simulator-section simulator-theory reveal" id="theoretical-background">
+      <div class="theory-copy">
+        <p class="eyebrow" data-i18n="blackHoleSimulator.theoryEyebrow">Documentazione teorica</p>
+        <h2 data-i18n="blackHoleSimulator.theoryTitle">Fondamenti teorici</h2>
+        <p data-i18n="blackHoleSimulator.theoryIntro">Il documento completo, 86 pagine in inglese, sviluppa il percorso da massa, carica e momento angolare attraverso Einstein–Maxwell, Reissner–Nordström, Kerr, le coordinate di Boyer–Lindquist e Kerr–Newman.</p>
+        <p data-i18n="blackHoleSimulator.theoryDetails">Titolo ufficiale: «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric». La trattazione comprende orizzonti, ergoregione, geodetiche e integrazione numerica.</p>
+      </div>
+      <article class="theory-document-card" data-shared-document="kerrNewmanTheory">
+        <span class="document-motif" aria-hidden="true"></span>
+        <p class="status" data-i18n="blackHoleSimulator.theoryDocumentLabel">PDF in inglese · 86 pagine</p>
+        <h3 data-shared-document-title>Metrica di Kerr–Newman: fondamenti teorici del simulatore</h3>
+        <p data-i18n="blackHoleSimulator.theoryDocumentDescription">Documenta le formule, le convenzioni, le unità e le quantità fisiche effettivamente utilizzate dal simulatore.</p>
+        <div class="actions theory-document-action" data-shared-document-action>
+          <a class="button ghost" href="assets/kerr-newman-metric-theoretical-background.pdf" target="_blank" rel="noopener">Apri PDF</a>
+          <a class="button primary" href="assets/kerr-newman-metric-theoretical-background.pdf" download>Scarica PDF</a>
+        </div>
+      </article>
+    </section>
+
+    <section class="section-shell simulator-section full-simulator-roadmap reveal" id="full-simulator">
+      <div class="roadmap-heading">
+        <div>
+          <p class="eyebrow" data-i18n="blackHoleSimulator.workInProgress">Lavori in corso</p>
+          <h2 data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</h2>
+        </div>
+        <p data-i18n="blackHoleSimulator.fullSimulatorIntro">Applicazione desktop futura. Le funzionalità seguenti descrivono la direzione prevista e non sono presenti nella Web Demo.</p>
+      </div>
+      <ul class="roadmap-list" data-simulator-list="fullFeatures"></ul>
     </section>
   </main>
 

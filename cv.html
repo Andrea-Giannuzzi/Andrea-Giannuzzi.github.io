@@ -34,16 +34,39 @@
     <section class="section-shell page-title reveal">
       <p class="eyebrow" data-i18n="cv.eyebrow">CV / Resume</p>
       <h1 data-i18n="cv.title">Academic CV</h1>
+      <p data-i18n="cv.intro">A concise overview of my academic path, research, and principal projects.</p>
       <a class="button primary" href="assets/cv/cv.pdf" download data-i18n="cv.downloadCv">Download CV</a>
     </section>
 
-    <section class="section-shell cv-layout">
-      <article class="cv-section reveal"><h2 data-i18n="cv.educationTitle">Education</h2><ul class="plain-list" data-list="educationItems"></ul></article>
-      <article class="cv-section reveal"><h2 data-i18n="cv.interestsTitle">Academic interests</h2><div class="tag-list" data-list="researchInterests"></div></article>
-      <article class="cv-section reveal"><h2 data-i18n="cv.skillsTitle">Technical skills</h2><div class="skills-grid compact" data-skills></div></article>
-      <article class="cv-section reveal"><h2 data-i18n="cv.projectsTitle">Projects</h2><ul class="plain-list" data-list="cvProjectItems"></ul></article>
-      <article class="cv-section reveal"><h2 data-i18n="cv.languagesTitle">Languages</h2><p data-i18n="cv.languagesText">Italiano; Inglese Livello C1.</p></article>
-      <article class="cv-section reveal"><h2 data-i18n="cv.additionalTitle">Additional interests</h2><p data-i18n="cv.additionalText">Scacchi, storia e divulgazione scientifica.</p></article>
+    <section class="section-shell cv-academic-layout">
+      <article class="cv-section reveal">
+        <h2 data-i18n="cv.educationTitle">Education</h2>
+        <div data-academic-overview="cv"></div>
+      </article>
+      <article class="cv-section reveal">
+        <h2 data-i18n="cv.distinctionsTitle">Academic distinctions</h2>
+        <div data-academic-distinctions></div>
+      </article>
+      <article class="cv-section wide reveal">
+        <h2 data-i18n="cv.researchTitle">Research experience</h2>
+        <div data-cv-research></div>
+      </article>
+      <article class="cv-section wide reveal">
+        <h2 data-i18n="cv.projectsTitle">Selected projects</h2>
+        <div class="cv-project-list" data-cv-projects></div>
+      </article>
+      <article class="cv-section wide reveal">
+        <h2 data-i18n="cv.courseworkTitle">Coursework</h2>
+        <div class="coursework-sections" data-coursework="all"></div>
+      </article>
+      <article class="cv-section reveal">
+        <h2 data-i18n="cv.activitiesTitle">Academic activities / schools</h2>
+        <h3 data-i18n="cv.schoolTitle">Physics in Ljubljana 2026</h3>
+        <p data-i18n="cv.schoolDetails">International Summer School, Ljubljana, 5–11 July 2026.</p>
+      </article>
+      <article class="cv-section reveal"><h2 data-i18n="cv.skillsTitle">Technical skills</h2><div class="skills-grid compact" data-skills="technical"></div></article>
+      <article class="cv-section reveal"><h2 data-i18n="cv.languagesTitle">Languages</h2><p data-i18n="cv.languagesText">Italian — native; English — Cambridge C1 Advanced (C1).</p></article>
+      <article class="cv-section secondary-card reveal"><h2 data-i18n="cv.additionalTitle">Additional interests</h2><p data-i18n="cv.additionalText">Chess; history; science communication.</p></article>
     </section>
   </main>
   <footer class="site-footer">

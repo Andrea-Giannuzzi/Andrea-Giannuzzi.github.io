@@ -35,12 +35,15 @@
       <div class="hero-copy reveal">
         <p class="eyebrow" data-i18n="home.eyebrow">Portfolio accademico</p>
         <h1 data-i18n="home.name">Andrea Giannuzzi</h1>
-        <p class="subtitle" data-i18n="home.subtitle">Studente triennale in Fisica</p>
-        <p class="lead" data-i18n="home.bio">Studente triennale in Fisica interessato alla Fisica Teorica, alla Relatività Generale e ai Metodi Matematici per la Fisica. Uso Python e strumenti computazionali per sviluppare piccoli progetti, simulazioni e analisi dati legate al mio percorso universitario.</p>
+        <p class="subtitle" data-i18n="home.subtitle">BSc Physics Student — University of Naples Federico II</p>
+        <p class="academic-interests" data-i18n="home.interests">Theoretical Physics · General Relativity · Quantum Field Theory · Mathematical Physics · Cosmology</p>
+        <p class="lead" data-i18n="home.bio">BSc Physics student with a strong theoretical and mathematical focus, combining analytical study with computational modelling.</p>
         <div class="actions">
-          <a class="button primary" href="https://github.com/Andrea-Giannuzzi" data-i18n="common.github">GitHub</a>
-          <a class="button ghost" href="contact.html" data-i18n="home.contact">Contact me</a>
+          <a class="button primary" href="research.html" data-i18n="home.researchAction">Research</a>
+          <a class="button ghost" href="black-hole-simulator.html" data-i18n="home.simulatorAction">Kerr–Newman Simulator</a>
+          <a class="button ghost" href="cv.html" data-i18n="home.cvAction">Academic CV</a>
         </div>
+        <a class="text-link secondary-link" href="https://github.com/Andrea-Giannuzzi" data-i18n="home.githubSecondary">GitHub profile</a>
       </div>
       <aside class="profile-card reveal" aria-label="Profile image">
         <!-- Put your profile photo at assets/images/profile.jpg. If the file is missing, the placeholder remains visible. -->
@@ -53,19 +56,21 @@
       </aside>
     </section>
 
-    <section class="section-shell grid-two reveal">
-      <article class="text-card">
-        <h2 data-i18n="home.currentWorkTitle">Current direction</h2>
-        <p data-i18n="home.currentWork">I am building a compact academic portfolio around physics notes, laboratory data analysis, and small computational tools. The site is intended to grow with coursework, projects, and future applications to master's programs.</p>
-      </article>
-      <article class="text-card">
-        <h2 data-i18n="home.quickLinksTitle">Explore</h2>
-        <ul class="plain-list">
-          <li><a href="projects.html" data-i18n="nav.projects">Projects</a></li>
-          <li><a href="notes.html" data-i18n="nav.notes">Notes</a></li>
-          <li><a href="cv.html" data-i18n="nav.cv">CV</a></li>
-        </ul>
-      </article>
+    <section class="section-shell selected-work-section">
+      <div class="selected-work-heading reveal">
+        <h2 data-i18n="home.selectedWorkTitle">Selected Work</h2>
+        <p data-i18n="home.selectedWorkIntro">A selection of current research and computational physics work.</p>
+      </div>
+      <div class="featured-home-grid">
+        <article class="text-card featured-research-card reveal">
+          <h2 data-i18n="home.featuredResearchTitle">Featured Research</h2>
+          <div data-featured-research></div>
+        </article>
+        <article class="text-card featured-project-card reveal">
+          <h2 data-i18n="home.featuredProjectTitle">Featured Project</h2>
+          <div data-featured-project></div>
+        </article>
+      </div>
     </section>
   </main>
   <footer class="site-footer">
