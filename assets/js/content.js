@@ -160,7 +160,7 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "Progetti",
-      intro: "Una selezione di progetti di fisica computazionale e teorica.",
+      intro: "Una selezione di progetti di fisica teorica, calcolo scientifico e analisi dei dati.",
       featuredTitle: "Progetti in evidenza",
       featuredIntro: "Lavori scientifici più articolati e attualmente rappresentativi.",
       earlierTitle: "Progetti precedenti e di apprendimento",
@@ -178,6 +178,9 @@ window.PORTFOLIO_CONTENT = {
       repositoryLink: "Apri repository",
       repositoryCardLink: "Repository GitHub",
       repositoryUnavailable: "Repository non ancora disponibile",
+      liveTitle: "Web app",
+      liveText: "Accedi alla web app pubblica di MIRA.",
+      liveLink: "Apri MIRA",
       backToProjects: "Torna a Projects",
       unavailableProject: "Progetto non disponibile."
     },
@@ -587,7 +590,7 @@ window.PORTFOLIO_CONTENT = {
       {
         id: "lambda-cdm",
         tier: "featured",
-        featuredRank: 2,
+        featuredRank: 3,
         title: "ΛCDM",
         short: "Progetto didattico che calcola e visualizza l'evoluzione di un modello Lambda-CDM in funzione del fattore di scala a.",
         detail: "Confronta il parametro di Hubble normalizzato con quello fisico e mostra i contributi di radiazione, barioni, materia oscura fredda, materia totale e costante cosmologica.",
@@ -606,6 +609,27 @@ window.PORTFOLIO_CONTENT = {
           "Genera un grafico di E(a) e un grafico del parametro di Hubble fisico H(a), con i relativi contributi frazionari."
         ],
         requirements: "Python 3 con NumPy e Matplotlib."
+      },
+      {
+        id: "mira",
+        tier: "featured",
+        featuredRank: 2,
+        title: "MIRA — Modelling, Inference, Regression & Analysis",
+        short: "Piattaforma web interattiva per l'analisi, la visualizzazione e il fitting di dati scientifici, accessibile anche a chi non conosce ancora Python o la programmazione scientifica.",
+        detail: "Progettata e sviluppata congiuntamente e alla pari da Andrea Giannuzzi e Davide Alvino, mantiene un workflow orientato all'analisi scientifica.",
+        type: "Piattaforma web di analisi scientifica",
+        status: "Web app disponibile",
+        url: "projects/mira.html",
+        liveUrl: "https://mira.mira-fit-project.workers.dev/it/",
+        preview: "MIRA",
+        overview: "MIRA — Modelling, Inference, Regression & Analysis è una piattaforma web interattiva per l'analisi, la visualizzazione e il fitting di dati scientifici, progettata e sviluppata congiuntamente e alla pari da Andrea Giannuzzi e Davide Alvino. È pensata per rendere strumenti di analisi dati, normalmente utilizzati attraverso ambienti di programmazione, accessibili anche a chi non conosce ancora Python o la programmazione scientifica, mantenendo al tempo stesso un workflow adatto all'analisi scientifica.",
+        method: "Il workflow integra analisi, visualizzazione e fitting in un ambiente orientato all'analisi scientifica, adatto sia a chi si avvicina a questi strumenti senza conoscere Python sia a chi cerca un flusso di lavoro scientifico.",
+        results: [
+          "Analisi e visualizzazione interattiva di dati scientifici.",
+          "Fitting dei dati all'interno dello stesso workflow.",
+          "Accesso agli strumenti anche senza conoscenze pregresse di Python, con un'impostazione adatta all'analisi scientifica."
+        ],
+        requirements: "Accesso tramite browser; non sono richieste conoscenze pregresse di Python."
       },
       {
         id: "kerr-newman-black-hole-simulator",
@@ -939,7 +963,7 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "Projects",
-      intro: "A selected portfolio of computational and theoretical physics projects.",
+      intro: "A selected portfolio of theoretical physics, scientific computing, and data-analysis projects.",
       featuredTitle: "Featured Projects",
       featuredIntro: "The most substantial and currently representative scientific work.",
       earlierTitle: "Earlier / Learning Projects",
@@ -957,6 +981,9 @@ window.PORTFOLIO_CONTENT = {
       repositoryLink: "Open repository",
       repositoryCardLink: "GitHub repository",
       repositoryUnavailable: "Repository not available yet",
+      liveTitle: "Web app",
+      liveText: "Access the public MIRA web app.",
+      liveLink: "Launch MIRA",
       backToProjects: "Back to Projects",
       unavailableProject: "Project not available."
     },
@@ -1366,7 +1393,7 @@ window.PORTFOLIO_CONTENT = {
       {
         id: "lambda-cdm",
         tier: "featured",
-        featuredRank: 2,
+        featuredRank: 3,
         title: "ΛCDM",
         short: "An educational project that calculates and visualizes the evolution of a Lambda-CDM model as a function of the scale factor a.",
         detail: "It compares the normalized Hubble parameter with the physical one and shows the contributions from radiation, baryons, cold dark matter, total matter, and the cosmological constant.",
@@ -1385,6 +1412,27 @@ window.PORTFOLIO_CONTENT = {
           "Generates a plot of E(a) and a plot of the physical Hubble parameter H(a), together with their fractional contributions."
         ],
         requirements: "Python 3 with NumPy and Matplotlib."
+      },
+      {
+        id: "mira",
+        tier: "featured",
+        featuredRank: 2,
+        title: "MIRA — Modelling, Inference, Regression & Analysis",
+        short: "An interactive web platform for analyzing, visualizing, and fitting scientific data, accessible even to people who do not yet know Python or scientific programming.",
+        detail: "Jointly designed and developed on an equal footing by Andrea Giannuzzi and Davide Alvino, it maintains a workflow geared toward scientific analysis.",
+        type: "Scientific data-analysis web platform",
+        status: "Web app available",
+        url: "projects/mira.html",
+        liveUrl: "https://mira.mira-fit-project.workers.dev/it/",
+        preview: "MIRA",
+        overview: "MIRA — Modelling, Inference, Regression & Analysis is an interactive web platform for the analysis, visualization, and fitting of scientific data, jointly designed and developed on an equal footing by Andrea Giannuzzi and Davide Alvino. It is designed to make data-analysis tools normally used through programming environments accessible even to people who do not yet know Python or scientific programming, while maintaining a workflow suited to scientific analysis.",
+        method: "The workflow integrates analysis, visualization, and fitting in an environment geared toward scientific analysis, suited both to people approaching these tools without Python knowledge and to those seeking a scientific-analysis workflow.",
+        results: [
+          "Interactive analysis and visualization of scientific data.",
+          "Data fitting within the same workflow.",
+          "Access to the tools without prior Python knowledge, while retaining an approach suited to scientific analysis."
+        ],
+        requirements: "Browser access; no prior Python knowledge is required."
       },
       {
         id: "kerr-newman-black-hole-simulator",

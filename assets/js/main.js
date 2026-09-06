@@ -67,6 +67,9 @@ function projectCardMarkup(project, content) {
       ? `<a class="text-link" href="${project.githubUrl}">${content.projects.repositoryCardLink}</a>`
       : `<span class="text-link unavailable" aria-disabled="true">${content.projects.repositoryUnavailable}</span>`
     : "";
+  const technologies = project.tech?.length
+    ? `<div class="tag-list small">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>`
+    : "";
   return `
     <article class="project-card reveal visible">
       <div class="project-preview" aria-hidden="true">${project.preview}</div>
@@ -75,7 +78,7 @@ function projectCardMarkup(project, content) {
         <h2><a href="${getBasePath()}${project.url}">${project.title}</a></h2>
         <p class="project-short">${project.short}</p>
         <p>${project.detail}</p>
-        <div class="tag-list small">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
+        ${technologies}
         <div class="project-actions">
           <a class="text-link" href="${getBasePath()}${project.url}">${content.projects.openProject}</a>
           ${repositoryAction}
@@ -111,6 +114,27 @@ function renderProjectDetail(language) {
   const description = document.querySelector("meta[data-project-description]");
   if (description) description.setAttribute("content", project.short);
 
+  const technologiesSection = project.tech?.length
+    ? `<section>
+      <h2>${content.projects.technologiesLabel}</h2>
+      <div class="tag-list">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
+    </section>`
+    : "";
+  const repositoryPanel = project.githubUrl
+    ? `<section class="repository-panel">
+      <h2>${content.projects.repositoryTitle}</h2>
+      <p>${content.projects.repositoryText}</p>
+      <a class="button primary" href="${project.githubUrl}">${content.projects.repositoryLink}</a>
+    </section>`
+    : "";
+  const livePanel = project.liveUrl
+    ? `<section class="repository-panel">
+      <h2>${content.projects.liveTitle}</h2>
+      <p>${content.projects.liveText}</p>
+      <a class="button primary" href="${project.liveUrl}">${content.projects.liveLink}</a>
+    </section>`
+    : "";
+
   container.innerHTML = `
     <p class="eyebrow">${content.projects.eyebrow}</p>
     <h1>${project.title}</h1>
@@ -121,10 +145,7 @@ function renderProjectDetail(language) {
       <div><dt>${content.projects.statusLabel}</dt><dd>${project.status}</dd></div>
     </dl>
 
-    <section>
-      <h2>${content.projects.technologiesLabel}</h2>
-      <div class="tag-list">${project.tech.map((item) => `<span>${item}</span>`).join("")}</div>
-    </section>
+    ${technologiesSection}
 
     <section>
       <h2>${content.projects.overviewTitle}</h2>
@@ -146,11 +167,8 @@ function renderProjectDetail(language) {
       <p>${project.requirements}</p>
     </section>
 
-    <section class="repository-panel">
-      <h2>${content.projects.repositoryTitle}</h2>
-      <p>${content.projects.repositoryText}</p>
-      <a class="button primary" href="${project.githubUrl}">${content.projects.repositoryLink}</a>
-    </section>
+    ${repositoryPanel}
+    ${livePanel}
 
     <a class="text-link" href="${getBasePath()}projects.html">${content.projects.backToProjects}</a>
   `;

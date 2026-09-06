@@ -737,6 +737,19 @@ code {
   padding: 72px 0;
 }
 
+.project-detail[data-project-detail="mira"] h1 {
+  max-width: none;
+  font-size: clamp(2rem, 3vw, 2.35rem);
+  line-height: 1.08;
+}
+
+@media (min-width: 1400px) {
+  .project-detail[data-project-detail="mira"] h1 {
+    width: 1120px;
+    white-space: nowrap;
+  }
+}
+
 .subject-page {
   padding: 72px 0;
 }
