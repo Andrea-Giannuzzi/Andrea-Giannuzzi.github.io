@@ -160,9 +160,9 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "Progetti",
-      intro: "Una selezione di progetti di fisica teorica, calcolo scientifico e analisi dei dati.",
+      intro: "Una selezione di progetti di fisica teorica, calcolo scientifico, analisi dei dati e sviluppo software con strumenti AI.",
       featuredTitle: "Progetti in evidenza",
-      featuredIntro: "Lavori scientifici più articolati e attualmente rappresentativi.",
+      featuredIntro: "I lavori più articolati e rappresentativi tra ricerca scientifica e sviluppo software.",
       earlierTitle: "Progetti precedenti e di apprendimento",
       earlierIntro: "Progetti introduttivi che documentano lo sviluppo di metodi analitici e computazionali.",
       openProject: "Apri progetto",
@@ -611,6 +611,25 @@ window.PORTFOLIO_CONTENT = {
         requirements: "Python 3 con NumPy e Matplotlib."
       },
       {
+        id: "secondbrain-agent-ecosystem",
+        tier: "featured",
+        featuredRank: 4,
+        title: "Second Brain Agent Ecosystem",
+        tech: ["Python", "Node.js", "Qdrant", "MCP", "Ruflo", "CAO"],
+        status: "Release candidate",
+        url: "projects/secondbrain-agent-ecosystem.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/secondbrain-agent-ecosystem",
+        repositoryAction: true,
+        preview: "Second Brain",
+        short: "Ambiente locale per macOS che integra organizzazione della conoscenza, ricerca semantica e collaborazione tra agenti AI.",
+        detail: "Una dashboard riunisce il Librarian documentale, la ricerca nel Second Brain e team Claude–Codex–Antigravity coordinati tramite Ruflo e CLI Agent Orchestrator.",
+        type: "Gestione della conoscenza e coordinamento agenti AI",
+        overview: "Second Brain Agent Ecosystem integra un archivio locale di conoscenza con strumenti per consultarlo e coordinare attività di sviluppo. La dashboard macOS permette di seguire documenti, servizi e team; gli agenti accedono alle note canoniche attraverso un MCP in sola lettura. Il progetto integra strumenti e provider di terze parti e non è affiliato ai loro produttori.",
+        method: "Il flusso documentale passa dall’ingestione al Librarian, il cui executor deterministico applica transazioni validate alle note canoniche. Qdrant ed embedding locali supportano la ricerca semantica senza chiamate ai provider AI. Nei team di sviluppo, la sessione coordinatrice è l’unico writer del progetto; Ruflo gestisce attività e memoria, mentre CAO esegue worker su snapshot redatti. La revisione privilegia un provider diverso dall’autore e segnala esplicitamente gli eventuali fallback non indipendenti.",
+        results: ["Dashboard locale per consultare stato dei servizi, coda documentale e attività dei team.", "Librarian per elaborare documenti e aggiornare la conoscenza tramite transazioni validate.", "Ricerca semantica locale e consultazione di note e relazioni attraverso strumenti MCP in sola lettura.", "Coordinamento di Claude, Codex e Antigravity con ruoli delimitati e revisione tra provider."],
+        requirements: "macOS, Python 3.12+, Node.js 20+, npm, un vault locale, CAO, tmux, Poppler e Tesseract. È richiesto almeno un client AI autenticato; almeno due provider per una revisione indipendente. VS Code è facoltativo. La ricerca usa calcolo locale, mentre le attività AI possono consumare la quota dei provider. La release candidate presenta verifiche ancora in sospeso, documentate nella repository."
+      },
+      {
         id: "mira",
         tier: "featured",
         featuredRank: 2,
@@ -963,9 +982,9 @@ window.PORTFOLIO_CONTENT = {
     projects: {
       eyebrow: "Projects",
       title: "Projects",
-      intro: "A selected portfolio of theoretical physics, scientific computing, and data-analysis projects.",
+      intro: "A selected portfolio of theoretical physics, scientific computing, data analysis, and software development with AI tools.",
       featuredTitle: "Featured Projects",
-      featuredIntro: "The most substantial and currently representative scientific work.",
+      featuredIntro: "The most substantial and representative work in scientific research and software development.",
       earlierTitle: "Earlier / Learning Projects",
       earlierIntro: "Introductory projects documenting the development of analytical and computational methods.",
       openProject: "Open project",
@@ -1412,6 +1431,25 @@ window.PORTFOLIO_CONTENT = {
           "Generates a plot of E(a) and a plot of the physical Hubble parameter H(a), together with their fractional contributions."
         ],
         requirements: "Python 3 with NumPy and Matplotlib."
+      },
+      {
+        id: "secondbrain-agent-ecosystem",
+        tier: "featured",
+        featuredRank: 4,
+        title: "Second Brain Agent Ecosystem",
+        tech: ["Python", "Node.js", "Qdrant", "MCP", "Ruflo", "CAO"],
+        status: "Release candidate",
+        url: "projects/secondbrain-agent-ecosystem.html",
+        githubUrl: "https://github.com/Andrea-Giannuzzi/secondbrain-agent-ecosystem",
+        repositoryAction: true,
+        preview: "Second Brain",
+        short: "A local macOS environment combining knowledge organization, semantic search, and collaboration between AI agents.",
+        detail: "A dashboard brings together the document Librarian, Second Brain search, and Claude–Codex–Antigravity teams coordinated through Ruflo and CLI Agent Orchestrator.",
+        type: "Knowledge management and AI agent coordination",
+        overview: "Second Brain Agent Ecosystem connects a local knowledge archive with tools for consulting it and coordinating development work. The macOS dashboard tracks documents, services, and teams; agents access canonical notes through a read-only MCP. The project integrates third-party tools and providers and is not affiliated with their vendors.",
+        method: "Documents move from ingestion to the Librarian, whose deterministic executor applies validated transactions to canonical notes. Qdrant and local embeddings support semantic search without AI provider calls. In development teams, the coordinating session is the only project writer; Ruflo manages tasks and memory, while CAO runs workers against redacted snapshots. Review favors a provider other than the author and explicitly labels any fallback without independent review.",
+        results: ["Local dashboard for service status, the document queue, and team activity.", "A Librarian that processes documents and updates knowledge through validated transactions.", "Local semantic search and access to notes and relationships through read-only MCP tools.", "Coordination of Claude, Codex, and Antigravity with bounded roles and cross-provider review."],
+        requirements: "macOS, Python 3.12+, Node.js 20+, npm, a local vault, CAO, tmux, Poppler, and Tesseract. At least one authenticated AI client is required; at least two providers are needed for independent review. VS Code is optional. Search uses local compute, while AI tasks may consume provider quota. The release candidate has checks still pending, documented in the repository."
       },
       {
         id: "mira",
