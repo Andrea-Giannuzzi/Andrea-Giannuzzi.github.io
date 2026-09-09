@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Black Hole 3D - Parametri Relativistici</title>
+    <style>
+        body { margin: 0; overflow: hidden; background: #0b0f19; color: #e2e8f0; font-family: system-ui, sans-serif; display: flex; }
+        #sidebar { width: 350px; background: #111827; padding: 20px; overflow-y: auto; height: 100vh; box-sizing: border-box; border-right: 1px solid #1f2937; z-index: 10; }
+        #canvas-container { flex-grow: 1; position: relative; }
+        h2 { font-size: 1.2rem; margin-bottom: 20px; color: #f8fafc; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.875rem; margin-bottom: 5px; color: #9ca3af; font-weight: 500; }
+        input, select { width: 100%; background: #1f2937; border: 1px solid #374151; color: white; padding: 8px; border-radius: 6px; box-sizing: border-box; font-family: monospace; }
+        input:focus { outline: none; border-color: #3b82f6; }
+        .section-title { margin-top: 25px; margin-bottom: 10px; font-size: 0.9rem; text-transform: uppercase; color: #6b7280; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div id="sidebar">
+        <h2>Parameters & Initial Conditions</h2>
+        <div class="form-group">
+            <label>Mass M (M☉)</label>
+            <input type="number" id="p_mass" value="10" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Charge Q (C)</label>
+            <input type="number" id="p_charge" value="0" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Angular momentum J</label>
+            <input type="number" id="p_spin" value="6.16e43">
+        </div>
+        
+        <div class="section-title">Advanced Settings</div>
+        <div class="form-group">
+            <label>Initial radius r₀ / M</label>
+            <input type="number" id="p_radius" value="12" step="0.5">
+        </div>
+        <div class="form-group">
+            <label>Specific energy E</label>
+            <input type="number" id="p_energy" value="1" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Axial angular momentum L_z / M</label>
+            <input type="number" id="p_lz" value="2.5" step="0.1">
+        </div>
+        <div class="form-group">
+            <label>Test object</label>
+            <select id="p_type"><option>Photon</option><option>Massive</option></select>
+        </div>
+    </div>
+    
+    <div id="canvas-container"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script>
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(60, container.clientWidth / container.clientHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setSize(container.clientWidth, container.clientHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+        container.appendChild(renderer.domElement);
+        const controls = new THREE.OrbitControls(camera, renderer.domElement);
+        controls.enableDamping = true;
+
+        // Base Black Hole
+        const bhMesh = new THREE.Mesh(new THREE.SphereGeometry(1, 64, 64), new THREE.MeshBasicMaterial({ color: 0x000000 }));
+        scene.add(bhMesh);
+        const glowMesh = new THREE.Mesh(new THREE.SphereGeometry(1.15, 64, 64), new THREE.MeshBasicMaterial({ color: 0xff8800, transparent: true, opacity: 0.2, side: THREE.BackSide, blending: THREE.AdditiveBlending }));
+        scene.add(glowMesh);
+
+        // Test Particle
+        const particleMesh = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshBasicMaterial({ color: 0x00ffff }));
+        scene.add(particleMesh);
+
+        // Accretion Disk
+        const diskGeo = new THREE.BufferGeometry();
+        const diskCount = 15000;
+        const pos = new Float32Array(diskCount * 3);
+        const colors = new Float32Array(diskCount * 3);
+        const cIn = new THREE.Color(0xffffff);
+        const cOut = new THREE.Color(0xaa2200);
+
+        for(let i=0; i<diskCount*3; i+=3) {
+            const r = 1.5 + Math.random() * 6;
+            const theta = Math.random() * Math.PI * 2;
+            pos[i] = r * Math.cos(theta); 
+            pos[i+1] = (Math.random()-0.5)* (7-r) * 0.1; 
+            pos[i+2] = r * Math.sin(theta);
+            
+            const f = (r - 1.5) / 6;
+            const mix = cIn.clone().lerp(cOut, f);
+            colors[i] = mix.r; colors[i+1] = mix.g; colors[i+2] = mix.b;
+        }
+        diskGeo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+        diskGeo.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+        const diskMesh = new THREE.Points(diskGeo, new THREE.PointsMaterial({ size: 0.05, vertexColors: true, transparent: true, opacity: 0.8, blending: THREE.AdditiveBlending, depthWrite: false }));
+        diskMesh.rotation.x = Math.PI / 8;
+        scene.add(diskMesh);
+        
+        let currentSpinSpeed = 0.01;
+
+        function updatePhysics() {
+            const M = parseFloat(document.getElementById('p_mass').value) || 1;
+            const J_val = parseFloat(document.getElementById('p_spin').value) || 0;
+            const r0 = parseFloat(document.getElementById('p_radius').value) || 12;
+            const Q = parseFloat(document.getElementById('p_charge').value) || 0;
+            
+            const visualScale = Math.max(0.5, M / 10);
+            bhMesh.scale.setScalar(visualScale);
+            glowMesh.scale.setScalar(visualScale);
+            diskMesh.scale.setScalar(visualScale);
+            
+            currentSpinSpeed = (J_val > 0) ? 0.05 : 0.002;
+            glowMesh.material.color.setHex(Q > 0 ? 0x0088ff : 0xff8800);
+            
+            particleMesh.position.set(r0 * visualScale, 0, 0);
+            camera.position.set(0, r0 * visualScale * 0.5, r0 * visualScale * 1.2);
+        }
+
+        document.querySelectorAll('input, select').forEach(el => el.addEventListener('input', updatePhysics));
+        updatePhysics();
+
+        function animate() {
+            requestAnimationFrame(animate);
+            diskMesh.rotation.y -= currentSpinSpeed;
+            glowMesh.scale.setScalar(bhMesh.scale.x * (1 + Math.sin(Date.now()*0.003)*0.02));
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = container.clientWidth / container.clientHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(container.clientWidth, container.clientHeight);
+        });
+    </script>
+</body>
+</html>

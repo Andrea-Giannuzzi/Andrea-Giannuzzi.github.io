@@ -8,7 +8,8 @@ Static bilingual academic website built with plain HTML, CSS, and JavaScript and
 index.html                  Academic overview and featured work
 about.html                  Academic path, interests, skills, and coursework
 research.html               Ongoing research work and research notes
-black-hole-simulator.html   Interactive equatorial-geodesic Web Demo
+black-hole-simulator.html   Equatorial-geodesic 2D simulator
+black-hole-simulator-3d.html 3D geodesics with local launch angles and orbit controls
 projects.html               Featured and earlier/learning projects
 notes.html                  Subject-based scientific notes library
 cv.html                     Concise web CV and downloadable PDF CV
@@ -24,6 +25,18 @@ Project detail pages live under `projects/`. Notes use a subject hierarchy under
 - `assets/js/black-hole-physics.js` contains the readable numerical and relativistic-physics layers used by the simulator.
 - `assets/js/black-hole-simulator.js` connects simulator controls, rendering, and language updates to the physics layer.
 - `assets/css/styles.css` defines the shared theme, academic layouts, Notes/Projects cards, and simulator presentation.
+
+## 3D initial conditions
+
+The 3D view accepts initial radius and latitude, launch azimuth/elevation, and speed measured in the local ZAMO frame. Azimuth 0° points radially outward, 90° in the positive azimuthal direction, and 180° inward. Positive elevation points north of the local radial-azimuthal plane. Initial position azimuth is fixed to zero by axial symmetry.
+
+Massive particles have `0 <= v/c < 1`; photons have `v/c = 1`. Energy, axial angular momentum and the Carter constant are derived. New photon launches use local energy normalized to 1; imported 2D states preserve their original affine normalization until edited. The 2D form remains equatorial. Opening 3D transfers the current 2D fields, including values not yet simulated. Matching completed runs start automatically; edited or unexecuted configurations wait for Run simulation. This transfer does not replace the last completed 2D run. Invalid launch conditions are reported before navigation.
+
+Three additional 3D presets provide inclined photon motion and massive launches from the northern and southern hemispheres. The preview is rendered before configuration loading; its framing reserves space for the controls, which start collapsed on mobile.
+
+The solver uses fixed-step RK4 in Boyer–Lindquist coordinates. Local 3D launches stop safely at the polar coordinate boundary or the existing horizon margin; these stops do not model collisions or continuation through the horizon. Diagnostics report normalization and conserved-quantity errors.
+
+The disk's inner edge is the real numeric ISCO (`P.iscoRadius`; a spin-only Kerr fallback is used for the Kerr-Newman case, which has no closed-form ISCO here). Its rotation, gravitational+orbital redshift and Novikov-Thorne-shaped temperature/color are derived directly from the metric (`P.keplerianAngularVelocity`, `P.diskRedshiftFactor`, `P.diskTemperature`); relativistic Doppler beaming is computed live in a vertex/fragment shader from the camera position. Gravitational lensing of the starfield uses a 1-D deflection table (`P.computeLensingTable`) built from real backward-integrated photon geodesics (a new `escapedToLarge` stop reason), recomputed when physical parameters change. Both are deliberate approximations, not full per-pixel ray tracing: the lensing table does not capture Kerr's frame-dragging asymmetry or multiple imaging near the photon sphere, and the disk's absolute brightness/temperature scale is a display choice, not derived from an accretion rate. See the source comments in `assets/js/black-hole-physics.js` and `assets/js/black-hole-3d.js` for the exact formulas and their limits.
 
 ## Updating academic data
 
@@ -58,11 +71,19 @@ Replacing either file at the same path requires no HTML change.
 
 ## Local preview
 
+Requires Node.js/npm and Python 3. No dependency installation or build step is needed.
+
 ```bash
-python3 -m http.server 8000
+npm run dev
 ```
 
-Then open `http://localhost:8000` and verify navigation, both languages, project/note links, PDF actions, and the simulator on desktop and mobile widths.
+Open `http://127.0.0.1:8000` while the command remains running. The 3D simulator is at `http://127.0.0.1:8000/black-hole-simulator-3d.html`. Refresh the browser after editing files; this server does not provide automatic reload. Stop it with Ctrl+C.
+
+Without npm, use `python3 -m http.server 8000 --bind 127.0.0.1`. If port 8000 is occupied, use `python3 -m http.server 8001 --bind 127.0.0.1` and open port 8001 instead.
+
+Run the shared-physics and session-state checks with `npm test`.
+
+Then open `http://127.0.0.1:8000` and verify navigation, both languages, project/note links, PDF actions, and the simulator on desktop and mobile widths.
 
 ## Deployment
 

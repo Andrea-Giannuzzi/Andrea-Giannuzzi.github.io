@@ -4,35 +4,9 @@
   const P = window.KerrNewmanPhysics;
   if (!P) return;
 
-  const DEFAULT_MASS_SOLAR = 10;
-  const DEFAULT_SPIN = 0.7;
-  const PRESETS = {
-    photonCircular: {
-      object: "photon", aStar: 0, qC: 0, radius: 3, energy: 1,
-      lz: 3 * Math.sqrt(3), direction: "outgoing", maxLambda: 40
-    },
-    photonCapture: {
-      object: "photon", aStar: 0.7, qC: 0, radius: 12, energy: 1,
-      lz: 2.5, direction: "ingoing", maxLambda: 55
-    },
-    photonScattering: {
-      object: "photon", aStar: 0, qC: 0, radius: 18, energy: 1,
-      lz: 6, direction: "ingoing", maxLambda: 80
-    },
-    massiveCircular: {
-      object: "massive", aStar: 0, qC: 0, radius: 8,
-      energy: (1 - 2 / 8) / Math.sqrt(1 - 3 / 8),
-      lz: Math.sqrt(8) / Math.sqrt(1 - 3 / 8), direction: "outgoing", maxLambda: 60
-    },
-    massiveInfall: {
-      object: "massive", aStar: 0.7, qC: 0, radius: 12, energy: 1,
-      lz: 0, direction: "ingoing", maxLambda: 60
-    },
-    massiveFlyby: {
-      object: "massive", aStar: 0, qC: 0, radius: 18, energy: 1.02,
-      lz: 5, direction: "ingoing", maxLambda: 100
-    }
-  };
+  const S = window.BlackHoleSimulation;
+  const { PRESETS, DEFAULT_MASS_SOLAR, DEFAULT_SPIN } = S;
+  let lastSuccessfulConfiguration = null;
 
   let elements;
   let unitMode = "physical";
@@ -325,38 +299,29 @@
     }
   }
 
-  function runSimulation(event) {
+  function readConfiguration() {
+    return S.validate({ version: 1, physical: readPhysicalInputs(), unitMode, preset: activePreset,
+      initial: { radius: numberValue(elements.radius), energy: numberValue(elements.energy),
+        angularMomentum: numberValue(elements.lz), massive: elements.object.value === "massive",
+        radialDirection: elements.direction.value },
+      maxLambda: activePreset ? PRESETS[activePreset].maxLambda : P.NUMERICS.maxLambda });
+  }
+  function runSimulation(event, restoredConfiguration = null) {
     if (event) event.preventDefault();
     try {
-      const physical = readPhysicalInputs();
-      const params = P.dimensionlessParameters(physical);
-      const spacetime = selectedSpacetimeFromInputs();
-      const properties = P.geometryProperties(params, spacetime);
-      const radius = numberValue(elements.radius);
-      if (properties.hasHorizon && radius <= properties.outer + P.NUMERICS.horizonMargin) {
-        const error = new Error("r_0 must lie outside the outer horizon in Boyer-Lindquist coordinates.");
-        error.code = "insideOuterHorizon";
-        throw error;
-      }
-      const initialState = P.initialStateFromConstants(params, {
-        radius,
-        energy: numberValue(elements.energy),
-        angularMomentum: numberValue(elements.lz),
-        massive: elements.object.value === "massive",
-        radialDirection: elements.direction.value
-      });
-      const maxLambda = activePreset
-        ? PRESETS[activePreset].maxLambda
-        : P.NUMERICS.maxLambda;
-      const result = P.integrateGeodesic(params, initialState, { maxLambda });
-      lastSimulation = { params, physical, properties, initialState, result };
+      const simulation = S.run(restoredConfiguration || readConfiguration());
+      const { params, physical, properties, result } = simulation;
+      lastSimulation = simulation;
+      lastSuccessfulConfiguration = simulation.config;
+      const saved = S.save(simulation.config);
       currentParams = params;
       currentPhysical = physical;
-      currentSpacetime = spacetime;
+      currentSpacetime = properties.spacetime;
       renderVisualization(lastSimulation, params, properties);
       renderNumericalChecks(lastSimulation);
       renderCalculationDetails(lastSimulation);
       elements.status.textContent = `${content().simulationReady} ${content().stopReasons[result.stopReason] || result.stopReason}`;
+      if (!saved) elements.status.textContent += ` ${content().threeD.storageError}`;
     } catch (error) {
       lastSimulation = null;
       renderNumericalChecks(null);
@@ -687,6 +652,30 @@
       elements.calculationPanel.open = true;
     });
     elements.form.addEventListener("submit", runSimulation);
+    elements.form.addEventListener("invalid", (event) => {
+      const details = event.target.closest("details");
+      if (details) details.open = true;
+    }, true);
+    document.querySelector("[data-open-3d]").addEventListener("click", (event) => {
+      if (!elements.form.reportValidity()) { event.preventDefault(); return; }
+      try {
+        const config = readConfiguration();
+        const comparable = (value) => value ? JSON.stringify({ physical: value.physical, initial: value.initial, maxLambda: value.maxLambda }) : "";
+        const autoRun = comparable(config) === comparable(lastSuccessfulConfiguration);
+        if (S.transferTo3D(config, autoRun)) return;
+        event.preventDefault();
+        elements.status.textContent = content().threeD.storageError + " ";
+        const link = document.createElement("a");
+        link.href = "black-hole-simulator-3d.html?manual=1";
+        link.textContent = content().threeD.openManual;
+        elements.status.append(link);
+        link.focus();
+      } catch (error) {
+        event.preventDefault();
+        elements.status.textContent = `${content().initialConditionError}: ${localizedError(error)}`;
+        elements.status.scrollIntoView({ block: "nearest" });
+      }
+    });
     window.addEventListener("resize", () => {
       if (currentParams) {
         renderVisualization(lastSimulation, currentParams,
@@ -718,6 +707,24 @@
     bindEvents();
     initialized = true;
     updateGeometry({ preserveTrajectory: false, quiet: true });
+    const stored = S.load();
+    if (stored.config) {
+      const config = stored.config;
+      lastSuccessfulConfiguration = config;
+      unitMode = config.unitMode;
+      setInputValuesFromPhysical(config.physical);
+      elements.object.value = config.initial.massive ? "massive" : "photon";
+      elements.radius.value = String(config.initial.radius);
+      elements.energy.value = String(config.initial.energy);
+      elements.lz.value = String(config.initial.angularMomentum);
+      elements.direction.value = config.initial.radialDirection;
+      activePreset = config.preset;
+      setUnitMode(unitMode);
+      renderConfigurationState();
+      runSimulation(null, config);
+    } else if (stored.error) {
+      elements.status.textContent = content().threeD.storageError;
+    }
     scheduleScientificValidation();
   }
 

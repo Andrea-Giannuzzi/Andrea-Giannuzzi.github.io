@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>Black Hole 3D Simulator | Andrea Giannuzzi</title>
+  <link rel="stylesheet" href="assets/css/black-hole-3d.css">
+  <script src="assets/js/content.js" defer></script>
+  <script src="assets/vendor/three/three.min.js" defer></script>
+  <script src="assets/vendor/three/OrbitControls.js" defer></script>
+  <script src="assets/js/black-hole-physics.js" defer></script>
+  <script src="assets/js/black-hole-simulation.js" defer></script>
+  <script src="assets/js/black-hole-3d.js" defer></script>
+</head>
+<body>
+  <main id="simulator-3d">
+    <div id="canvas-container"></div>
+    <div id="ui-layer">
+      <header class="scene-header">
+        <div><h1 data-i18n="threeD.title">Black Hole 3D Simulator</h1><p data-i18n="threeD.subtitle">Geodetiche 3D · Kerr–Newman</p></div>
+        <nav aria-label="Simulator">
+          <a href="black-hole-simulator.html#web-demo" data-i18n="threeD.back">Torna al 2D</a>
+          <button type="button" data-lang="it" aria-label="Italiano">IT</button>
+          <button type="button" data-lang="en" aria-label="English">EN</button>
+        </nav>
+      </header>
+      <div class="scene-layout">
+        <details class="info-panel" id="parameter-panel" open>
+          <summary data-i18n="threeD.parameters">Parametri</summary>
+        <form class="simulator-controls" data-3d-form>
+          <h3 data-i18n="controlsTitle">Parametri e condizioni iniziali</h3>
+          <div class="segmented-control" role="group" aria-label="Units" data-i18n-aria-label="unitsSelectorLabel">
+            <button type="button" class="active" data-unit-mode="physical" aria-pressed="true" data-i18n="physicalUnits">Fisiche</button>
+            <button type="button" data-unit-mode="geometrized" aria-pressed="false" data-i18n="geometrizedUnits">Geometrizzate</button>
+          </div>
+          <p class="units-note" data-i18n="unitsStatement">Unità geometrizzate: G = c = 4πε₀ = 1. L'integrazione usa inoltre M = 1.</p>
+
+          <label>
+            <span data-mass-label data-i18n="massLabelPhysical">Massa M (M☉)</span>
+            <input id="bh-mass" name="mass" type="number" min="0.000001" step="any" required>
+          </label>
+          <small class="field-help"><span data-i18n="massEquivalent">Equivalente in kg</span>: <output data-mass-kg></output></small>
+          <label>
+            <span data-charge-label data-i18n="chargeLabelPhysical">Carica Q (C)</span>
+            <input id="bh-charge" name="charge" type="number" step="any" required>
+          </label>
+          <label>
+            <span data-angular-momentum-label data-i18n="angularMomentumLabelPhysical">Momento angolare J (kg·m²/s)</span>
+            <input id="bh-angular-momentum" name="angularMomentum" type="number" step="any" required>
+          </label>
+          <label>
+            <span data-i18n="testObject">Oggetto di prova</span>
+            <select id="bh-object" name="object">
+              <option value="photon" data-i18n="photon">Fotone</option>
+              <option value="massive" data-i18n="massiveParticle">Particella massiva</option>
+            </select>
+          </label>
+          <label>
+            <span data-i18n="preset">Preset</span>
+            <select id="bh-preset" name="preset">
+              <option value="custom" disabled data-i18n="customOption">Personalizzata</option>
+              <option value="photonCircular" data-i18n="presets.photonCircular">Fotone circolare — Schwarzschild r = 3M</option>
+              <option value="photonCapture" data-i18n="presets.photonCapture">Cattura fotonica — Kerr a* = 0,7</option>
+              <option value="photonScattering" data-i18n="presets.photonScattering">Scattering fotonico — Schwarzschild</option>
+              <option value="massiveCircular" data-i18n="presets.massiveCircular">Orbita massiva circolare — Schwarzschild r = 8M</option>
+              <option value="massiveInfall" data-i18n="presets.massiveInfall">Caduta massiva — Kerr a* = 0,7</option>
+              <option value="massiveFlyby" data-i18n="presets.massiveFlyby">Flyby massivo — Schwarzschild</option>
+              <option value="photonInclined" data-i18n="presets.photonInclined">Fotone inclinato — Kerr</option>
+              <option value="massiveInclined" data-i18n="presets.massiveInclined">Orbita massiva inclinata — emisfero nord</option>
+              <option value="massiveSouthern" data-i18n="presets.massiveSouthern">Orbita massiva inclinata — emisfero sud</option>
+            </select>
+          </label>
+          <p class="preset-state" data-preset-state></p>
+
+          <details class="advanced-controls" open>
+            <summary data-i18n="threeD.launchConditions">Posizione e lancio</summary>
+            <p data-i18n="threeD.localHelp">Velocità e angoli sono misurati nel riferimento locale ZAMO.</p>
+            <div class="advanced-grid">
+              <label><span data-i18n="initialRadius">Raggio iniziale r₀ / M</span>
+                <input id="bh-radius" name="radius" type="number" min="0.05" step="any" required></label>
+              <label><span data-i18n="threeD.latitude">Latitudine iniziale (°)</span>
+                <input id="bh-latitude" name="latitude" type="number" min="-89.9999" max="89.9999" step="any" required aria-describedby="angle-help"></label>
+              <label><span data-i18n="threeD.azimuth">Azimut del lancio (°)</span>
+                <input id="bh-azimuth" name="azimuth" type="number" min="-180" max="180" step="any" required aria-describedby="angle-help"></label>
+              <label><span data-i18n="threeD.elevation">Elevazione locale del lancio (°)</span>
+                <input id="bh-elevation" name="elevation" type="number" min="-90" max="90" step="any" required aria-describedby="angle-help"></label>
+              <p id="angle-help" data-i18n="threeD.angleHelp">Latitudine 0°: equatore. Azimut 0°: uscente; 90°: azimutale positivo; 180°: entrante. Elevazione positiva: verso nord.</p>
+              <label><span data-i18n="threeD.localSpeed">Velocità locale v/c</span>
+                <input id="bh-speed" name="speed" type="number" min="0" max="0.9999999999999999" step="any" required aria-describedby="speed-help"></label>
+              <p id="speed-help" data-i18n="threeD.speedHelp">Particelle massive: 0 ≤ v/c &lt; 1. Fotoni: v/c = 1.</p>
+            </div>
+            <p data-i18n="threeD.derivedHelp">Quantità iniziali calcolate dai parametri correnti; i controlli numerici descrivono invece l’ultima traiettoria eseguita.</p>
+            <dl>
+              <dt data-i18n="specificEnergy">Energia E</dt><dd><output data-derived-energy></output></dd>
+              <dt data-i18n="axialMomentum">Momento angolare assiale L_z / M</dt><dd><output data-derived-momentum></output></dd>
+              <dt data-i18n="threeD.carter">Costante di Carter 𝒬 / M²</dt><dd><output data-derived-carter></output></dd>
+            </dl>
+          </details>
+
+          <button class="button primary run-simulation" type="submit" data-i18n="threeD.start">Avvia simulazione</button>
+          <p class="simulation-status" data-simulation-status aria-live="polite"></p>
+        </form>
+          <details class="diagnostics"><summary data-i18n="threeD.diagnostics">Controlli numerici</summary><dl id="diagnostics"></dl></details>
+        </details>
+      </div>
+      <footer>
+        <div class="playback-controls">
+          <button id="pause" type="button" disabled data-i18n="threeD.pause">Pausa</button>
+          <button id="restart" type="button" disabled data-i18n="threeD.restart">Ricomincia</button>
+          <button id="reset-camera" type="button" data-i18n="threeD.resetCamera">Ripristina camera</button>
+          <label class="disk-toggle"><input id="disk-toggle" type="checkbox" checked> <span data-i18n="threeD.diskToggle">Disco di accrescimento</span></label>
+          <label class="disk-toggle"><input id="ergosphere-toggle" type="checkbox" checked> <span data-i18n="threeD.ergosphereToggle">Ergosfera</span></label>
+          <output id="affine-time">λ = 0</output>
+        </div>
+        <p id="scene-status" role="status" data-i18n="threeD.ready">Scegli i parametri e premi Avvia simulazione.</p>
+        <p class="camera-help" data-i18n="threeD.cameraHelp"></p>
+        <details class="scene-note"><summary data-i18n="threeD.subtitle"></summary><p data-i18n="threeD.illustration"></p><p data-i18n="threeD.playback"></p></details>
+      </footer>
+    </div>
+  </main>
+</body>
+</html>

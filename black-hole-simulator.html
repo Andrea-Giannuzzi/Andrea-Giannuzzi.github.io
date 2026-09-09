@@ -14,6 +14,7 @@
   </script>
   <script src="assets/js/content.js" defer></script>
   <script src="assets/js/black-hole-physics.js" defer></script>
+  <script src="assets/js/black-hole-simulation.js" defer></script>
   <script src="assets/js/main.js" defer></script>
   <script src="assets/js/black-hole-simulator.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js" defer></script>
@@ -49,8 +50,7 @@
         <h1 data-i18n="blackHoleSimulator.title">Kerr–Newman Black Hole Simulator</h1>
         <p class="lead" data-i18n="blackHoleSimulator.subtitle">Simulatore relativistico interattivo per geometrie di buchi neri, geodetiche, traiettorie fotoniche e fenomeni di campo forte.</p>
         <div class="actions">
-          <a class="button primary" href="#web-demo" data-i18n="blackHoleSimulator.launchDemo">Avvia la Web Demo</a>
-          <span class="button disabled" aria-disabled="true" data-i18n="blackHoleSimulator.fullProgress">Full Simulator — Lavori in corso</span>
+          <a class="button primary" href="#web-demo" data-i18n="blackHoleSimulator.launchDemo">Full Simulator</a>
         </div>
       </div>
       <div class="simulator-hero-diagram" aria-hidden="true">
@@ -67,9 +67,9 @@
         <li><a href="#physics" data-i18n="blackHoleSimulator.sectionPhysics">Fisica</a></li>
         <li><a href="#numerical-method" data-i18n="blackHoleSimulator.methodTitle">Metodo numerico</a></li>
         <li><a href="#scientific-validation" data-i18n="blackHoleSimulator.validationTitle">Validazione scientifica</a></li>
-        <li><a href="#limitations" data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito della Web Demo</a></li>
+        <li><a href="#limitations" data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito del simulatore web</a></li>
         <li><a href="#theoretical-background" data-i18n="blackHoleSimulator.theoryTitle">Fondamenti teorici</a></li>
-        <li><a href="#full-simulator" data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</a></li>
+        <li><a href="#full-simulator" data-i18n="blackHoleSimulator.fullSimulatorTitle">Applicazione desktop</a></li>
       </ul>
     </nav>
 
@@ -148,10 +148,12 @@
 
     <section class="section-shell simulator-demo reveal" id="web-demo">
       <header class="demo-heading">
-        <p class="eyebrow" data-i18n="blackHoleSimulator.demoEyebrow">Web Demo</p>
+        <p class="eyebrow" data-i18n="blackHoleSimulator.demoEyebrow">Simulatore 2D</p>
         <h2 data-i18n="blackHoleSimulator.demoTitle">Geodetiche equatoriali di Kerr–Newman</h2>
         <p data-i18n="blackHoleSimulator.demoIntro">La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.</p>
       </header>
+
+      <p><a class="button primary" href="black-hole-simulator-3d.html?from2d=1" data-open-3d data-i18n="blackHoleSimulator.threeD.open">Apri simulatore 3D</a></p>
 
       <div class="simulator-workspace">
         <form class="simulator-controls" data-simulator-form>
@@ -290,7 +292,7 @@
     <section class="section-shell simulator-section numerical-method reveal" id="numerical-method">
       <p class="eyebrow" data-i18n="blackHoleSimulator.methodEyebrow">Implementazione trasparente</p>
       <h2 data-i18n="blackHoleSimulator.methodTitle">Metodo numerico</h2>
-      <p class="section-intro" data-i18n="blackHoleSimulator.methodIntro">La Web Demo costruisce la dinamica direttamente dalla metrica completa, mantenendo leggibile ogni passaggio del calcolo relativistico.</p>
+      <p class="section-intro" data-i18n="blackHoleSimulator.methodIntro">Il simulatore web costruisce la dinamica direttamente dalla metrica completa, mantenendo leggibile ogni passaggio del calcolo relativistico.</p>
       <ol class="method-pipeline" aria-label="Numerical pipeline" data-i18n-aria-label="blackHoleSimulator.methodPipelineLabel">
         <li>\(g_{\mu\nu}\)</li>
         <li>\(g^{\mu\nu}\)</li>
@@ -320,7 +322,7 @@
             \[v^t=-g^{tt}E+g^{t\phi}L_z,\qquad v^\phi=-g^{t\phi}E+g^{\phi\phi}L_z.\]
           </div>
           <h3 data-i18n="blackHoleSimulator.methodEvolutionTitle">Sistema geodetico e RK4</h3>
-          <p data-i18n="blackHoleSimulator.methodEvolutionText">La connessione genera il sistema del primo ordine per lo stato completo. La Web Demo usa il metodo classico Runge–Kutta del quarto ordine a passo fisso: una scelta trasparente per questa implementazione nel browser, non un integratore di produzione ad alta precisione.</p>
+          <p data-i18n="blackHoleSimulator.methodEvolutionText">La connessione genera il sistema del primo ordine per lo stato completo. Il simulatore web usa il metodo classico Runge–Kutta del quarto ordine a passo fisso: una scelta trasparente per questa implementazione nel browser, non un integratore di produzione ad alta precisione.</p>
           <div class="formula method-formula">
             \[\frac{dx^\mu}{d\lambda}=v^\mu,\qquad \frac{dv^\mu}{d\lambda}=-\Gamma^\mu_{\alpha\beta}v^\alpha v^\beta.\]
           </div>
@@ -333,13 +335,13 @@
           \[g_{\mu\nu}v^\mu v^\nu=\kappa,\qquad \kappa=-1\ \mathrm{(timelike)},\qquad \kappa=0\ \mathrm{(null)}.\]
         </div>
       </div>
-      <a class="text-link" href="#calculation-details" data-i18n="blackHoleSimulator.openCalculationDetails">Consulta i dettagli di calcolo della Web Demo</a>
+      <a class="text-link" href="#calculation-details" data-i18n="blackHoleSimulator.openCalculationDetails">Consulta i dettagli di calcolo del simulatore web</a>
     </section>
 
     <section class="section-shell simulator-section scientific-validation reveal" id="scientific-validation">
       <p class="eyebrow" data-i18n="blackHoleSimulator.validationEyebrow">Benchmark controllati</p>
       <h2 data-i18n="blackHoleSimulator.validationTitle">Validazione scientifica</h2>
-      <p class="section-intro" data-i18n="blackHoleSimulator.validationIntro">Test analitici e di regressione eseguiti una sola volta con lo stesso core KerrNewmanPhysics usato dalla Web Demo. Sono distinti dai controlli numerici della traiettoria scelta dall'utente.</p>
+      <p class="section-intro" data-i18n="blackHoleSimulator.validationIntro">Test analitici e di regressione eseguiti una sola volta con lo stesso core KerrNewmanPhysics usato dal simulatore web. Sono distinti dai controlli numerici della traiettoria scelta dall'utente.</p>
       <div class="validation-status" data-validation-status aria-live="polite">
         <span class="validation-spinner" aria-hidden="true"></span>
         <span data-i18n="blackHoleSimulator.validationRunning">Validazione in corso…</span>
@@ -349,25 +351,25 @@
 
     <section class="section-shell simulator-section simulator-limitations reveal" id="limitations">
       <p class="eyebrow" data-i18n="blackHoleSimulator.limitationsEyebrow">Scelte del modello</p>
-      <h2 data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito della Web Demo</h2>
+      <h2 data-i18n="blackHoleSimulator.limitationsTitle">Limiti e ambito del simulatore web</h2>
       <p class="section-intro" data-i18n="blackHoleSimulator.limitationsIntro">L'ambito seguente definisce con precisione ciò che il modello rappresenta e ciò che resta fuori dall'implementazione nel browser.</p>
       <div class="limitations-layout">
         <article>
-          <h3 data-i18n="blackHoleSimulator.webScopeTitle">Web Demo attuale</h3>
+          <h3 data-i18n="blackHoleSimulator.webScopeTitle">Simulatore web attuale</h3>
           <dl class="limitations-list">
             <div><dt data-i18n="blackHoleSimulator.testParticleTitle">Approssimazione di particella di prova</dt><dd data-i18n="blackHoleSimulator.testParticleText">La traiettoria non modifica lo sfondo di Kerr–Newman.</dd></div>
             <div><dt data-i18n="blackHoleSimulator.stationaryGeometryTitle">Geometria stazionaria fissata</dt><dd data-i18n="blackHoleSimulator.stationaryGeometryText">Non è un'evoluzione di relatività numerica di uno spaziotempo dinamico.</dd></div>
-            <div><dt data-i18n="blackHoleSimulator.neutralParticlesTitle">Particelle di prova neutre</dt><dd data-i18n="blackHoleSimulator.neutralParticlesText">La Web Demo integra geodetiche senza forza di Lorentz.</dd></div>
-            <div><dt data-i18n="blackHoleSimulator.equatorialConditionsTitle">Condizioni iniziali equatoriali</dt><dd data-i18n="blackHoleSimulator.equatorialConditionsText">Si impongono \(\theta_0=\pi/2\) e \(v^\theta_0=0\); lo stato coordinato completo viene integrato e la conservazione del piano è monitorata numericamente.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.neutralParticlesTitle">Particelle di prova neutre</dt><dd data-i18n="blackHoleSimulator.neutralParticlesText">Il simulatore web integra geodetiche senza forza di Lorentz.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.equatorialConditionsTitle">Condizioni iniziali equatoriali</dt><dd data-i18n="blackHoleSimulator.equatorialConditionsText">Nel simulatore 2D si impongono \(\theta_0=\pi/2\) e \(v^\theta_0=0\); lo stato coordinato completo viene integrato e la conservazione del piano è monitorata numericamente.</dd></div>
           </dl>
         </article>
         <article>
-          <h3 data-i18n="blackHoleSimulator.beyondScopeTitle">Oltre la Web Demo</h3>
+          <h3 data-i18n="blackHoleSimulator.beyondScopeTitle">Oltre il simulatore web</h3>
           <dl class="limitations-list">
             <div><dt data-i18n="blackHoleSimulator.coordinatesTitle">Coordinate di Boyer–Lindquist</dt><dd data-i18n="blackHoleSimulator.coordinatesText">Sono naturali per la geometria stazionaria di Kerr–Newman ma presentano una singolarità coordinata agli orizzonti; il solver si arresta vicino all'orizzonte esterno e non implica che la particella termini fisicamente lì.</dd></div>
             <div><dt data-i18n="blackHoleSimulator.backreactionTitle">Nessuna self-force o backreaction</dt><dd data-i18n="blackHoleSimulator.backreactionText">Non sono incluse reazione di radiazione, self-force o modifiche dello spaziotempo di fondo.</dd></div>
             <div><dt data-i18n="blackHoleSimulator.coordinatePlotTitle">Visualizzazione coordinata</dt><dd data-i18n="blackHoleSimulator.coordinatePlotText">Il grafico \(x=r\cos\phi\), \(y=r\sin\phi\) non è un embedding euclideo dello spaziotempo curvo.</dd></div>
-            <div><dt data-i18n="blackHoleSimulator.futureScopeTitle">Sviluppi futuri</dt><dd data-i18n="blackHoleSimulator.futureScopeText">Moto 3D non equatoriale, particelle cariche e metodi numerici avanzati appartengono al futuro Full Simulator.</dd></div>
+            <div><dt data-i18n="blackHoleSimulator.futureScopeTitle">Sviluppi futuri</dt><dd data-i18n="blackHoleSimulator.futureScopeText">Particelle cariche e metodi numerici avanzati appartengono alla futura applicazione desktop. Il simulatore 3D web consente già condizioni iniziali non equatoriali.</dd></div>
           </dl>
         </article>
       </div>
@@ -396,9 +398,9 @@
       <div class="roadmap-heading">
         <div>
           <p class="eyebrow" data-i18n="blackHoleSimulator.workInProgress">Lavori in corso</p>
-          <h2 data-i18n="blackHoleSimulator.fullSimulatorTitle">Full Simulator</h2>
+          <h2 data-i18n="blackHoleSimulator.fullSimulatorTitle">Applicazione desktop</h2>
         </div>
-        <p data-i18n="blackHoleSimulator.fullSimulatorIntro">Applicazione desktop futura. Le funzionalità seguenti descrivono la direzione prevista e non sono presenti nella Web Demo.</p>
+        <p data-i18n="blackHoleSimulator.fullSimulatorIntro">Applicazione desktop futura. Le funzionalità seguenti descrivono la direzione prevista e non sono presenti nel simulatore web.</p>
       </div>
       <ul class="roadmap-list" data-simulator-list="fullFeatures"></ul>
     </section>
