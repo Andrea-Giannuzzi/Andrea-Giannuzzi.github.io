@@ -39,6 +39,10 @@
   let previousTime = null;
   let computing = false;
   let scene, camera, renderer, controls, blackHole, disk, stars, particle, particleHalo, trajectory, ergosphere, ergosphereWire, plungingRegion;
+  // Photon-sphere visual: a sphere pair (fill+wireframe) for a=0, or a ring
+  // pair (prograde/retrograde) for Kerr -- see buildPhotonSphere(). Only
+  // one representation exists at a time; the unused ones stay null.
+  let photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde;
   // Per-stream (lambda, position, color) sample tables for the plunging
   // region, kept so updatePlungingRegion() can animate them -- see
   // buildPlungingRegion().
@@ -48,6 +52,8 @@
   let diskClock = 0;
   let diskVisible = true;
   let ergosphereVisible = true;
+  let photonSphereVisible = true;
+  let focusMode = false;
   let starOriginalPositions = null;
   let lensingTable = null;
   let messageKey = "ready";
@@ -81,6 +87,66 @@
     });
     $("[data-preset-state]").textContent = preset ? `${c.activePreset}: ${c.presets[preset]}` : c.customConfiguration;
     $("#pause").textContent = text(paused ? "resume" : "pause");
+    $("#focus-toggle").textContent = text(focusMode ? "exitFocusMode" : "focusMode");
+    positionFocusToggle();
+  }
+  // Keeps #focus-toggle visually beside the "Torna al 2D"/"Back to 2D" link
+  // even though it must stay a DOM sibling of #ui-layer, not a child of the
+  // header nav (see the HTML/CSS: #ui-layer's [hidden] rule erases its whole
+  // subtree, so a button nested inside it would vanish along with the rest
+  // of the interface, leaving no way back out of focus mode). Positioned
+  // from the link's live rect rather than a fixed CSS offset because its
+  // text -- and therefore its width -- changes between IT/EN, and the nav
+  // wraps to a second row under 700px; called from updateLabels() (covers
+  // language switches and exiting focus mode, which already calls it) and
+  // from layoutScene()'s own !focusMode branch (covers resize/init/panel
+  // toggle), the same two places already trusted for this kind of
+  // measurement.
+  //
+  // Always to the link's left -- never to its right, where the IT/EN
+  // language buttons sit immediately after it in the same nav row, so
+  // placing the button there overlaps them (found from user feedback: an
+  // earlier version of this function preferred that side when there was
+  // room toward the viewport edge, without accounting for those buttons in
+  // the way). A minimum on-screen margin still applies on very narrow
+  // viewports, where the button may end up close to the link -- acceptable,
+  // unlike overlapping IT/EN.
+  function positionFocusToggle() {
+    if (focusMode) return; // #ui-layer is hidden; the link's rect would read as all-zero.
+    const button = $("#focus-toggle");
+    const link = $('.scene-header nav a[data-i18n="threeD.back"]');
+    if (!button || !link) return;
+    const linkRect = link.getBoundingClientRect();
+    if (!linkRect.width && !linkRect.height) return; // not laid out yet
+    const buttonRect = button.getBoundingClientRect();
+    const gap = 8;
+    const margin = 8;
+    const top = Math.max(margin, linkRect.top + (linkRect.height - buttonRect.height) / 2);
+    const left = Math.max(margin, linkRect.left - gap - buttonRect.width);
+    button.style.top = `${top}px`;
+    button.style.left = `${left}px`;
+  }
+  // Complementary safety net for when the viewport changes size *while*
+  // focus mode is active: positionFocusToggle() can't recompute a position
+  // from the "Torna al 2D" link then (it's inside the hidden #ui-layer, so
+  // its rect reads as all-zero -- see above), so the button would otherwise
+  // keep whatever pixel position it had before the resize, which can now
+  // sit outside the new viewport, off-screen and unreachable -- the only
+  // way back out of focus mode (found in CAO review). This only clamps the
+  // existing position back on-screen; it never tries to read the hidden
+  // link's layout.
+  function clampFocusToggleToViewport() {
+    const button = $("#focus-toggle");
+    if (!button) return;
+    const rect = button.getBoundingClientRect();
+    if (!rect.width && !rect.height) return;
+    const margin = 8;
+    const maxLeft = Math.max(margin, window.innerWidth - rect.width - margin);
+    const maxTop = Math.max(margin, window.innerHeight - rect.height - margin);
+    const left = Math.min(Math.max(rect.left, margin), maxLeft);
+    const top = Math.min(Math.max(rect.top, margin), maxTop);
+    if (left !== rect.left) button.style.left = `${left}px`;
+    if (top !== rect.top) button.style.top = `${top}px`;
   }
   function localize() {
     document.documentElement.lang = language;
@@ -190,13 +256,23 @@
     const width = container.clientWidth, height = container.clientHeight;
     if (!width || !height) return;
     const bounds = container.getBoundingClientRect();
-    const panel = $("#parameter-panel").getBoundingClientRect();
-    const header = $(".scene-header").getBoundingClientRect();
-    const footer = $("footer").getBoundingClientRect();
-    let left = 0, top = Math.max(0, header.bottom - bounds.top);
-    const bottom = Math.min(height, footer.top - bounds.top);
-    if (width > 700 && $("#parameter-panel").open) left = panel.right - bounds.left + 16;
-    if (width <= 700) top = Math.max(top, panel.bottom - bounds.top + 12);
+    // In focus mode #ui-layer (header/parameter panel/footer) is [hidden],
+    // which makes getBoundingClientRect() return an all-zero rect for each
+    // of them -- reading that as if it were real layout data would collapse
+    // availableHeight to its 80px floor and force a drastic, wrong camera
+    // zoom. The canvas genuinely owns the whole viewport in this mode, so
+    // skip reading those rects entirely and use it directly.
+    let left = 0, top = 0, bottom = height;
+    if (!focusMode) {
+      const panel = $("#parameter-panel").getBoundingClientRect();
+      const header = $(".scene-header").getBoundingClientRect();
+      const footer = $("footer").getBoundingClientRect();
+      top = Math.max(0, header.bottom - bounds.top);
+      bottom = Math.min(height, footer.top - bounds.top);
+      if (width > 700 && $("#parameter-panel").open) left = panel.right - bounds.left + 16;
+      if (width <= 700) top = Math.max(top, panel.bottom - bounds.top + 12);
+      positionFocusToggle();
+    }
     const availableWidth = Math.max(80, width - left);
     const availableHeight = Math.max(80, bottom - top);
     const nextScale = Math.max(1, height / availableHeight, 1.15 * height / availableWidth);
@@ -408,6 +484,69 @@
     scene.add(ergosphere, ergosphereWire);
   }
 
+  // Photon-sphere visual. Unlike the ergosphere (a single well-defined
+  // theta-dependent surface for any spin), only the *equatorial* circular
+  // photon orbits have a simple closed form in this engine (see
+  // P.photonSphereRadius) -- Kerr's full "photon shell" of inclined
+  // spherical photon orbits depends on latitude via a more involved
+  // construction this module does not implement. Rendered honestly rather
+  // than approximated: a genuine sphere for a=0 (Schwarzschild/Reissner-
+  // Nordstrom, where spherical symmetry really does make it one), or two
+  // thin rings in the equatorial plane (prograde/retrograde) for Kerr --
+  // never a full sphere where the physics does not actually guarantee one.
+  // Kerr-Newman (spin and charge both nonzero) has no closed form here
+  // either (photonSphereRadius returns null): nothing is drawn, the same
+  // graceful-degradation pattern buildErgosphere/buildPlungingRegion use.
+  function buildPhotonSphere(params, horizons) {
+    for (const object of [photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde]) {
+      if (!object) continue;
+      scene.remove(object);
+      object.geometry.dispose();
+      object.material.dispose();
+    }
+    photonSphere = null; photonSphereWire = null;
+    photonSphereRingPrograde = null; photonSphereRingRetrograde = null;
+    if (!horizons.hasHorizon) return;
+    const type = P.detectSpacetime(params);
+    const color = 0x9d7fff;
+    if (type === "schwarzschild" || type === "reissnerNordstrom") {
+      const radius = P.photonSphereRadius(params, "prograde", type);
+      if (radius === null || radius <= horizons.outer) return;
+      const geometry = new THREE.SphereGeometry(radius, 48, 32);
+      photonSphere = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+        color, transparent: true, opacity: 0.08, side: THREE.DoubleSide, depthWrite: false
+      }));
+      // Same fill+wireframe pairing as the ergosphere, so the boundary
+      // itself stays legible rather than just a faint haze.
+      photonSphereWire = new THREE.Mesh(geometry, new THREE.MeshBasicMaterial({
+        color, wireframe: true, transparent: true, opacity: 0.3, depthWrite: false
+      }));
+      scene.add(photonSphere, photonSphereWire);
+    } else if (type === "kerr") {
+      // A torus (a genuine 3D tube), not a flat ring/annulus, so the orbit
+      // locus reads as a curve in space from any camera angle rather than
+      // a disc that vanishes edge-on or looks like a filled surface.
+      const buildRing = (radius) => {
+        const tube = Math.max(0.01, radius * 0.01);
+        const mesh = new THREE.Mesh(new THREE.TorusGeometry(radius, tube, 8, 64), new THREE.MeshBasicMaterial({
+          color, transparent: true, opacity: 0.55, depthWrite: false
+        }));
+        mesh.rotation.x = Math.PI / 2; // lie flat in the X-Z equatorial plane, matching the disk/ergosphere convention
+        return mesh;
+      };
+      const rPrograde = P.photonSphereRadius(params, "prograde", type);
+      const rRetrograde = P.photonSphereRadius(params, "retrograde", type);
+      if (rPrograde !== null && rPrograde > horizons.outer) {
+        photonSphereRingPrograde = buildRing(rPrograde);
+        scene.add(photonSphereRingPrograde);
+      }
+      if (rRetrograde !== null && rRetrograde > horizons.outer) {
+        photonSphereRingRetrograde = buildRing(rRetrograde);
+        scene.add(photonSphereRingRetrograde);
+      }
+    }
+  }
+
   // Below the ISCO no stable circular orbit exists: gas that reaches it
   // plunges toward the horizon on a dynamical (near free-fall) timescale
   // instead of the slow viscous inspiral that maintains the disk above it.
@@ -449,19 +588,30 @@
     if (!orbit) return;
     const baseTemperature = P.diskTemperature(params, isco * 1.05, "prograde", 20000, isco);
     if (!baseTemperature) return;
-    // Seed 85% of the way from the horizon to the ISCO (i.e. just inside the
-    // ISCO), the same qualitative starting point as before -- but expressed
-    // as a fraction of the horizon-ISCO *gap* rather than a flat 0.9*isco.
-    // For a near-extremal Kerr hole that gap can shrink well below 1 M
-    // (e.g. a* = 0.9999 gives isco - horizon =~ 0.06M), and 0.9*isco can
-    // then land *inside* the horizon, where a seed is meaningless. Anchoring
-    // to the gap itself keeps the seed strictly between horizon and ISCO for
-    // any spin/charge; verified numerically (node) to stay valid up to
-    // a* = 0.99 (presets only reach 0.7), degrading gracefully -- no seed,
-    // no plunging region, no crash -- via the existing try/catch below for
-    // the small remaining sliver of near-extremal spin where the engine's
-    // own coordinate-margin guard rejects any point that close to a horizon.
-    const seedRadius = horizonOuter + (isco - horizonOuter) * 0.85;
+    // Seed 99% of the way from the horizon to the ISCO (i.e. just inside the
+    // ISCO), expressed as a fraction of the horizon-ISCO *gap* so it stays
+    // strictly between horizon and ISCO for any spin/charge (anchoring to a
+    // flat fraction of isco itself can land inside the horizon once that gap
+    // shrinks for high spin).
+    //
+    // Why 0.99 and not closer to the disk's own inner edge at 1.0*isco: the
+    // ISCO is, by construction, a TRIPLE root of the radial effective
+    // potential (circular orbit + marginal stability), so near it
+    // R(r) = (dr/dlambda)^2 is well-approximated by C*(isco-r)^3, not a
+    // linear/exponential departure -- verified numerically (node) by
+    // checking that R(r)/(isco-r)^3 converges to a constant over 4+ orders
+    // of magnitude in (isco-r), for both Schwarzschild and Kerr. Integrating
+    // this cubic law gives the affine time to visibly depart as
+    // lambda* ~ (isco-r_seed)^(-1/2) -- a power law, not exponential, and
+    // NOT dominated by numerical cancellation until (isco-r)/isco ~ 1e-4 or
+    // smaller (also verified directly). So the old 0.85 fraction was not a
+    // numerical necessity: it was hiding the real, honest, physically slow
+    // first stretch of departure from a marginally stable equilibrium.
+    // Seeding at 0.99 of the gap keeps the numerics well-conditioned while
+    // showing that slow stretch for what it is, closing the visible gap
+    // between the disk's inner edge (isco) and this trajectory's start from
+    // 5-10% of the ISCO radius down to well under 1%.
+    const seedRadius = horizonOuter + (isco - horizonOuter) * 0.99;
     const streamCount = 8;
     for (let stream = 0; stream < streamCount; stream += 1) {
       let seed;
@@ -472,7 +622,16 @@
           massive: true, radialDirection: "ingoing"
         });
         seed[3] = (stream / streamCount) * 2 * Math.PI; // spread streams around the ring; phi does not affect the axisymmetric physics
-        result = P.integrateGeodesic(params, seed, { guardCoordinates: true, maxLambda: 100, step: 0.01, maxSteps: 10000 });
+        // A longer window (was maxLambda:100) is needed to actually reach
+        // the horizon from this much closer seed -- verified numerically
+        // (node) across a*=0..0.99 (the full range presets and custom
+        // launches can reach): worst case (Schwarzschild) needs
+        // lambda~360, all cases reach the horizon margin within 400. The
+        // coarser step (was 0.01) is a deliberate cost/precision trade-off
+        // specific to this illustrative background element -- it is
+        // thinned to ~40 render samples regardless, and does not affect
+        // the step:0.01 solver used for the user's own chosen trajectory.
+        result = P.integrateGeodesic(params, seed, { guardCoordinates: true, maxLambda: 400, step: 0.03, maxSteps: 14000 });
       } catch (_) {
         continue;
       }
@@ -497,6 +656,26 @@
         // sphere.
         if (![r, theta, phi, uT].every(Number.isFinite) || r <= horizonOuter) continue;
         lambdas.push(i === 0 ? 0 : (1 + (i - 1) * settings.sampleEvery) * settings.step);
+        streamPositions.push(new THREE.Vector3(r * Math.sin(theta) * Math.cos(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.sin(phi)));
+        const localG = uT > 0 ? 1 / uT : 0;
+        streamColors.push(P.blackbodyColor(baseTemperature * localG));
+      }
+      // The fixed stride above walks the array in whole steps and so does
+      // not generally land on the LAST index -- for a stopReason of
+      // "outerHorizon" that last, un-sampled point is exactly the closest
+      // approach to the horizon, the one point this fall exists to show.
+      // Verified numerically (node) this was a real, visible gap, not a
+      // cosmetic rounding difference: for Schwarzschild the last strided
+      // sample stopped at r=3.66 while the true stop was r=2.13 (76% of the
+      // horizon radius short), shrinking toward negligible only for very
+      // high spin, where far fewer total steps happen to leave less
+      // remainder behind. Same fix showSimulation() already uses for the
+      // user's own trajectory: append the true final state explicitly.
+      const finalState = result.finalState;
+      if (result.stopReason !== "nonFinite" && finalState.every(Number.isFinite) && finalState[1] > horizonOuter
+        && result.lambda > (lambdas.length ? lambdas[lambdas.length - 1] : -1) + 1e-9) {
+        const [, r, theta, phi, uT] = finalState;
+        lambdas.push(result.lambda);
         streamPositions.push(new THREE.Vector3(r * Math.sin(theta) * Math.cos(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.sin(phi)));
         const localG = uT > 0 ? 1 / uT : 0;
         streamColors.push(P.blackbodyColor(baseTemperature * localG));
@@ -727,6 +906,12 @@
     for (const selector of ["#canvas-container", ".scene-header", "#parameter-panel", "footer"]) observer.observe($(selector));
     $("#parameter-panel").addEventListener("toggle", layoutScene);
     window.addEventListener("resize", layoutScene);
+    // Runs on every resize regardless of focus mode -- layoutScene() only
+    // repositions #focus-toggle from the "Torna al 2D" link when the UI is
+    // visible; this is the fallback that keeps it on-screen (and therefore
+    // reachable) when the viewport changes size while focus mode hides that
+    // link. See clampFocusToggleToViewport()'s comment.
+    window.addEventListener("resize", clampFocusToggleToViewport);
     layoutScene();
     // Draw immediately: a preview must not depend on a run or valid form fields.
     renderer.render(scene, camera);
@@ -757,6 +942,10 @@
     if (plungingRegion) plungingRegion.visible = diskVisible;
     buildErgosphere(params, horizons);
     if (ergosphere) { ergosphere.visible = ergosphereVisible; ergosphereWire.visible = ergosphereVisible; }
+    buildPhotonSphere(params, horizons);
+    for (const object of [photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde]) {
+      if (object) object.visible = photonSphereVisible;
+    }
     // *2: leave visible margin beyond the disk's outer edge for background
     // stars and lensing to read -- framing exactly at diskOuter (the old
     // formula) put the disk's rim against the viewport edge, crowding out
@@ -985,6 +1174,20 @@
   $("#ergosphere-toggle").addEventListener("change", (event) => {
     ergosphereVisible = event.target.checked;
     if (ergosphere) { ergosphere.visible = ergosphereVisible; ergosphereWire.visible = ergosphereVisible; }
+  });
+  $("#photon-sphere-toggle").addEventListener("change", (event) => {
+    photonSphereVisible = event.target.checked;
+    for (const object of [photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde]) {
+      if (object) object.visible = photonSphereVisible;
+    }
+  });
+  // Lives outside #ui-layer (see the HTML) so it stays clickable even while
+  // everything else is hidden -- otherwise there would be no way back.
+  $("#focus-toggle").addEventListener("click", () => {
+    focusMode = !focusMode;
+    $("#ui-layer").hidden = focusMode;
+    updateLabels();
+    layoutScene();
   });
   document.addEventListener("visibilitychange", () => {
     if (document.hidden) { if (frame !== null) cancelAnimationFrame(frame); frame = null; previousTime = null; }

@@ -4,6 +4,46 @@
   const P = window.KerrNewmanPhysics;
   const DEFAULT_MASS_SOLAR = 10;
   const DEFAULT_SPIN = 0.7;
+  // The next three helpers derive preset (radius, energy, lz) triples from
+  // the physics engine's own closed-form functions at module-load time,
+  // the same way massiveCircular's own energy/lz already do inline for
+  // Schwarzschild -- no separately-derived or hand-copied numbers, so if
+  // the underlying formulas are ever revisited these presets stay correct
+  // automatically.
+  //
+  // Reverse the mass/charge/spin conversion pipeline to find the physical
+  // Coulomb charge that gives a target dimensionless q* at a given mass
+  // (q* is linear in chargeC, so a single probe at chargeC=1 suffices).
+  function chargeCForQStar(massSolar, qStarTarget) {
+    const probe = P.dimensionlessParameters({ massSolar, chargeC: 1, angularMomentum: 0 });
+    return qStarTarget / probe.q;
+  }
+  // A massive test particle held exactly on the (prograde/retrograde) ISCO
+  // circular orbit, via the same P.circularOrbitFourVelocity used for the
+  // disk/plunging-region physics.
+  function kerrIscoPreset(aStar, sense, maxLambda) {
+    const params = { M: 1, a: aStar, q: 0 };
+    const radius = P.iscoRadius(params, sense);
+    const orbit = P.circularOrbitFourVelocity(params, radius, sense);
+    return { object: "massive", aStar, qC: 0, radius, energy: orbit.energy, lz: orbit.angularMomentum, direction: "outgoing", maxLambda };
+  }
+  // A photon held exactly on the (prograde/retrograde) circular photon-
+  // sphere orbit. There is no timelike (-1) normalization for a null
+  // geodesic, so unlike kerrIscoPreset this projects the metric's Killing
+  // vectors directly at the circular-orbit angular velocity P.keplerian
+  // AngularVelocity already gives (verified numerically to satisfy the
+  // null condition g_tt + 2*Omega*g_tphi + Omega^2*g_phiphi = 0 to machine
+  // precision at r = photonSphereRadius), then rescales to energy = 1 to
+  // match every other photon preset's convention.
+  function kerrPhotonSpherePreset(aStar, sense, maxLambda) {
+    const params = { M: 1, a: aStar, q: 0 };
+    const radius = P.photonSphereRadius(params, sense, "kerr");
+    const omega = P.keplerianAngularVelocity(params, radius, sense);
+    const g = P.metric(params, radius, Math.PI / 2);
+    const energyRaw = -(g[0][0] + omega * g[0][3]);
+    const lzRaw = g[0][3] + omega * g[3][3];
+    return { object: "photon", aStar, qC: 0, radius, energy: 1, lz: lzRaw / energyRaw, direction: "outgoing", maxLambda };
+  }
   const PRESETS = {
     photonCircular: {
       object: "photon", aStar: 0, qC: 0, radius: 3, energy: 1,
@@ -29,13 +69,39 @@
     massiveFlyby: {
       object: "massive", aStar: 0, qC: 0, radius: 18, energy: 1.02,
       lz: 5, direction: "ingoing", maxLambda: 100
-    }
+    },
+    // Reissner-Nordstrom (charged, non-spinning): q* = 0.9 gives a clearly
+    // split double horizon (outer ~1.44M, inner ~0.56M) -- the project's
+    // own namesake (Kerr-*Newman*) had no preset showing charge at all
+    // before this one. Mirrors massiveInfall's near-radial infall so the
+    // only thing that changes is the charge.
+    massiveChargedInfall: {
+      object: "massive", aStar: 0, qC: chargeCForQStar(DEFAULT_MASS_SOLAR, 0.9), radius: 12, energy: 1,
+      lz: 0, direction: "ingoing", maxLambda: 60
+    },
+    // Prograde/retrograde ISCO pair (Kerr a* = 0.7, matching the spin
+    // already used by photonCapture/massiveInfall): the retrograde ISCO
+    // sits at roughly 2.4x the prograde one for the same spin, an effect
+    // no prior preset illustrated despite the engine having supported it
+    // since the plunging-region work.
+    massiveIscoPrograde: kerrIscoPreset(0.7, "prograde", 60),
+    massiveIscoRetrograde: kerrIscoPreset(0.7, "retrograde", 60),
+    // Prograde/retrograde circular-photon-orbit pair -- the Kerr
+    // counterpart of photonCircular, which only covers Schwarzschild.
+    photonSpherePrograde: kerrPhotonSpherePreset(0.7, "prograde", 40),
+    photonSphereRetrograde: kerrPhotonSpherePreset(0.7, "retrograde", 40)
   };
 
   const PRESETS_3D = {
     photonInclined: { aStar: 0.5, radius: 4, latitude: 20, azimuth: 100, elevation: 30, speed: 1, massive: false, maxLambda: 20 },
     massiveInclined: { aStar: 0.7, radius: 12, latitude: 23, azimuth: 110, elevation: 20, speed: 0.4, massive: true, maxLambda: 60 },
-    massiveSouthern: { aStar: 0.7, radius: 12, latitude: -23, azimuth: 110, elevation: -20, speed: 0.4, massive: true, maxLambda: 60 }
+    // Same launch as massiveInclined but a* = 0: with no frame-dragging the
+    // orbital plane does not precess, giving a direct with/without-spin
+    // comparison. Replaces massiveSouthern, which (latitude/elevation sign
+    // flipped, spin unchanged) was an exact mirror image of massiveInclined
+    // under Kerr's cos^2(theta) symmetry -- no new physics, just the same
+    // orbit seen from the other hemisphere.
+    massiveInclinedSchwarzschild: { aStar: 0, radius: 12, latitude: 23, azimuth: 110, elevation: 20, speed: 0.4, massive: true, maxLambda: 60 }
   };
   const TRANSFER_KEY = "black-hole-2d-to-3d-v1";
   const SESSION_KEY = "black-hole-last-2d-v1";

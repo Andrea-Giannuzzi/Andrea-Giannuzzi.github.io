@@ -16,6 +16,7 @@
 <body>
   <main id="simulator-3d">
     <div id="canvas-container"></div>
+    <button id="focus-toggle" type="button" data-i18n="threeD.focusMode">Modalità schermo pulito</button>
     <div id="ui-layer">
       <header class="scene-header">
         <div><h1 data-i18n="threeD.title">Black Hole 3D Simulator</h1><p data-i18n="threeD.subtitle">Geodetiche 3D · Kerr–Newman</p></div>
@@ -66,9 +67,14 @@
               <option value="massiveCircular" data-i18n="presets.massiveCircular">Orbita massiva circolare — Schwarzschild r = 8M</option>
               <option value="massiveInfall" data-i18n="presets.massiveInfall">Caduta massiva — Kerr a* = 0,7</option>
               <option value="massiveFlyby" data-i18n="presets.massiveFlyby">Flyby massivo — Schwarzschild</option>
+              <option value="massiveChargedInfall" data-i18n="presets.massiveChargedInfall">Caduta massiva — Reissner-Nordström q* = 0,9</option>
+              <option value="massiveIscoPrograde" data-i18n="presets.massiveIscoPrograde">Orbita massiva all'ISCO — Kerr a* = 0,7 (prograda)</option>
+              <option value="massiveIscoRetrograde" data-i18n="presets.massiveIscoRetrograde">Orbita massiva all'ISCO — Kerr a* = 0,7 (retrograda)</option>
+              <option value="photonSpherePrograde" data-i18n="presets.photonSpherePrograde">Fotone alla sfera fotonica — Kerr a* = 0,7 (prograda)</option>
+              <option value="photonSphereRetrograde" data-i18n="presets.photonSphereRetrograde">Fotone alla sfera fotonica — Kerr a* = 0,7 (retrograda)</option>
               <option value="photonInclined" data-i18n="presets.photonInclined">Fotone inclinato — Kerr</option>
               <option value="massiveInclined" data-i18n="presets.massiveInclined">Orbita massiva inclinata — emisfero nord</option>
-              <option value="massiveSouthern" data-i18n="presets.massiveSouthern">Orbita massiva inclinata — emisfero sud</option>
+              <option value="massiveInclinedSchwarzschild" data-i18n="presets.massiveInclinedSchwarzschild">Orbita massiva inclinata — Schwarzschild (senza spin)</option>
             </select>
           </label>
           <p class="preset-state" data-preset-state></p>
@@ -111,6 +117,7 @@
           <button id="reset-camera" type="button" data-i18n="threeD.resetCamera">Ripristina camera</button>
           <label class="disk-toggle"><input id="disk-toggle" type="checkbox" checked> <span data-i18n="threeD.diskToggle">Disco di accrescimento</span></label>
           <label class="disk-toggle"><input id="ergosphere-toggle" type="checkbox" checked> <span data-i18n="threeD.ergosphereToggle">Ergosfera</span></label>
+          <label class="disk-toggle"><input id="photon-sphere-toggle" type="checkbox" checked> <span data-i18n="threeD.photonSphereToggle">Sfera fotonica</span></label>
           <output id="affine-time">λ = 0</output>
         </div>
         <p id="scene-status" role="status" data-i18n="threeD.ready">Scegli i parametri e premi Avvia simulazione.</p>

@@ -13,6 +13,16 @@ button:disabled { opacity: .45; cursor: default; }
 #canvas-container { position: absolute; inset: 0; z-index: 1; }
 #canvas-container canvas { display: block; width: 100%; height: 100%; touch-action: none; }
 #ui-layer { position: absolute; inset: 0; z-index: 10; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; }
+/* Sibling of #ui-layer, not a descendant -- stays clickable and visible
+   even when #ui-layer is [hidden], which is the only way back out of focus
+   mode. z-index above #ui-layer so it's never covered while both are shown.
+   top/left are set from JS (see positionFocusToggle() in black-hole-3d.js),
+   which reads the "Torna al 2D" link's live position so the button stays
+   visually beside it across IT/EN text widths and the nav's responsive
+   wrap; position:fixed here is only a safe default before that first
+   measurement runs. */
+#focus-toggle { position: fixed; top: 16px; left: 16px; z-index: 11; font-size: 12px; max-width: calc(100vw - 32px); white-space: nowrap; }
+@media (max-width: 700px) { #focus-toggle { padding: 6px 8px; } }
 .scene-header { padding: 20px 40px; background: linear-gradient(to bottom, #000e, transparent); display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
 .scene-header h1 { margin: 0; font-size: 28px; font-weight: 300; letter-spacing: 2px; }
 .scene-header p { margin: 5px 0 0; font-size: 14px; color: #aaa; }
