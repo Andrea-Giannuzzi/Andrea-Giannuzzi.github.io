@@ -30,11 +30,15 @@
   // stop -- see updatePlayback().
   let redshifts = [];
   let tValues = [];
+  // The brightest (least-redshifted) point reached along the current
+  // trajectory -- see showSimulation()'s comment on why raw g=1/u^t is
+  // rescaled against this before being used for color/opacity.
+  let redshiftReference = 1;
   let sampleIndex = 0;
   let frame = null;
   let previousTime = null;
   let computing = false;
-  let scene, camera, renderer, controls, blackHole, disk, stars, particle, trajectory, ergosphere, ergosphereWire, plungingRegion;
+  let scene, camera, renderer, controls, blackHole, disk, stars, particle, particleHalo, trajectory, ergosphere, ergosphereWire, plungingRegion;
   // Per-stream (lambda, position, color) sample tables for the plunging
   // region, kept so updatePlungingRegion() can animate them -- see
   // buildPlungingRegion().
@@ -691,9 +695,29 @@
     scene.add(stars);
     // transparent:true so opacity can fade the marker as it nears a
     // horizon-margin stop (see updatePlayback()); opaque MeshBasicMaterial
-    // ignores .opacity entirely.
-    particle = new THREE.Mesh(new THREE.SphereGeometry(0.12, 16, 16), new THREE.MeshBasicMaterial({ color: 0x66ffff, transparent: true }));
+    // ignores .opacity entirely. depthTest:false + the same renderOrder as
+    // the trajectory line fixes the same problem already diagnosed and
+    // fixed for that line (see showSimulation()): sitting at disk radius,
+    // the marker would otherwise be swallowed by the disk's dense,
+    // additively-blended particles, which draw regardless of geometric
+    // depth. Radius bumped from the original 0.12 -- the marker is a
+    // schematic point-particle indicator with no physical size to begin
+    // with, so enlarging it for visibility changes nothing physical.
+    particle = new THREE.Mesh(new THREE.SphereGeometry(0.3, 16, 16), new THREE.MeshBasicMaterial({ color: 0x66ffff, transparent: true, depthTest: false }));
+    particle.renderOrder = 10;
     particle.visible = false; scene.add(particle);
+    // A solid dot alone can still read as "one more disk particle" when it
+    // happens to sit right at disk radius, surrounded by thousands of
+    // similarly bright points. A larger, softer, additively-blended halo
+    // around the same position reads as a highlight rather than a point
+    // among points, without changing what the solid core marker itself
+    // represents -- same technique as the disk/plunging region's own
+    // additive blending, just applied to a single indicator object.
+    particleHalo = new THREE.Mesh(new THREE.SphereGeometry(0.85, 16, 16), new THREE.MeshBasicMaterial({
+      color: 0x66ffff, transparent: true, opacity: 0.35, depthTest: false, blending: THREE.AdditiveBlending
+    }));
+    particleHalo.renderOrder = 10;
+    particleHalo.visible = false; scene.add(particleHalo);
     resetCamera();
     // No lensing table yet: the decorative intro is non-physical, and
     // applyLensing() already leaves stars at their true positions while
@@ -739,6 +763,7 @@
     // everything around it.
     viewRadius = Math.max(config.initial.radius * 1.5, diskOuter * 2);
     particle.scale.setScalar(Math.max(0.3, scale));
+    particleHalo.scale.setScalar(Math.max(0.3, scale));
     return params;
   }
   function showSimulation(next) {
@@ -760,9 +785,22 @@
     // the horizon-margin stop: g -> 0 while t races far ahead of lambda --
     // the calculated analogue of a distant observer never actually seeing
     // anything cross the horizon, only freezing and redshifting toward it.
-    // Clamped at 1 so a trajectory that never approaches the horizon (most
-    // of them) shows no visible tint at all, only ever dimming below it.
+    // Raw g is a redshift relative to a static observer at infinity, which
+    // for almost any launch (even one that never gets close to the
+    // horizon) is already noticeably below 1 -- a fast-moving particle's
+    // own speed alone lowers u^t via ordinary time dilation, on top of any
+    // gravitational contribution. Using raw g as a brightness/color factor
+    // therefore dimmed and tinted the *entire* line/marker by default, not
+    // just the final approach to a horizon-margin stop, making an
+    // otherwise perfectly normal trajectory look faint against the bright
+    // disk. Rescaling against this trajectory's own brightest (highest-g)
+    // point keeps that same point at full, undimmed brightness -- fading
+    // is then shown only relative to it, which is what actually needs
+    // illustrating: how much *more* redshifted a later point is than an
+    // earlier one on the same worldline, not its redshift against a
+    // distant static clock nobody is showing here anyway.
     redshifts = points.map((state) => state[4] > 0 && Number.isFinite(state[4]) ? Math.min(1, 1 / state[4]) : 1);
+    redshiftReference = Math.max(1e-6, ...redshifts);
     tValues = points.map((state) => state[0]);
     if (trajectory) { scene.remove(trajectory); trajectory.geometry.dispose(); trajectory.material.dispose(); }
     // An equatorial trajectory sitting at disk radius would otherwise be
@@ -774,14 +812,16 @@
     // Vertex colors (baked once here, not updated per frame -- the line is
     // already redrawn progressively via setDrawRange as playback advances)
     // fade each already-computed vertex from the base cyan toward a dim red
-    // as its own redshift falls, so the final stretch approaching a
-    // horizon-margin stop visibly dims/reddens while the rest of the line
-    // (redshift close to 1) stays effectively unchanged.
+    // as its redshift falls relative to this trajectory's own brightest
+    // point (redshiftReference, see above), so the final stretch
+    // approaching a horizon-margin stop visibly dims/reddens while the
+    // rest of the line renders at full, clearly visible brightness.
     const baseTrajectoryColor = new THREE.Color(0x66ffff);
     const dimTrajectoryColor = new THREE.Color(0x330000);
     const lineColors = new Float32Array(redshifts.length * 3);
     redshifts.forEach((g, i) => {
-      const shade = baseTrajectoryColor.clone().lerp(dimTrajectoryColor, 1 - Math.min(1, Math.max(0, g)));
+      const relative = Math.min(1, Math.max(0, g / redshiftReference));
+      const shade = baseTrajectoryColor.clone().lerp(dimTrajectoryColor, 1 - relative);
       lineColors.set([shade.r, shade.g, shade.b], i * 3);
     });
     const trajectoryGeometry = new THREE.BufferGeometry().setFromPoints(positions);
@@ -796,6 +836,7 @@
     resetCamera();
     updateLensingTable(params);
     particle.visible = true;
+    particleHalo.visible = true;
     $("#pause").disabled = false; $("#restart").disabled = false;
     updatePlayback(); updateLabels(); renderDiagnostics();
   }
@@ -809,15 +850,21 @@
     const interval = times[nextIndex] - times[sampleIndex];
     const fraction = interval > 0 ? Math.min(1, Math.max(0, (affineTime - times[sampleIndex]) / interval)) : 0;
     particle.position.copy(positions[sampleIndex]).lerp(positions[nextIndex], fraction);
+    particleHalo.position.copy(particle.position);
     // Same redshift g = 1/u^t used for the trajectory line's own vertex
-    // colors, interpolated the same way as position, applied to the marker
-    // itself: it visibly dims and reddens only in the final stretch before
-    // a horizon-margin stop (floor at 0.35 opacity so it never vanishes
-    // outright -- this is a visualization of the effect, not a claim that
-    // the particle itself goes dark).
-    const g = Math.min(1, Math.max(0, redshifts[sampleIndex] + (redshifts[nextIndex] - redshifts[sampleIndex]) * fraction));
+    // colors, interpolated the same way as position and rescaled against
+    // the same redshiftReference, applied to the marker itself: it stays
+    // fully bright and opaque until the final stretch before a
+    // horizon-margin stop, then visibly dims and reddens (floor at 0.35
+    // opacity so it never vanishes outright -- this is a visualization of
+    // the effect, not a claim that the particle itself goes dark). The
+    // halo fades the same way but from a lower base opacity (it is a soft
+    // highlight, not the marker itself).
+    const g = Math.min(1, Math.max(0, (redshifts[sampleIndex] + (redshifts[nextIndex] - redshifts[sampleIndex]) * fraction) / redshiftReference));
     particle.material.opacity = 0.35 + 0.65 * g;
     particle.material.color.copy(particleShade.copy(PARTICLE_BASE_COLOR).lerp(PARTICLE_DIM_COLOR, 1 - g));
+    particleHalo.material.opacity = 0.35 * g;
+    particleHalo.material.color.copy(particle.material.color);
     trajectory.geometry.setDrawRange(0, affineTime >= endTime ? positions.length : sampleIndex + 1);
     // t is the Boyer-Lindquist coordinate time (state[0]), interpolated the
     // same way; shown next to lambda as concrete evidence of why the marker
