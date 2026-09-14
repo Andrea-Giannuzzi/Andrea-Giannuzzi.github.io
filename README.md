@@ -6,7 +6,6 @@ Static bilingual academic website built with plain HTML, CSS, and JavaScript and
 
 ```text
 index.html                  Academic overview and featured work
-about.html                  Academic path, interests, skills, and coursework
 research.html               Ongoing research work and research notes
 black-hole-simulator.html   Equatorial-geodesic 2D simulator
 black-hole-simulator-3d.html 3D geodesics with local launch angles and orbit controls

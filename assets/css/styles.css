@@ -482,13 +482,22 @@ dd {
   padding: 26px;
 }
 
+.cv-research-list,
 .cv-project-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 24px;
 }
 
-.cv-project-item + .cv-project-item {
+.cv-project-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.cv-research-list > article + article {
+  border-top: 1px solid var(--line);
+  padding-top: 24px;
+}
+
+.cv-project-item {
   border-left: 1px solid var(--line);
   padding-left: 24px;
 }
@@ -1806,11 +1815,14 @@ code {
     border-right: 0;
   }
 
+  .cv-project-item {
+    padding-left: 0;
+    border-left: 0;
+  }
+
   .cv-project-item + .cv-project-item {
     padding-top: 20px;
-    padding-left: 0;
     border-top: 1px solid var(--line);
-    border-left: 0;
   }
 
   .coursework-group.planned {

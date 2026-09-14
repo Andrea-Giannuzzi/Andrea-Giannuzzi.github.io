@@ -68,8 +68,6 @@ window.PORTFOLIO_CONTENT = {
     meta: {
       homeTitle: "Andrea Giannuzzi | Portfolio accademico",
       homeDescription: "Portfolio accademico di Andrea Giannuzzi, studente triennale in Fisica.",
-      aboutTitle: "About | Andrea Giannuzzi",
-      aboutDescription: "Percorso accademico, interessi di ricerca e competenze di Andrea Giannuzzi.",
       projectsTitle: "Projects | Andrea Giannuzzi",
       projectsDescription: "Progetti GitHub di fisica, calcolo scientifico e analisi dati.",
       notesTitle: "Notes | Andrea Giannuzzi",
@@ -111,7 +109,7 @@ window.PORTFOLIO_CONTENT = {
       downloadPdf: "Scarica PDF",
       pending: "PDF — In preparazione"
     },
-    nav: { home: "Home", about: "About", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
+    nav: { home: "Home", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
     home: {
       eyebrow: "Portfolio accademico",
       name: "Andrea Giannuzzi",
@@ -128,34 +126,18 @@ window.PORTFOLIO_CONTENT = {
       featuredProjectTitle: "Progetto in evidenza",
       selectedWorkTitle: "Lavori selezionati",
       selectedWorkIntro: "Una selezione dell'attuale attività di ricerca e dei progetti di fisica computazionale.",
-      ongoingResearch: "Lavoro di ricerca in corso",
       researchProblemLabel: "Problema scientifico",
       contributionLabel: "Contributo attuale",
       viewResearch: "Vai a Research",
       launchDemo: "Avvia il simulatore",
       pipeline: "metrica → metrica inversa → derivate analitiche → simboli di Christoffel → integrazione geodetica"
     },
-    about: {
-      eyebrow: "About",
-      title: "About Andrea",
-      intro: "Il mio percorso accademico è orientato verso la fisica teorica e matematica, con i metodi computazionali come strumento complementare.",
-      academicPathTitle: "Formazione accademica",
-      academicPath: "Studio Fisica presso l'Università degli Studi di Napoli Federico II, in un percorso di laurea triennale con un forte orientamento teorico e matematico e con interesse per l'integrazione tra fisica analitica e metodi computazionali.",
+    academicOverview: {
       universityLabel: "Università",
       degreeLabel: "Corso di laurea",
       yearLabel: "Anno corrente",
       yearNames: ["", "Primo anno", "Secondo anno", "Terzo anno"],
-      graduationLabel: "Laurea prevista",
-      researchTitle: "Interessi di ricerca",
-      skillsTitle: "Competenze",
-      currentFocusTitle: "Focus attuale",
-      currentFocusIntro: "Il lavoro attuale si concentra principalmente su due direzioni complementari:",
-      researchFocus: "Studio analitico della corrente di Schwinger nello spaziotempo di de Sitter.",
-      simulatorFocus: "Sviluppo del Kerr–Newman Black Hole Simulator.",
-      researchLink: "Research",
-      simulatorLink: "Black Hole Simulator",
-      personalTitle: "Oltre la fisica",
-      personal: "Fuori dall'attività accademica, coltivo interessi per gli scacchi, la storia e la divulgazione scientifica."
+      graduationLabel: "Laurea prevista"
     },
     projects: {
       eyebrow: "Projects",
@@ -279,19 +261,6 @@ window.PORTFOLIO_CONTENT = {
       },
       onThisPage: "In questa pagina",
       sectionPhysics: "Fisica",
-      fullSimulatorTitle: "Applicazione desktop",
-      workInProgress: "Lavori in corso",
-      fullSimulatorIntro: "Applicazione desktop futura. Le funzionalità seguenti descrivono la direzione prevista e non sono presenti nel simulatore web.",
-      fullFeatures: [
-        "Windows e macOS.",
-        "Integrazione delle geodetiche con metodi numerici avanzati.",
-        "Particelle di prova cariche e controlli numerici avanzati.",
-        "Ray tracing relativistico e lensing.",
-        "Modello fisico dell’ombra del buco nero e dell’emissione del disco di accrescimento.",
-        "Frame dragging e analisi avanzata di ISCO e regione fotonica.",
-        "Coordinate multiple, grafici scientifici ed esportazione dati.",
-        "Salvataggio e caricamento delle simulazioni."
-      ],
       physicsTitle: "Fisica del modello",
       physicsIntro: "Il modello utilizza la geometria di Kerr–Newman, che descrive la soluzione stazionaria e assialsimmetrica di Einstein–Maxwell con massa \\(M\\), carica elettrica \\(Q\\) e momento angolare \\(J\\). In unità geometrizzate il parametro di spin è \\(a=J/M\\).",
       limitingCasesTitle: "Famiglie limite",
@@ -738,11 +707,59 @@ window.PORTFOLIO_CONTENT = {
     ],
     researchItems: [
       {
+        "id": "de-sitter-scalar-vacuum-polarization",
+        "reference": {
+          "title": "Classical constant electric fields and the Schwinger effect in de Sitter",
+          "identifier": "arXiv:2508.14973v2",
+          "url": "https://arxiv.org/abs/2508.14973v2"
+        },
+        "title": "Polarizzazione del vuoto e risposta elettromagnetica in De Sitter",
+        "summary": "Studio della polarizzazione del vuoto a un loop nella QED scalare in de Sitter, dai propagatori liberi alla rinormalizzazione e alla risposta a campo elettrico debole.",
+        "date": "10 settembre 2026",
+        "status": "Progetto di ricerca in corso",
+        "context": "Il progetto studia come formulare il contributo scalare alla funzione a due punti del fotone direttamente nello spaziotempo di de Sitter, distinguendo il controtermine ultravioletto locale dalla risposta finita dipendente dalla curvatura e dalla prescrizione di rinormalizzazione.",
+        "contribution": "Ho sviluppato quattro note collegate: costruzione e controlli del propagatore scalare di Bunch–Davies, derivazione del controtermine locale con heat kernel, analisi del propagatore vettoriale e dei suoi limiti fisici, e costruzione del kernel di polarizzazione con estrazione della risposta lineare dalla corrente esatta.",
+        "methods": [
+          "Modi di Hankel, forma ipergeometrica invariante e formalismo closed-time-path.",
+          "Heat kernel, regolarizzazione in tempo proprio e dimensionale.",
+          "Bitensori covarianti, prescrizione di parte finita ed espansione a campo debole."
+        ],
+        "results": [
+          "Controlli della normalizzazione scalare, del limite ultravioletto e del caso conforme, nel dominio di massa effettiva positiva.",
+          "Coefficiente ultravioletto locale coerente nei due regolatori; il fattore di volume si cancella nel raccordo.",
+          "Identificati gli ostacoli infrarossi e di positività del modello Proca con M² = −2H², distinguendo la bisoluzione formale da uno stato quantistico fisico.",
+          "Ottenuti un kernel invariante in parte finita e il coefficiente lineare della corrente, con verifiche analitiche e numeriche riportate nelle note."
+        ],
+        "developmentTitle": "Ancora in sviluppo",
+        "development": "Restano da valutare le componenti miste e la convoluzione del kernel ritardato con il profilo elettrico regolato, mantenendo i termini sulla superficie iniziale; occorre inoltre determinare la conversione finita allo schema Pauli–Villars e precisare il raccordo con la condizione di sottrazione originaria. Il confronto fisico tra le prescrizioni non è quindi ancora concluso.",
+        "documentTitle": "Documenti del progetto",
+        "abstractTitle": "Sintesi del percorso",
+        "abstract": "Le quattro note separano i risultati già derivati dal problema di raccordo ancora aperto. Il controtermine locale non determina da solo la risposta finita in de Sitter, e la sottrazione della risposta su uno specifico profilo elettrico non è automaticamente equivalente alla condizione sul fattore di forma del lavoro di riferimento.",
+        "documents": [
+          {
+            "title": "1. Propagatore scalare",
+            "pdf": "Nuova%20ricerca/deSitter_scalar_propagator_step1%20%281%29.pdf"
+          },
+          {
+            "title": "2. Heat kernel e controtermine locale",
+            "pdf": "Nuova%20ricerca/deSitter_heat_kernel_step2%20%281%29.pdf"
+          },
+          {
+            "title": "3. Propagatore vettoriale",
+            "pdf": "Nuova%20ricerca/deSitter_vector_propagator_step3%20%281%29.pdf"
+          },
+          {
+            "title": "4. Polarizzazione del vuoto",
+            "pdf": "Nuova%20ricerca/deSitter_vacuum_polarization_step4%20%281%29.pdf"
+          }
+        ]
+      },
+      {
         id: "order-e0-scalar-function-f-phi",
         title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
         summary: "Studio analitico del contributo di ordine e^0 a F_φ nella corrente scalare regolarizzata di Pauli–Villars.",
         date: "15 agosto 2026",
-        status: "Lavoro di ricerca in corso",
+        status: "Progetto di ricerca",
         context: "Indagine sulla corrente di Schwinger nello spaziotempo di de Sitter, oltre e migliorando l'approssimazione di Minkowski usata nel calcolo del controtermine di polarizzazione del vuoto. Questo è l'obiettivo complessivo della ricerca, non un risultato concluso.",
         contribution: "Estrazione e studio analitico del contributo di ordine e^0 alla funzione F_φ, che entra nella corrente scalare di Schwinger di ordine e^2.",
         methods: ["Espansione in λ = eE/H² = O(e).", "Dipendenza μ² = μ₀² − λ².", "Identità della funzione digamma e relazione di riflessione."],
@@ -951,8 +968,6 @@ window.PORTFOLIO_CONTENT = {
     meta: {
       homeTitle: "Andrea Giannuzzi | Academic Portfolio",
       homeDescription: "Academic portfolio of Andrea Giannuzzi, Bachelor student in Physics.",
-      aboutTitle: "About | Andrea Giannuzzi",
-      aboutDescription: "Academic path, research interests, and skills of Andrea Giannuzzi.",
       projectsTitle: "Projects | Andrea Giannuzzi",
       projectsDescription: "GitHub projects in physics, scientific computing, and data analysis.",
       notesTitle: "Notes | Andrea Giannuzzi",
@@ -994,7 +1009,7 @@ window.PORTFOLIO_CONTENT = {
       downloadPdf: "Download PDF",
       pending: "PDF — Work in progress"
     },
-    nav: { home: "Home", about: "About", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
+    nav: { home: "Home", projects: "Projects", blackHoleSimulator: "Black Hole Simulator", research: "Research", notes: "Notes", cv: "CV", contact: "Contact" },
     home: {
       eyebrow: "Academic portfolio",
       name: "Andrea Giannuzzi",
@@ -1011,34 +1026,18 @@ window.PORTFOLIO_CONTENT = {
       featuredProjectTitle: "Featured Project",
       selectedWorkTitle: "Selected Work",
       selectedWorkIntro: "A selection of current research and computational physics work.",
-      ongoingResearch: "Ongoing Research Work",
       researchProblemLabel: "Scientific problem",
       contributionLabel: "Current contribution",
       viewResearch: "View Research",
       launchDemo: "Launch the Simulator",
       pipeline: "metric → inverse metric → analytic derivatives → Christoffel symbols → geodesic integration"
     },
-    about: {
-      eyebrow: "About",
-      title: "About Andrea",
-      intro: "My academic work is oriented toward theoretical and mathematical physics, with computational methods as a complementary tool.",
-      academicPathTitle: "Academic Background",
-      academicPath: "I am pursuing a BSc in Physics at the University of Naples Federico II, with a strong theoretical and mathematical orientation and an interest in combining analytical physics with computational methods.",
+    academicOverview: {
       universityLabel: "University",
       degreeLabel: "Degree program",
       yearLabel: "Current year",
       yearNames: ["", "First year", "Second year", "Third year"],
-      graduationLabel: "Expected graduation",
-      researchTitle: "Research interests",
-      skillsTitle: "Skills",
-      currentFocusTitle: "Current Focus",
-      currentFocusIntro: "My current work is concentrated mainly on two complementary directions:",
-      researchFocus: "Analytical work on the Schwinger current in de Sitter spacetime.",
-      simulatorFocus: "Development of the Kerr–Newman Black Hole Simulator.",
-      researchLink: "Research",
-      simulatorLink: "Black Hole Simulator",
-      personalTitle: "Beyond Physics",
-      personal: "Outside academic work, I maintain interests in chess, history, and science communication."
+      graduationLabel: "Expected graduation"
     },
     projects: {
       eyebrow: "Projects",
@@ -1162,19 +1161,6 @@ window.PORTFOLIO_CONTENT = {
       },
       onThisPage: "On this page",
       sectionPhysics: "Physics",
-      fullSimulatorTitle: "Desktop application",
-      workInProgress: "Work in progress",
-      fullSimulatorIntro: "Planned desktop application. The features below describe its intended direction and are not available in the web simulator.",
-      fullFeatures: [
-        "Windows and macOS.",
-        "Geodesic integration with advanced numerical methods.",
-        "Charged test particles and advanced numerical controls.",
-        "Relativistic ray tracing and lensing.",
-        "Physical modeling of the black-hole shadow and accretion-disk emission.",
-        "Frame dragging and advanced ISCO/photon-region analysis.",
-        "Multiple coordinate systems, scientific plots, and data export.",
-        "Save and load simulations."
-      ],
       physicsTitle: "Physics model",
       physicsIntro: "The model uses the Kerr–Newman geometry, which describes the stationary and axisymmetric Einstein–Maxwell solution with mass \\(M\\), electric charge \\(Q\\), and angular momentum \\(J\\). In geometrized units, the spin parameter is \\(a=J/M\\).",
       limitingCasesTitle: "Limiting families",
@@ -1621,11 +1607,59 @@ window.PORTFOLIO_CONTENT = {
     ],
     researchItems: [
       {
+        "id": "de-sitter-scalar-vacuum-polarization",
+        "reference": {
+          "title": "Classical constant electric fields and the Schwinger effect in de Sitter",
+          "identifier": "arXiv:2508.14973v2",
+          "url": "https://arxiv.org/abs/2508.14973v2"
+        },
+        "title": "Vacuum polarization and electromagnetic response in De Sitter",
+        "summary": "A study of one-loop vacuum polarization in de Sitter scalar QED, from free propagators to renormalization and the weak-electric-field response.",
+        "date": "September 10, 2026",
+        "status": "Ongoing Research project",
+        "context": "The project studies how to formulate the scalar contribution to the photon two-point function directly in de Sitter spacetime, separating the local ultraviolet counterterm from the finite response that depends on curvature and the renormalization prescription.",
+        "contribution": "I developed four connected notes: construction and checks of the Bunch–Davies scalar propagator, derivation of the local counterterm using the heat kernel, analysis of the vector propagator and its physical limitations, and construction of the polarization kernel with extraction of the linear response from the exact current.",
+        "methods": [
+          "Hankel modes, the invariant hypergeometric form and the closed-time-path formalism.",
+          "Heat kernel, proper-time and dimensional regularization.",
+          "Covariant bitensors, a finite-part prescription and the weak-field expansion."
+        ],
+        "results": [
+          "Checks of scalar normalization, the ultraviolet limit and the conformal case, within the positive-effective-mass-squared domain.",
+          "A local ultraviolet coefficient consistent across both regulators; the volume factor cancels in the matching.",
+          "Identified infrared and positivity obstructions in the Proca model with M² = −2H², distinguishing the formal bisolution from a physical quantum state.",
+          "Obtained an invariant finite-part kernel and the linear current coefficient, with analytical and numerical checks reported in the notes."
+        ],
+        "developmentTitle": "Still in development",
+        "development": "The mixed components and the convolution of the retarded kernel with a regulated electric profile remain to be evaluated, retaining initial-surface terms. The finite conversion to the Pauli–Villars scheme and the matching to the original subtraction condition also remain to be established. A physical comparison between the prescriptions is therefore not yet complete.",
+        "documentTitle": "Project documents",
+        "abstractTitle": "Overview of the work",
+        "abstract": "The four notes separate the results already derived from the remaining matching problem. The local counterterm alone does not determine the finite de Sitter response, and subtracting the response on one electric-field history is not automatically equivalent to the form-factor condition used in the reference paper.",
+        "documents": [
+          {
+            "title": "1. Scalar propagator",
+            "pdf": "Nuova%20ricerca/deSitter_scalar_propagator_step1%20%281%29.pdf"
+          },
+          {
+            "title": "2. Heat kernel and local counterterm",
+            "pdf": "Nuova%20ricerca/deSitter_heat_kernel_step2%20%281%29.pdf"
+          },
+          {
+            "title": "3. Vector propagator",
+            "pdf": "Nuova%20ricerca/deSitter_vector_propagator_step3%20%281%29.pdf"
+          },
+          {
+            "title": "4. Vacuum polarization",
+            "pdf": "Nuova%20ricerca/deSitter_vacuum_polarization_step4%20%281%29.pdf"
+          }
+        ]
+      },
+      {
         id: "order-e0-scalar-function-f-phi",
         title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
         summary: "Analytical study of the order-e^0 contribution to F_φ in the Pauli–Villars regularized scalar current.",
         date: "August 15, 2026",
-        status: "Ongoing Research Work",
+        status: "Research project",
         context: "Investigation of the Schwinger current in de Sitter spacetime beyond and improving the Minkowski approximation used in the vacuum-polarization counterterm calculation. This is the overall research objective, not a completed result.",
         contribution: "Extraction and analytical study of the order-(e^0) contribution to the scalar function F_φ, which enters the order-(e^2) scalar Schwinger current.",
         methods: ["Expansion in λ = eE/H² = O(e).", "Dependence μ² = μ₀² − λ².", "Digamma-function identities and the reflection relation."],

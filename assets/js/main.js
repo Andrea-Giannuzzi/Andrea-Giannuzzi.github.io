@@ -181,7 +181,6 @@ function getBasePath() {
 function setupExtendedNavigation() {
   const navigationItems = [
     ["home", "index.html", "nav.home"],
-    ["about", "about.html", "nav.about"],
     ["research", "research.html", "nav.research"],
     ["black-hole-simulator", "black-hole-simulator.html", "nav.blackHoleSimulator"],
     ["projects", "projects.html", "nav.projects"],
@@ -207,7 +206,11 @@ function renderResearch(language) {
     const formatMarkup = item.format
       ? `<div><dt>${item.formatLabel}</dt><dd>${item.format}</dd></div>`
       : "";
-    const documentActions = pdfPath
+    const documentActions = item.documents
+      ? `<ul class="plain-list">${item.documents.map((document) => `
+          <li><a class="text-link" href="${getBasePath()}${document.pdf}" target="_blank" rel="noopener">${document.title} (PDF)</a></li>
+        `).join("")}</ul>`
+      : pdfPath
       ? `<div class="actions">
           <a class="button ghost" href="${getBasePath()}${pdfPath}" target="_blank" rel="noopener">${item.documentId ? content.sharedDocuments.openPdf : content.research.readNote}</a>
           <a class="button primary" href="${getBasePath()}${pdfPath}" download>${content.research.downloadPdf}</a>
@@ -221,7 +224,6 @@ function renderResearch(language) {
           <p>${item.summary}</p>
           <dl class="note-meta research-meta">
             <div><dt>${content.research.dateLabel}</dt><dd>${item.date}</dd></div>
-            <div><dt>${content.research.statusLabel}</dt><dd>${item.status}</dd></div>
             ${formatMarkup}
           </dl>
         </summary>
@@ -238,6 +240,10 @@ function renderResearch(language) {
             <div><h3>${item.methodsTitle || content.research.methodsTitle}</h3><ul class="plain-list">${item.methods.map((method) => `<li>${method}</li>`).join("")}</ul></div>
             <div><h3>${item.resultsTitle || content.research.resultsTitle}</h3><ul class="plain-list">${item.results.map((result) => `<li>${result}</li>`).join("")}</ul></div>
           </section>
+          ${item.development ? `<section>
+            <h3>${item.developmentTitle}</h3>
+            <p>${item.development}</p>
+          </section>` : ""}
           <section>
             <h3>${item.referenceTitle || content.research.referenceTitle}</h3>
             <p><a class="text-link inline-link" href="${item.reference.url}" target="_blank" rel="noopener">${item.reference.title}</a><br><span class="muted">${item.reference.identifier}</span></p>
@@ -324,10 +330,10 @@ function renderAcademicContent(language) {
     const showCurrentYear = container.dataset.academicOverview !== "cv";
     container.innerHTML = `
       <dl class="info-list">
-        <div><dt>${content.about.universityLabel}</dt><dd>${localizedAcademicValue(profile.institution, language)}</dd></div>
-        <div><dt>${content.about.degreeLabel}</dt><dd>${localizedAcademicValue(profile.degree, language)}</dd></div>
-        ${showCurrentYear ? `<div><dt>${content.about.yearLabel}</dt><dd>${content.about.yearNames[profile.currentYear]}</dd></div>` : ""}
-        <div><dt>${content.about.graduationLabel}</dt><dd>${localizedAcademicValue(profile.expectedGraduation, language)}</dd></div>
+        <div><dt>${content.academicOverview.universityLabel}</dt><dd>${localizedAcademicValue(profile.institution, language)}</dd></div>
+        <div><dt>${content.academicOverview.degreeLabel}</dt><dd>${localizedAcademicValue(profile.degree, language)}</dd></div>
+        ${showCurrentYear ? `<div><dt>${content.academicOverview.yearLabel}</dt><dd>${content.academicOverview.yearNames[profile.currentYear]}</dd></div>` : ""}
+        <div><dt>${content.academicOverview.graduationLabel}</dt><dd>${localizedAcademicValue(profile.expectedGraduation, language)}</dd></div>
       </dl>`;
   });
 
@@ -339,11 +345,11 @@ function renderAcademicContent(language) {
     container.innerHTML = courseworkMarkup(language, content, container.dataset.coursework || "all");
   });
 
-  const research = content.researchItems?.[0];
   document.querySelectorAll("[data-featured-research]").forEach((container) => {
+    const research = content.researchItems?.find((item) => item.id === container.dataset.featuredResearch);
     if (!research) return;
     container.innerHTML = `
-      <p class="status">${content.home.ongoingResearch}</p>
+      <p class="status">${research.status}</p>
       <h3>${research.title}</h3>
       <dl class="featured-facts">
         <div><dt>${content.home.researchProblemLabel}</dt><dd>${research.context}</dd></div>
@@ -352,13 +358,17 @@ function renderAcademicContent(language) {
       <a class="text-link" href="${getBasePath()}research.html#${research.id}">${content.home.viewResearch}</a>`;
   });
 
+  const cvResearch = ["de-sitter-scalar-vacuum-polarization", "order-e0-scalar-function-f-phi"]
+    .map((id) => content.researchItems?.find((item) => item.id === id))
+    .filter(Boolean);
   document.querySelectorAll("[data-cv-research]").forEach((container) => {
-    if (!research) return;
-    container.innerHTML = `
-      <p class="status">${research.status}</p>
-      <h3>${research.title}</h3>
-      <p>${research.contribution}</p>
-      <a class="text-link" href="${getBasePath()}research.html#${research.id}">${content.cv.viewResearch}</a>`;
+    container.innerHTML = cvResearch.map((research) => `
+      <article>
+        <p class="status">${research.status}</p>
+        <h3>${research.title}</h3>
+        <p>${research.contribution}</p>
+        <a class="text-link" href="${getBasePath()}research.html#${research.id}">${content.cv.viewResearch}</a>
+      </article>`).join("");
   });
 
   const featuredProjects = (content.projectItems || [])

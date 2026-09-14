@@ -1,0 +1,458 @@
+{
+  "assets/js/black-hole-3d.js": {
+    "mtime": 1789078478.9013772,
+    "seen": 1789380329.827753,
+    "ast_hash": "4d98790fb57b08f27037e3ed6f36f2d2",
+    "semantic_hash": "4d98790fb57b08f27037e3ed6f36f2d2"
+  },
+  "assets/js/black-hole-physics.js": {
+    "mtime": 1788989431.8154578,
+    "seen": 1789380329.827756,
+    "ast_hash": "cba342ad306547dbaea4ae832a19f491",
+    "semantic_hash": "cba342ad306547dbaea4ae832a19f491"
+  },
+  "assets/js/black-hole-simulation.js": {
+    "mtime": 1789048772.95158,
+    "seen": 1789380329.8277571,
+    "ast_hash": "7fd72a678397dd518054b454d2e1fa92",
+    "semantic_hash": "7fd72a678397dd518054b454d2e1fa92"
+  },
+  "assets/js/black-hole-simulator.js": {
+    "mtime": 1788948333.6392326,
+    "seen": 1789380329.827758,
+    "ast_hash": "4507db1a0675b07f84bf181c8ea2ca59",
+    "semantic_hash": "4507db1a0675b07f84bf181c8ea2ca59"
+  },
+  "assets/js/content.js": {
+    "mtime": 1789072037.178666,
+    "seen": 1789380329.827758,
+    "ast_hash": "3bd85b437fed403dda9701c957cfe7b5",
+    "semantic_hash": "3bd85b437fed403dda9701c957cfe7b5"
+  },
+  "assets/js/main.js": {
+    "mtime": 1787842961.252367,
+    "seen": 1789380329.827759,
+    "ast_hash": "03279463b0643e32418226f6e81588ea",
+    "semantic_hash": "03279463b0643e32418226f6e81588ea"
+  },
+  "assets/vendor/three/OrbitControls.js": {
+    "mtime": 1788910191.522894,
+    "seen": 1789380329.827759,
+    "ast_hash": "98d0f30d2f372eb8ddd748a23a6763c8",
+    "semantic_hash": "98d0f30d2f372eb8ddd748a23a6763c8"
+  },
+  "assets/vendor/three/three.min.js": {
+    "mtime": 1788910191.3921895,
+    "seen": 1789380329.8277602,
+    "ast_hash": "eb8549863a97355411c3259a3f93b8e1",
+    "semantic_hash": "eb8549863a97355411c3259a3f93b8e1"
+  },
+  "package.json": {
+    "mtime": 1788947265.4142432,
+    "seen": 1789380329.8277602,
+    "ast_hash": "c992f961344bd7700bd76f236068b351",
+    "semantic_hash": "c992f961344bd7700bd76f236068b351"
+  },
+  "tests/black-hole-lensing-disk.test.cjs": {
+    "mtime": 1788990133.1107426,
+    "seen": 1789380329.827761,
+    "ast_hash": "4ab06e61fba47585f57ceac7984f0913",
+    "semantic_hash": "4ab06e61fba47585f57ceac7984f0913"
+  },
+  "tests/black-hole-local.test.cjs": {
+    "mtime": 1788948544.337261,
+    "seen": 1789380329.827761,
+    "ast_hash": "ec0b118b15a2bac0faef124810a8d49c",
+    "semantic_hash": "ec0b118b15a2bac0faef124810a8d49c"
+  },
+  "tests/black-hole-simulation.test.cjs": {
+    "mtime": 1788910671.5954669,
+    "seen": 1789380329.827761,
+    "ast_hash": "39a3cf270c7fda647f5a204303de7753",
+    "semantic_hash": "39a3cf270c7fda647f5a204303de7753"
+  },
+  ".agents/HANDOFF.md": {
+    "mtime": 1789379635.8067617,
+    "seen": 1789380329.827762,
+    "ast_hash": "1db8c50e09417cd32170101cd6b034cc",
+    "semantic_hash": "1db8c50e09417cd32170101cd6b034cc"
+  },
+  ".serena/project.yml": {
+    "mtime": 1789299865.5504203,
+    "seen": 1789380329.827762,
+    "ast_hash": "63371ed7965177f57793a31e30aedc3f",
+    "semantic_hash": "63371ed7965177f57793a31e30aedc3f"
+  },
+  "Codex.context-Blackholesimulator/3D-Simulator_Good_Graphic.html": {
+    "mtime": 1788904693.7271461,
+    "seen": 1789380329.8277628,
+    "ast_hash": "70f4fc972c62c17e232fe8e604632b95",
+    "semantic_hash": "70f4fc972c62c17e232fe8e604632b95"
+  },
+  "Codex.context-Blackholesimulator/3D-Simulator_Logic_idea.html": {
+    "mtime": 1788904696.5584857,
+    "seen": 1789380329.8277628,
+    "ast_hash": "8801dc49eba7f4c5a301c5a565d2e996",
+    "semantic_hash": "8801dc49eba7f4c5a301c5a565d2e996"
+  },
+  "README.md": {
+    "mtime": 1788963787.6489742,
+    "seen": 1789380329.827764,
+    "ast_hash": "a9f52c0feb44ecc19021ba7004566da8",
+    "semantic_hash": "a9f52c0feb44ecc19021ba7004566da8"
+  },
+  "about.html": {
+    "mtime": 1786982742.4503899,
+    "seen": 1789380329.827764,
+    "ast_hash": "1402852883d1a0c82e1eedd2bf89fa39",
+    "semantic_hash": "1402852883d1a0c82e1eedd2bf89fa39"
+  },
+  "articles/fourier-series.html": {
+    "mtime": 1779976092.27369,
+    "seen": 1789380329.827765,
+    "ast_hash": "d686623f68b7a62303ad72b996f73def",
+    "semantic_hash": "d686623f68b7a62303ad72b996f73def"
+  },
+  "assets/cv/README.md": {
+    "mtime": 1779884281.0644982,
+    "seen": 1789380329.827765,
+    "ast_hash": "533c78cd195b72de5e8e707511d82e10",
+    "semantic_hash": "533c78cd195b72de5e8e707511d82e10"
+  },
+  "assets/images/README.md": {
+    "mtime": 1779884281.064425,
+    "seen": 1789380329.827766,
+    "ast_hash": "9ddd6f1ee757fd261ee8c2d2b54437dc",
+    "semantic_hash": "9ddd6f1ee757fd261ee8c2d2b54437dc"
+  },
+  "black-hole-simulator-3d.html": {
+    "mtime": 1789071998.3983934,
+    "seen": 1789380329.827766,
+    "ast_hash": "725b7acb4de9482e3b351b3e5dbdf4da",
+    "semantic_hash": "725b7acb4de9482e3b351b3e5dbdf4da"
+  },
+  "black-hole-simulator.html": {
+    "mtime": 1789048879.2555704,
+    "seen": 1789380329.8277671,
+    "ast_hash": "e943859de8894ac9c60de400f01e6696",
+    "semantic_hash": "e943859de8894ac9c60de400f01e6696"
+  },
+  "blog.html": {
+    "mtime": 1779976092.2750401,
+    "seen": 1789380329.8277671,
+    "ast_hash": "3c704e68d250ba51b1adbc0e23b199b4",
+    "semantic_hash": "3c704e68d250ba51b1adbc0e23b199b4"
+  },
+  "contact.html": {
+    "mtime": 1779976092.2753172,
+    "seen": 1789380329.827768,
+    "ast_hash": "76787465e3ec881aa524172b5612ef78",
+    "semantic_hash": "76787465e3ec881aa524172b5612ef78"
+  },
+  "cv.html": {
+    "mtime": 1786982742.4509234,
+    "seen": 1789380329.827768,
+    "ast_hash": "b8a07b560eb0da2fcef0ef155e1decf7",
+    "semantic_hash": "b8a07b560eb0da2fcef0ef155e1decf7"
+  },
+  "docs/binary-merger-feasibility.md": {
+    "mtime": 1788963817.6529026,
+    "seen": 1789380329.827769,
+    "ast_hash": "c70032f7c82ec214ae7716a95125fa9a",
+    "semantic_hash": "c70032f7c82ec214ae7716a95125fa9a"
+  },
+  "index.html": {
+    "mtime": 1786983612.4823601,
+    "seen": 1789380329.827769,
+    "ast_hash": "aa99d10a866b2caeb2a9689eb984f0bc",
+    "semantic_hash": "aa99d10a866b2caeb2a9689eb984f0bc"
+  },
+  "notes.html": {
+    "mtime": 1779976092.276197,
+    "seen": 1789380329.827769,
+    "ast_hash": "097be4f3e6ff09b575b2dd31c8a69640",
+    "semantic_hash": "097be4f3e6ff09b575b2dd31c8a69640"
+  },
+  "notes/analytical-mechanics/README.md": {
+    "mtime": 1779976092.2766204,
+    "seen": 1789380329.82777,
+    "ast_hash": "20313370700ad1b0c5d690522e98348b",
+    "semantic_hash": "20313370700ad1b0c5d690522e98348b"
+  },
+  "notes/analytical-mechanics/index.html": {
+    "mtime": 1779976092.2770295,
+    "seen": 1789380329.82777,
+    "ast_hash": "41810fa4799178840150b44c429b5515",
+    "semantic_hash": "41810fa4799178840150b44c429b5515"
+  },
+  "notes/analytical-mechanics/lagrangian-mechanics.html": {
+    "mtime": 1779976092.2772353,
+    "seen": 1789380329.827771,
+    "ast_hash": "1e447b4796c3b9669ce261b368599c3b",
+    "semantic_hash": "1e447b4796c3b9669ce261b368599c3b"
+  },
+  "notes/analytical-mechanics/pdf/README.md": {
+    "mtime": 1779976092.2774901,
+    "seen": 1789380329.827771,
+    "ast_hash": "2950d85b69390564edee36904e441fce",
+    "semantic_hash": "2950d85b69390564edee36904e441fce"
+  },
+  "notes/computational-physics/README.md": {
+    "mtime": 1779976092.2777581,
+    "seen": 1789380329.827772,
+    "ast_hash": "bb87d64ae29467e0db269e1c893f71a2",
+    "semantic_hash": "bb87d64ae29467e0db269e1c893f71a2"
+  },
+  "notes/computational-physics/index.html": {
+    "mtime": 1779976092.2780006,
+    "seen": 1789380329.827772,
+    "ast_hash": "4c471893ab3bf7930136861c4f62d431",
+    "semantic_hash": "4c471893ab3bf7930136861c4f62d431"
+  },
+  "notes/computational-physics/numerical-methods.html": {
+    "mtime": 1779976092.2782161,
+    "seen": 1789380329.8277729,
+    "ast_hash": "54401ca00b0fab577970cdcb96b60b5a",
+    "semantic_hash": "54401ca00b0fab577970cdcb96b60b5a"
+  },
+  "notes/computational-physics/pdf/README.md": {
+    "mtime": 1779976092.2784693,
+    "seen": 1789380329.8277729,
+    "ast_hash": "229734408505a2219f8ebcfe81b18f62",
+    "semantic_hash": "229734408505a2219f8ebcfe81b18f62"
+  },
+  "notes/cosmology/README.md": {
+    "mtime": 1779976092.2788143,
+    "seen": 1789380329.8277729,
+    "ast_hash": "b3ba3c29d9fb611d909706a71fd57740",
+    "semantic_hash": "b3ba3c29d9fb611d909706a71fd57740"
+  },
+  "notes/cosmology/expanding-universe.html": {
+    "mtime": 1779976092.2790267,
+    "seen": 1789380329.827774,
+    "ast_hash": "2c72c0ece07df25f7bb3fd55f9422237",
+    "semantic_hash": "2c72c0ece07df25f7bb3fd55f9422237"
+  },
+  "notes/cosmology/index.html": {
+    "mtime": 1779976092.2793925,
+    "seen": 1789380329.827774,
+    "ast_hash": "3971fd49e5b8a84e6628944875a87927",
+    "semantic_hash": "3971fd49e5b8a84e6628944875a87927"
+  },
+  "notes/cosmology/pdf/README.md": {
+    "mtime": 1779976092.2797077,
+    "seen": 1789380329.827775,
+    "ast_hash": "19863c3d48d47f78353fb6b6ff9ddda4",
+    "semantic_hash": "19863c3d48d47f78353fb6b6ff9ddda4"
+  },
+  "notes/electromagnetism/README.md": {
+    "mtime": 1786787881.617847,
+    "seen": 1789380329.827775,
+    "ast_hash": "dbd42486a7b436a7b9bde1985c39a87d",
+    "semantic_hash": "dbd42486a7b436a7b9bde1985c39a87d"
+  },
+  "notes/electromagnetism/electromagnetism.html": {
+    "mtime": 1786787867.457811,
+    "seen": 1789380329.827776,
+    "ast_hash": "0cf1028130ac2b0353db05d80f17fa63",
+    "semantic_hash": "0cf1028130ac2b0353db05d80f17fa63"
+  },
+  "notes/electromagnetism/index.html": {
+    "mtime": 1786787867.4576104,
+    "seen": 1789380329.827776,
+    "ast_hash": "a1a9314806851cc9e260bca97d888fd6",
+    "semantic_hash": "a1a9314806851cc9e260bca97d888fd6"
+  },
+  "notes/electromagnetism/maxwell-field-tensor.html": {
+    "mtime": 1786924044.6381657,
+    "seen": 1789380329.827777,
+    "ast_hash": "33e2169e165953701d24aa192955a247",
+    "semantic_hash": "33e2169e165953701d24aa192955a247"
+  },
+  "notes/electromagnetism/pdf/README.md": {
+    "mtime": 1786787881.6182437,
+    "seen": 1789380329.827777,
+    "ast_hash": "1a97b14bc5041d4d95ae0537b72665c4",
+    "semantic_hash": "1a97b14bc5041d4d95ae0537b72665c4"
+  },
+  "notes/general-relativity/README.md": {
+    "mtime": 1779976092.279957,
+    "seen": 1789380329.827778,
+    "ast_hash": "2a4df04b2db1b862feee55620654207b",
+    "semantic_hash": "2a4df04b2db1b862feee55620654207b"
+  },
+  "notes/general-relativity/index.html": {
+    "mtime": 1779976092.2801797,
+    "seen": 1789380329.827778,
+    "ast_hash": "5e2d3c681d6486bb6cdb9bbda770547d",
+    "semantic_hash": "5e2d3c681d6486bb6cdb9bbda770547d"
+  },
+  "notes/general-relativity/pdf/README.md": {
+    "mtime": 1779976092.2805262,
+    "seen": 1789380329.827778,
+    "ast_hash": "d60d98b81967567a22abb4cb8bbc26d0",
+    "semantic_hash": "d60d98b81967567a22abb4cb8bbc26d0"
+  },
+  "notes/general-relativity/spacetime-geometry.html": {
+    "mtime": 1779976092.2809153,
+    "seen": 1789380329.827779,
+    "ast_hash": "6a7337e576cea936d931b8f6abf65f32",
+    "semantic_hash": "6a7337e576cea936d931b8f6abf65f32"
+  },
+  "notes/mathematical-methods/README.md": {
+    "mtime": 1779976092.281393,
+    "seen": 1789380329.827779,
+    "ast_hash": "7a80591c39c4aacb55bb81c1589649b4",
+    "semantic_hash": "7a80591c39c4aacb55bb81c1589649b4"
+  },
+  "notes/mathematical-methods/differential-geometry.html": {
+    "mtime": 1779976092.2816296,
+    "seen": 1789380329.82778,
+    "ast_hash": "da457d14cbc827c1b01ceacdaa3da4a1",
+    "semantic_hash": "da457d14cbc827c1b01ceacdaa3da4a1"
+  },
+  "notes/mathematical-methods/index.html": {
+    "mtime": 1779976092.2818449,
+    "seen": 1789380329.82778,
+    "ast_hash": "d6aa951dfa2200e2b2c2084e87ce2dd4",
+    "semantic_hash": "d6aa951dfa2200e2b2c2084e87ce2dd4"
+  },
+  "notes/mathematical-methods/pdf/README.md": {
+    "mtime": 1779976092.2823079,
+    "seen": 1789380329.8277812,
+    "ast_hash": "c05d29a1cbcdee9012607a24611459d1",
+    "semantic_hash": "c05d29a1cbcdee9012607a24611459d1"
+  },
+  "notes/mathematical-physics/README.md": {
+    "mtime": 1779976092.282544,
+    "seen": 1789380329.8277812,
+    "ast_hash": "6ae0762ab4d7dba9d45646167323d632",
+    "semantic_hash": "6ae0762ab4d7dba9d45646167323d632"
+  },
+  "notes/mathematical-physics/fourier-series.html": {
+    "mtime": 1779976092.282749,
+    "seen": 1789380329.8277812,
+    "ast_hash": "146439992866ba71ebdbfde39884c110",
+    "semantic_hash": "146439992866ba71ebdbfde39884c110"
+  },
+  "notes/mathematical-physics/index.html": {
+    "mtime": 1779976092.2830405,
+    "seen": 1789380329.827782,
+    "ast_hash": "b274121585dc96f67de59aa4ea5a6526",
+    "semantic_hash": "b274121585dc96f67de59aa4ea5a6526"
+  },
+  "notes/mathematical-physics/pdf/README.md": {
+    "mtime": 1779976092.283293,
+    "seen": 1789380329.827782,
+    "ast_hash": "9a144e1cf303d90ca383ef676f430faf",
+    "semantic_hash": "9a144e1cf303d90ca383ef676f430faf"
+  },
+  "projects.html": {
+    "mtime": 1787842961.2978394,
+    "seen": 1789380329.8277829,
+    "ast_hash": "b9194c4c4bf7163f44213ceb1169fbc5",
+    "semantic_hash": "b9194c4c4bf7163f44213ceb1169fbc5"
+  },
+  "projects/derivate-simboliche.html": {
+    "mtime": 1786638442.9806325,
+    "seen": 1789380329.8277829,
+    "ast_hash": "8451d4286ca8f6a3784f6a7db7b743c6",
+    "semantic_hash": "8451d4286ca8f6a3784f6a7db7b743c6"
+  },
+  "projects/lambda-cdm.html": {
+    "mtime": 1786708938.0205936,
+    "seen": 1789380329.8277838,
+    "ast_hash": "b0eae69b7709f55bdfea4b526831cd8f",
+    "semantic_hash": "b0eae69b7709f55bdfea4b526831cd8f"
+  },
+  "projects/mira.html": {
+    "mtime": 1787842961.341378,
+    "seen": 1789380329.8277838,
+    "ast_hash": "3213c517ded3e858aa24728c210bb77d",
+    "semantic_hash": "3213c517ded3e858aa24728c210bb77d"
+  },
+  "projects/pendolo-piccole-oscillazioni.html": {
+    "mtime": 1786638442.980315,
+    "seen": 1789380329.827785,
+    "ast_hash": "cbd0869968602763e183e196a22e1cc9",
+    "semantic_hash": "cbd0869968602763e183e196a22e1cc9"
+  },
+  "projects/pendolo-semplice-numerico.html": {
+    "mtime": 1786638442.9799697,
+    "seen": 1789380329.827785,
+    "ast_hash": "083a49f2e4cb6ab09ef144ddd1c38a23",
+    "semantic_hash": "083a49f2e4cb6ab09ef144ddd1c38a23"
+  },
+  "projects/secondbrain-agent-ecosystem.html": {
+    "mtime": 1788997547.8391354,
+    "seen": 1789380329.827785,
+    "ast_hash": "e7cc83754879e5c255c311ee80202ecb",
+    "semantic_hash": "e7cc83754879e5c255c311ee80202ecb"
+  },
+  "research.html": {
+    "mtime": 1786980302.559349,
+    "seen": 1789380329.827786,
+    "ast_hash": "d7ea8d4f7bd491cb41a11521d9344e4e",
+    "semantic_hash": "d7ea8d4f7bd491cb41a11521d9344e4e"
+  },
+  "assets/cv/cv.pdf": {
+    "mtime": 1786791410.0032897,
+    "seen": 1789380329.827786,
+    "ast_hash": "dd41af4c4add8d5079b4dd3d5448c9b8",
+    "semantic_hash": "dd41af4c4add8d5079b4dd3d5448c9b8"
+  },
+  "assets/kerr-newman-metric-theoretical-background.pdf": {
+    "mtime": 1787494879.3961565,
+    "seen": 1789380329.827787,
+    "ast_hash": "16d0473f2b95ef55f7f2f3fd1004e572",
+    "semantic_hash": "16d0473f2b95ef55f7f2f3fd1004e572"
+  },
+  "assets/research-order-e0-scalar-function-f-phi.pdf": {
+    "mtime": 1786794077.7008493,
+    "seen": 1789380329.827787,
+    "ast_hash": "0929c0bddab0356c4c13e42eb6b803b5",
+    "semantic_hash": "0929c0bddab0356c4c13e42eb6b803b5"
+  },
+  "notes/analytical-mechanics/pdf/analytical-mechanics.pdf": {
+    "mtime": 1786787624.925017,
+    "seen": 1789380329.827788,
+    "ast_hash": "d3edbbb2ef461262a4aae1c530d8778b",
+    "semantic_hash": "d3edbbb2ef461262a4aae1c530d8778b"
+  },
+  "notes/cosmology/pdf/cosmology.pdf": {
+    "mtime": 1786787624.9839847,
+    "seen": 1789380329.827788,
+    "ast_hash": "49e5cd06d145ceb9fb4307ba4ef3af34",
+    "semantic_hash": "49e5cd06d145ceb9fb4307ba4ef3af34"
+  },
+  "notes/electromagnetism/pdf/electromagnetism.pdf": {
+    "mtime": 1786787625.037381,
+    "seen": 1789380329.827789,
+    "ast_hash": "d129c0b7997da9bd3339f6c42523fe4b",
+    "semantic_hash": "d129c0b7997da9bd3339f6c42523fe4b"
+  },
+  "notes/electromagnetism/pdf/from-maxwell-to-the-electromagnetic-field-tensor.pdf": {
+    "mtime": 1786923450.7362876,
+    "seen": 1789380329.827789,
+    "ast_hash": "f60201400c3d8a0601e042b98399f486",
+    "semantic_hash": "f60201400c3d8a0601e042b98399f486"
+  },
+  "notes/general-relativity/pdf/relativity.pdf": {
+    "mtime": 1786787625.0126555,
+    "seen": 1789380329.82779,
+    "ast_hash": "b1d59c534e84d13ab10a531533f66756",
+    "semantic_hash": "b1d59c534e84d13ab10a531533f66756"
+  },
+  "notes/mathematical-methods/pdf/mathematical-methods-for-physics.pdf": {
+    "mtime": 1786787624.9692302,
+    "seen": 1789380329.82779,
+    "ast_hash": "967ecc53ae69bf12bf9679bdf7aa6370",
+    "semantic_hash": "967ecc53ae69bf12bf9679bdf7aa6370"
+  },
+  "assets/images/profile.jpg": {
+    "mtime": 1779962939.7492867,
+    "seen": 1789380329.82779,
+    "ast_hash": "02d029a8ecb498618a323cd2a93cbc1a",
+    "semantic_hash": "02d029a8ecb498618a323cd2a93cbc1a"
+  }
+}
