@@ -38,6 +38,7 @@ Both queries found the expected source before and after. Both wrapper results we
 
 ## Maintenance
 
+- Graphify's standard hooks were installed locally on 2026-09-15: post-commit and post-checkout refresh code in the background, and the local `graphify` merge driver handles the rule in `.gitattributes`. Hooks and driver configuration live in `.git` and are not transferred by a clone; run `graphify hook install` in a new checkout. Logs: `~/.cache/graphify-rebuild.log`. Semantic documents still require the incremental workflow below.
 - `.graphifyignore` excludes vendor internals, generated outputs and agent configuration; `.serena/project.yml` excludes vendor, dependency and generated graph directories. Serena reads updated configuration on project activation.
 - `graphify extract . --code-only` refreshes code using local AST extraction and preserves the semantic layer. It does not refresh changed documents.
 - For semantic changes, use the Graphify incremental workflow. Preserve unchanged sources, re-extract changed documents and prune deleted/excluded sources. Do not mark unread sources current.
