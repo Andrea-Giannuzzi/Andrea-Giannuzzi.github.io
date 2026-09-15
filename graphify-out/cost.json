@@ -8,5 +8,14 @@
     }
   ],
   "total_input_tokens": 377599,
-  "total_output_tokens": 0
+  "total_output_tokens": 0,
+  "measurement_note": "Legacy run counters are retained as recorded, not verified billing data. Host-agent semantic usage for the 2026-09-15 refresh is unmeasured; it is not zero.",
+  "unmetered_runs": [
+    {
+      "date": "2026-09-15T19:45:15.917708+00:00",
+      "reason": "Host-agent semantic refresh; no billing counter available",
+      "semantic_sources_refreshed": 33,
+      "code_files": 10
+    }
+  ]
 }
