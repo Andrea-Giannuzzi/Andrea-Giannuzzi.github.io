@@ -17,3 +17,5 @@ graphify-out/
 
 # Local-only audit notes, kept out of the public repo
 .agents/SIMULATOR-AUDIT.md
+.agents/HANDOFF.md
+.agents/HANDOFF_ARCHIVE.md
