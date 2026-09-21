@@ -7,6 +7,11 @@ Created: 2026-09-14
 
 ## Decisions
 
+- 2026-09-21 — **Agent working notes stay out of the public repos.** Both this repo and
+  `Kerr-Newman-Black-Hole-Simulator` are public. `.agents/HANDOFF.md` and `.agents/TOOLING.md` are
+  tracked by long-standing choice; anything longer or more candid — audits, defect inventories —
+  stays local and gitignored (`.agents/SIMULATOR-AUDIT.md` is the first). Check
+  `gh repo view --json visibility` before committing new notes.
 - 2026-09-20 — The Kerr–Newman simulator is developed **here**, on the site copy. The public repo `Andrea-Giannuzzi/Kerr-Newman-Black-Hole-Simulator` is a stale snapshot and is aligned later, one way only (site → repo). Do not merge or pull from it: that would regress the physics and delete the 3D layer.
 - 2026-09-15 — Retrieve by ownership: Serena/scoped text search for known files and symbols; Graphify for broad relationships. `AGENTS.md` records the workflow; `.agents/TOOLING.md` records measurements and maintenance. Filter tool output before compression and avoid duplicate result representations.
 
