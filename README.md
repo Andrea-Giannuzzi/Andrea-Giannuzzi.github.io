@@ -76,13 +76,17 @@ Requires Node.js/npm and Python 3. No dependency installation or build step is n
 npm run dev
 ```
 
-Open `http://127.0.0.1:8000` while the command remains running. The 3D simulator is at `http://127.0.0.1:8000/black-hole-simulator-3d.html`. Refresh the browser after editing files; this server does not provide automatic reload. Stop it with Ctrl+C.
+Open `http://127.0.0.1:8000` while the command remains running. The 3D simulator is at `http://127.0.0.1:8000/black-hole-simulator-3d.html`. Refresh the browser after editing files; this server does not provide automatic reload. Stop it with Ctrl+C. If port 8000 is occupied, run `npm run dev -- 8001` and open port 8001 instead.
 
 Without npm, use `python3 -m http.server 8000 --bind 127.0.0.1`. If port 8000 is occupied, use `python3 -m http.server 8001 --bind 127.0.0.1` and open port 8001 instead.
 
 Run the shared-physics and session-state checks with `npm test`.
 
-Then open `http://127.0.0.1:8000` and verify navigation, both languages, project/note links, PDF actions, and the simulator on desktop and mobile widths.
+Then open `http://127.0.0.1:8000` (or the port you chose) and verify navigation, both languages, project/note links, PDF actions, and the simulator on desktop and mobile widths.
+
+### Parallel worktrees
+
+`npm run worktree -- <branch>` creates `.claude/worktrees/<branch>` from `main` (or checks out `<branch>` if it already exists locally or on `origin`) and links the main checkout's local `.agents` notes into it, so parallel sessions share one `HANDOFF.md`. In a worktree made another way (`claude -w`, Codex), `npm run worktree` with no branch only adds the links. Give each worktree's server its own port, e.g. `npm run dev -- 8001`.
 
 ## Deployment
 

@@ -9,6 +9,9 @@
 *.log
 .tmp/
 
+# Parallel worktrees (scripts/worktree.sh, claude -w)
+.claude/worktrees/
+
 # Python local server/cache artifacts
 __pycache__/
 
