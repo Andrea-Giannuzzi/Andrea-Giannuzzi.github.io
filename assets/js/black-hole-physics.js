@@ -33,6 +33,8 @@
     normalization: 1e-10,
     relativeConservation: 1e-10,
     equatorialDrift: 1e-10,
+    // Observed order log2(e(2h)/e(h)) must lie within 4 ± 0.5 for RK4.
+    convergenceOrder: 0.5,
     // Deliberately loose: this checks the lensing table's deflection against
     // the leading-order weak-field formula 4M/b, which itself is only an
     // approximation (see computeLensingTable). A physical sanity bound, not
@@ -44,6 +46,7 @@
     step: 0.01,
     photonMaxLambda: 10,
     massiveMaxLambda: 20,
+    infallMaxLambda: 12,
     sampleEvery: 1,
     maxSteps: 4000
   });
@@ -801,13 +804,58 @@
     return residual;
   }
 
-  function validationMeasurement(id, computed, tolerance) {
+  function validationMeasurement(id, computed, tolerance, reference = 0) {
+    const error = Math.abs(computed - reference);
     return {
       id,
+      reference,
       computed,
-      error: Math.abs(computed),
+      error,
       tolerance,
-      passed: Number.isFinite(computed) && Math.abs(computed) <= tolerance
+      passed: Number.isFinite(computed) && error <= tolerance
+    };
+  }
+
+  function integrateValidationGeodesic(params, initialState, maxLambda, configuration = {}) {
+    return integrateGeodesic(params, initialState, {
+      step: VALIDATION_INTEGRATION.step,
+      maxLambda,
+      maxSteps: VALIDATION_INTEGRATION.maxSteps,
+      sampleEvery: VALIDATION_INTEGRATION.sampleEvery,
+      ...configuration
+    });
+  }
+
+  // Completed means the whole interval was integrated, not one step short of
+  // it; half a step absorbs the round-off accumulated by lambda += step.
+  function completedInterval(result, maxLambda) {
+    return result.stopReason === "maximumInterval"
+      && result.lambda >= maxLambda - 0.5 * result.settings.step;
+  }
+
+  function invariantMeasurements(checks) {
+    return [
+      validationMeasurement("normalization", checks.normalizationError, VALIDATION_TOLERANCES.normalization),
+      validationMeasurement("relativeEnergy", checks.relativeEnergyChange, VALIDATION_TOLERANCES.relativeConservation),
+      validationMeasurement(
+        "relativeAngularMomentum",
+        checks.relativeAngularMomentumChange,
+        VALIDATION_TOLERANCES.relativeConservation
+      )
+    ];
+  }
+
+  function geodesicBenchmarkResult(id, results, maxLambda, measurements) {
+    const incomplete = results.find((result) => !completedInterval(result, maxLambda));
+    const completed = !incomplete;
+    return {
+      id,
+      maxLambda,
+      step: VALIDATION_INTEGRATION.step,
+      completed,
+      stopReason: (incomplete || results[results.length - 1]).stopReason,
+      measurements,
+      passed: completed && measurements.every((measurement) => measurement.passed)
     };
   }
 
@@ -820,12 +868,7 @@
       massive: configuration.massive,
       radialDirection: "outgoing"
     });
-    const result = integrateGeodesic(params, initialState, {
-      step: VALIDATION_INTEGRATION.step,
-      maxLambda: configuration.maxLambda,
-      maxSteps: VALIDATION_INTEGRATION.maxSteps,
-      sampleEvery: VALIDATION_INTEGRATION.sampleEvery
-    });
+    const result = integrateValidationGeodesic(params, initialState, configuration.maxLambda);
     const states = [...result.points, result.finalState];
     const radialDrift = states.reduce((maximum, state) => Math.max(
       maximum,
@@ -837,39 +880,98 @@
         radialDrift,
         VALIDATION_TOLERANCES.relativeRadialDrift
       ),
-      validationMeasurement(
-        "normalization",
-        result.checks.normalizationError,
-        VALIDATION_TOLERANCES.normalization
-      ),
-      validationMeasurement(
-        "relativeEnergy",
-        result.checks.relativeEnergyChange,
-        VALIDATION_TOLERANCES.relativeConservation
-      ),
-      validationMeasurement(
-        "relativeAngularMomentum",
-        result.checks.relativeAngularMomentumChange,
-        VALIDATION_TOLERANCES.relativeConservation
-      ),
+      ...invariantMeasurements(result.checks),
       validationMeasurement(
         "equatorialDrift",
         result.checks.thetaDrift,
         VALIDATION_TOLERANCES.equatorialDrift
       )
     ];
-    const completed = result.stopReason === "maximumInterval"
-      && result.lambda >= configuration.maxLambda - VALIDATION_INTEGRATION.step;
     return {
-      id: configuration.id,
-      radius: configuration.radius,
-      maxLambda: configuration.maxLambda,
-      step: VALIDATION_INTEGRATION.step,
-      completed,
-      stopReason: result.stopReason,
-      measurements,
-      passed: completed && measurements.every((measurement) => measurement.passed)
+      ...geodesicBenchmarkResult(configuration.id, [result], configuration.maxLambda, measurements),
+      radius: configuration.radius
     };
+  }
+
+  // Schwarzschild radial fall from rest at infinity (E = 1, L = 0): the affine
+  // parameter is proper time and r(tau), t(tau) have closed forms, so unlike
+  // the circular orbits this benchmark sees the RK4 truncation error.
+  // Repeating it at 4h and 2h gives the observed order of convergence.
+  function runRadialInfallBenchmark() {
+    const params = { M: 1, a: 0, q: 0 };
+    const startRadius = 10;
+    const maxLambda = VALIDATION_INTEGRATION.infallMaxLambda;
+    const step = VALIDATION_INTEGRATION.step;
+    const radiusAt = (tau) => Math.pow(Math.pow(startRadius, 1.5) - 1.5 * Math.SQRT2 * tau, 2 / 3);
+    // t = -4 [G(x)] from x0 to x, with x = sqrt(r / 2M).
+    const primitive = (x) => x * x * x / 3 + x + 0.5 * Math.log((x - 1) / (x + 1));
+    const timeAt = (tau) => -4 * (primitive(Math.sqrt(radiusAt(tau) / 2)) - primitive(Math.sqrt(startRadius / 2)));
+    const initialState = initialStateFromConstants(params, {
+      radius: startRadius, energy: 1, angularMomentum: 0, massive: true, radialDirection: "ingoing"
+    });
+    // Every step is stored, so point i lies at tau = i * h.
+    const results = [4 * step, 2 * step, step].map((size) => integrateValidationGeodesic(
+      params, initialState, maxLambda, { step: size, sampleEvery: 1 }
+    ));
+    let radialError = 0;
+    let timeError = 0;
+    results[2].points.forEach((state, index) => {
+      if (index === 0) return;
+      const tau = index * step;
+      radialError = Math.max(radialError, Math.abs(state[1] - radiusAt(tau)) / radiusAt(tau));
+      timeError = Math.max(timeError, Math.abs(state[0] - timeAt(tau)) / timeAt(tau));
+    });
+    // Compare at tau = n * h rather than at the accumulated lambda, whose
+    // summation round-off (~2e-13) is comparable to the error at h itself.
+    const errors = results.map((result) => Math.abs(
+      result.finalState[1] - radiusAt((result.points.length - 1) * result.settings.step)
+    ));
+    const measurements = [
+      validationMeasurement("analyticalRadius", radialError, VALIDATION_TOLERANCES.relativeRadialDrift),
+      validationMeasurement("analyticalCoordinateTime", timeError, VALIDATION_TOLERANCES.relativeRadialDrift),
+      validationMeasurement(
+        "convergenceOrderCoarse",
+        Math.log2(errors[0] / errors[1]),
+        VALIDATION_TOLERANCES.convergenceOrder,
+        4
+      ),
+      validationMeasurement(
+        "convergenceOrderFine",
+        Math.log2(errors[1] / errors[2]),
+        VALIDATION_TOLERANCES.convergenceOrder,
+        4
+      )
+    ];
+    return geodesicBenchmarkResult("radialInfall", results, maxLambda, measurements);
+  }
+
+  // Non-equatorial orbit around a rotating, charged hole: there is no closed
+  // form, but E, L_z, the Carter constant and the normalization are exact
+  // invariants. A first-order integrator drifts far outside these tolerances.
+  function runInvariantBenchmark(configuration) {
+    const { id, params, initial, maxLambda } = configuration;
+    const result = integrateValidationGeodesic(
+      params, initialStateFromLocal(params, initial), maxLambda, { guardCoordinates: true }
+    );
+    const measurements = [
+      ...invariantMeasurements(result.checks),
+      validationMeasurement(
+        "carterConstant",
+        result.checks.scaledCarterChange,
+        VALIDATION_TOLERANCES.relativeConservation
+      )
+    ];
+    return geodesicBenchmarkResult(id, [result], maxLambda, measurements);
+  }
+
+  // At the photon sphere the circular-orbit frequency from the geodesic
+  // condition (keplerianAngularVelocity) must also make the orbit null.
+  function photonSphereNullResidual(params, sense) {
+    const radius = photonSphereRadius(params, sense);
+    const omega = radius === null ? null : keplerianAngularVelocity(params, radius, sense);
+    if (omega === null) return NaN;
+    const g = metric(params, radius, Math.PI / 2);
+    return g[0][0] + 2 * omega * g[0][3] + omega * omega * g[3][3];
   }
 
   // Weak-field check for the lensing table's deflection: with the camera far
@@ -917,65 +1019,128 @@
     const schwarzschild = { M: 1, a: 0, q: 0 };
     const kerr = { M: 1, a: 0.7, q: 0 };
     const schwarzschildProperties = geometryProperties(schwarzschild, "schwarzschild");
+    const reissnerNordstrom = { M: 1, a: 0, q: 0.6 };
+    const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
     const analyticalCases = [
       {
         id: "schwarzschildHorizon",
         reference: 2,
-        computed: schwarzschildProperties.outer
+        computed: schwarzschildProperties.outer,
+        unit: "M"
       },
       {
         id: "schwarzschildPhotonOrbit",
         reference: 3,
-        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.photon)
+        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.photon),
+        unit: "M"
       },
       {
         id: "schwarzschildIsco",
         reference: 6,
-        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.isco)
+        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.isco),
+        unit: "M"
       },
       {
         id: "kerrHorizon",
         reference: 1 + Math.sqrt(1 - 0.7 * 0.7),
-        computed: horizonData(kerr).outer
+        computed: horizonData(kerr).outer,
+        unit: "M"
+      },
+      {
+        // r± = M ± sqrt(M² - a² - q²); these parameters make both roots exact decimals.
+        id: "reissnerNordstromOuterHorizon",
+        reference: 1.8,
+        computed: horizonData(reissnerNordstrom).outer,
+        unit: "M"
+      },
+      {
+        id: "reissnerNordstromInnerHorizon",
+        reference: 0.2,
+        computed: horizonData(reissnerNordstrom).inner,
+        unit: "M"
+      },
+      {
+        id: "kerrNewmanOuterHorizon",
+        reference: 1.64,
+        computed: horizonData(kerrNewman).outer,
+        unit: "M"
+      },
+      {
+        id: "kerrNewmanInnerHorizon",
+        reference: 0.36,
+        computed: horizonData(kerrNewman).inner,
+        unit: "M"
+      },
+      {
+        id: "reissnerNordstromPhotonSphere",
+        reference: 0,
+        computed: photonSphereNullResidual(reissnerNordstrom, "prograde"),
+        unit: ""
+      },
+      {
+        // q² = 5/8 puts the photon sphere exactly at r = 2.5M.
+        id: "reissnerNordstromPhotonSphereRadius25",
+        reference: 2.5,
+        computed: photonSphereRadius({ M: 1, a: 0, q: Math.sqrt(5 / 8) }),
+        unit: "M"
+      },
+      {
+        id: "kerrPhotonSpherePrograde",
+        reference: 0,
+        computed: photonSphereNullResidual(kerr, "prograde"),
+        unit: ""
+      },
+      {
+        id: "kerrPhotonSphereRetrograde",
+        reference: 0,
+        computed: photonSphereNullResidual(kerr, "retrograde"),
+        unit: ""
       },
       {
         id: "schwarzschildKeplerOmega",
         reference: Math.sqrt(1 / Math.pow(10, 3)),
-        computed: keplerianAngularVelocity(schwarzschild, 10, "prograde")
+        computed: keplerianAngularVelocity(schwarzschild, 10, "prograde"),
+        unit: "M⁻¹"
       },
       {
         id: "kerrKeplerOmegaPrograde",
         reference: Math.sqrt(kerr.M) / (Math.pow(10, 1.5) + kerr.a * Math.sqrt(kerr.M)),
-        computed: keplerianAngularVelocity(kerr, 10, "prograde")
+        computed: keplerianAngularVelocity(kerr, 10, "prograde"),
+        unit: "M⁻¹"
       },
       {
         id: "kerrKeplerOmegaRetrograde",
         reference: -Math.sqrt(kerr.M) / (Math.pow(10, 1.5) - kerr.a * Math.sqrt(kerr.M)),
-        computed: keplerianAngularVelocity(kerr, 10, "retrograde")
+        computed: keplerianAngularVelocity(kerr, 10, "retrograde"),
+        unit: "M⁻¹"
       },
       {
         // Standard closed form for the redshift of matter on a circular
         // Schwarzschild orbit at the ISCO: g = sqrt(1 - 3M/r).
         id: "schwarzschildIscoRedshift",
         reference: Math.sqrt(1 - 3 / 6),
-        computed: diskRedshiftFactor(schwarzschild, 6, "prograde")
+        computed: diskRedshiftFactor(schwarzschild, 6, "prograde"),
+        unit: ""
       },
       {
         // The ergosphere is tangent to the outer horizon at the poles.
         id: "kerrErgosphereTangentAtPole",
         reference: horizonData(kerr).outer,
-        computed: outerStaticLimitAtTheta(kerr, 0)
+        computed: outerStaticLimitAtTheta(kerr, 0),
+        unit: "M"
       },
       {
         // Standard closed-form Schwarzschild ISCO orbital constants.
         id: "schwarzschildIscoEnergy",
         reference: 2 * Math.sqrt(2) / 3,
-        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").energy
+        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").energy,
+        unit: ""
       },
       {
         id: "schwarzschildIscoAngularMomentum",
         reference: 2 * Math.sqrt(3),
-        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum
+        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum,
+        unit: "M"
       }
     ].map((entry) => {
       const error = Math.abs(entry.computed - entry.reference);
@@ -1035,6 +1200,13 @@
         angularMomentum: Math.sqrt(8) / Math.sqrt(1 - 3 / 8),
         massive: true,
         maxLambda: VALIDATION_INTEGRATION.massiveMaxLambda
+      }),
+      runRadialInfallBenchmark(),
+      runInvariantBenchmark({
+        id: "kerrNewmanInclined",
+        params: { M: 1, a: 0.7, q: 0.2 },
+        initial: { radius: 12, latitude: 23, azimuth: 110, elevation: 20, speed: 0.4, massive: true, photonEnergy: 1 },
+        maxLambda: VALIDATION_INTEGRATION.massiveMaxLambda
       })
     ];
 
@@ -1046,7 +1218,9 @@
         angle: 8,
         escapeRadius: 40000,
         maxLambda: 80000,
-        step: 2,
+        // h = 8 keeps the integration error (~2e-7 degrees) negligible next to
+        // the ~0.6 % gap from the leading-order 4M/b formula measured here.
+        step: 8,
         maxSteps: 40000,
         tolerance: VALIDATION_TOLERANCES.lensingWeakFieldRelative
       })
