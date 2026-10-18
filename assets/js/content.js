@@ -343,6 +343,78 @@ window.PORTFOLIO_CONTENT = {
           equatorialDrift: "Drift equatoriale massimo"
         }
       },
+      codeComparison: {
+        eyebrow: "Codici di riferimento",
+        title: "Confronto con codici pubblici",
+        intro: "Il simulatore web è affiancato a codici pubblici affermati per geodetiche in Kerr e ray tracing relativistico. Il confronto riguarda scopo e metodo, non prestazioni o accuratezza: non è stata eseguita alcuna misura comparativa.",
+        sourcesNote: "Dati tratti dai repository e dagli articoli originali, consultati il 18 ottobre 2026.",
+        tableLabel: "Confronto tra codici",
+        columns: {
+          code: "Codice",
+          integration: "Integrazione e passo",
+          coordinates: "Coordinate",
+          shadow: "Ombra e immagini",
+          kerrNewman: "Kerr–Newman"
+        },
+        rows: {
+          thisCode: {
+            name: "Questo simulatore",
+            meta: "JavaScript nel browser · MIT",
+            integration: "RK4 classico a passo fisso; simboli di Christoffel da derivate analitiche della metrica",
+            coordinates: "Boyer–Lindquist",
+            shadow: "Nessuna curva critica; tabella di lensing 1D equatoriale (fotone catturato o sfuggito)",
+            kerrNewman: "Metrica sì; particelle neutre"
+          },
+          einsteinpy: {
+            meta: "Python · MIT",
+            integration: "Simplettico FANTASY (ordine 2–8) a passo fisso; le tolleranze generano solo avvisi",
+            coordinates: "Boyer–Lindquist",
+            shadow: "Ombra solo per Schwarzschild",
+            kerrNewman: "Metrica sì; forza di Lorentz nella classe KerrNewman, non nel modulo Geodesic"
+          },
+          gyoto: {
+            meta: "C++, interfacce Python e Yorick · GPL-3.0+",
+            integration: "Runge–Kutta–Fehlberg 7(8) a passo adattivo (predefinito, Boost.odeint)",
+            coordinates: "Boyer–Lindquist, Kerr–Schild",
+            shadow: "Immagini e spettri dal piano dello schermo (α, β)",
+            kerrNewman: "Non nel repository principale; ha Reissner–Nordström"
+          },
+          geokerr: {
+            meta: "FORTRAN 77 · nessuna licenza dichiarata",
+            integration: "Semi-analitico: integrali ellittici di Carlson, senza integrazione passo-passo",
+            coordinates: "Boyer–Lindquist",
+            shadow: "Geodetiche dal piano dello schermo (α, β) o dalle costanti del moto; ombra illustrata nell'articolo",
+            kerrNewman: "No: solo Kerr"
+          },
+          gray2: {
+            meta: "C e OpenCL, su GPU e CPU · GPL-3.0",
+            integration: "RK4 classico (predefinito); test di convergenza a passo fisso",
+            coordinates: "Kerr–Schild cartesiane",
+            shadow: "Integratore di geodetiche; calcolo dell'ombra non trovato nelle fonti consultate",
+            kerrNewman: "No: solo Kerr"
+          },
+          raptor: {
+            meta: "C con OpenMP · GPL-3.0",
+            integration: "RK4, RK2 o Verlet; passo adattato a posizione e velocità",
+            coordinates: "Boyer–Lindquist e Kerr–Schild, anche in forma modificata",
+            shadow: "Immagini con trasporto radiativo da una griglia della camera (α, β)",
+            kerrNewman: "No: Kerr senza carica"
+          }
+        },
+        differencesTitle: "Differenze principali",
+        differences: {
+          scopeTitle: "Scopo",
+          scopeText: "GYOTO e RAPTOR producono immagini per la ricerca; GRay2 è un integratore di geodetiche per GPU e CPU; geokerr ed EinsteinPy forniscono geodetiche come libreria. Questo simulatore è didattico: rende ispezionabili nel browser metrica, inversa, derivate e simboli di Christoffel, e non include trasporto radiativo.",
+          methodTitle: "Metodo d'integrazione",
+          methodText: "Qui RK4 classico a passo fisso avanza il sistema del primo ordine per \\((x^\\mu,v^\\mu)\\), senza stima dell'errore locale; anche GRay2 usa per default RK4 classico, ma in coordinate di Kerr–Schild cartesiane. geokerr evita l'integrazione passo-passo con integrali ellittici; GYOTO usa per default un Runge–Kutta–Fehlberg adattivo; RAPTOR adatta il passo a posizione e velocità; EinsteinPy usa un integratore simplettico hamiltoniano.",
+          kerrNewmanTitle: "Carica del buco nero",
+          kerrNewmanText: "Tra i codici confrontati, solo questo simulatore ed EinsteinPy accettano la carica \\(Q\\) insieme alla rotazione, cioè la metrica di Kerr–Newman; nel repository principale GYOTO offre la carica solo senza rotazione (Reissner–Nordström), mentre geokerr, GRay2 e RAPTOR sono descritti per Kerr. Questo simulatore integra particelle neutre; la classe KerrNewman di EinsteinPy include anche la forza di Lorentz su una particella carica, che il suo modulo Geodesic non usa.",
+          coordinatesTitle: "Coordinate e orizzonte",
+          coordinatesText: "Questo simulatore usa soltanto Boyer–Lindquist, singolari all'orizzonte, e si arresta a un margine dall'orizzonte esterno. GYOTO, GRay2 e RAPTOR offrono coordinate di Kerr–Schild, regolari attraverso l'orizzonte.",
+          shadowTitle: "Ombra e lensing",
+          shadowText: "geokerr, GYOTO e RAPTOR partono dal piano dell'immagine \\((\\alpha,\\beta)\\). Qui la tabella di lensing è unidimensionale ed equatoriale: una deflessione per angolo, senza dipendenza dall'inclinazione, senza immagini multiple e senza curva critica dell'ombra."
+        }
+      },
       limitationsEyebrow: "Scelte del modello",
       limitationsTitle: "Limiti e ambito del simulatore web",
       limitationsIntro: "L'ambito seguente definisce con precisione ciò che il modello rappresenta e ciò che resta fuori dall'implementazione nel browser.",
@@ -1241,6 +1313,78 @@ window.PORTFOLIO_CONTENT = {
           relativeEnergy: "Maximum relative ΔE",
           relativeAngularMomentum: "Maximum relative ΔL_z",
           equatorialDrift: "Maximum equatorial drift"
+        }
+      },
+      codeComparison: {
+        eyebrow: "Reference codes",
+        title: "Comparison with Public Codes",
+        intro: "The web simulator is set beside established public codes for Kerr geodesics and relativistic ray tracing. The comparison concerns scope and method, not performance or accuracy: no comparative measurement has been made.",
+        sourcesNote: "Data taken from the original repositories and papers, consulted on 18 October 2026.",
+        tableLabel: "Code comparison",
+        columns: {
+          code: "Code",
+          integration: "Integration and step",
+          coordinates: "Coordinates",
+          shadow: "Shadow and images",
+          kerrNewman: "Kerr–Newman"
+        },
+        rows: {
+          thisCode: {
+            name: "This simulator",
+            meta: "JavaScript in the browser · MIT",
+            integration: "Classical fixed-step RK4; Christoffel symbols from analytic metric derivatives",
+            coordinates: "Boyer–Lindquist",
+            shadow: "No critical curve; 1D equatorial lensing table (photon captured or escaped)",
+            kerrNewman: "Metric yes; neutral particles"
+          },
+          einsteinpy: {
+            meta: "Python · MIT",
+            integration: "Symplectic FANTASY (order 2–8) with fixed step; tolerances only raise warnings",
+            coordinates: "Boyer–Lindquist",
+            shadow: "Shadow for Schwarzschild only",
+            kerrNewman: "Metric yes; Lorentz force in the KerrNewman class, not in the Geodesic module"
+          },
+          gyoto: {
+            meta: "C++, Python and Yorick interfaces · GPL-3.0+",
+            integration: "Adaptive-step Runge–Kutta–Fehlberg 7(8) (default, Boost.odeint)",
+            coordinates: "Boyer–Lindquist, Kerr–Schild",
+            shadow: "Images and spectra from the screen plane (α, β)",
+            kerrNewman: "Not in the main repository; has Reissner–Nordström"
+          },
+          geokerr: {
+            meta: "FORTRAN 77 · no licence stated",
+            integration: "Semi-analytic: Carlson elliptic integrals, no step-by-step integration",
+            coordinates: "Boyer–Lindquist",
+            shadow: "Geodesics from the screen plane (α, β) or from the constants of motion; shadow illustrated in the paper",
+            kerrNewman: "No: Kerr only"
+          },
+          gray2: {
+            meta: "C and OpenCL, on GPUs and CPUs · GPL-3.0",
+            integration: "Classical RK4 (default); convergence tests at fixed step",
+            coordinates: "Cartesian Kerr–Schild",
+            shadow: "Geodesic integrator; no shadow computation found in the sources consulted",
+            kerrNewman: "No: Kerr only"
+          },
+          raptor: {
+            meta: "C with OpenMP · GPL-3.0",
+            integration: "RK4, RK2 or Verlet; step adapted to position and velocity",
+            coordinates: "Boyer–Lindquist and Kerr–Schild, including modified forms",
+            shadow: "Radiative-transfer images from a camera grid (α, β)",
+            kerrNewman: "No: uncharged Kerr"
+          }
+        },
+        differencesTitle: "Main differences",
+        differences: {
+          scopeTitle: "Scope",
+          scopeText: "GYOTO and RAPTOR produce images for research; GRay2 is a geodesic integrator for GPUs and CPUs; geokerr and EinsteinPy provide geodesics as a library. This simulator is educational: it makes the metric, its inverse, its derivatives and the Christoffel symbols inspectable in the browser, and it includes no radiative transfer.",
+          methodTitle: "Integration method",
+          methodText: "Here classical fixed-step RK4 advances the first-order system for \\((x^\\mu,v^\\mu)\\), with no local error estimate; GRay2 also uses classical RK4 by default, but in Cartesian Kerr–Schild coordinates. geokerr avoids step-by-step integration through elliptic integrals; GYOTO uses an adaptive Runge–Kutta–Fehlberg scheme by default; RAPTOR adapts the step to position and velocity; EinsteinPy uses a symplectic Hamiltonian integrator.",
+          kerrNewmanTitle: "Black-hole charge",
+          kerrNewmanText: "Among the codes compared, only this simulator and EinsteinPy accept the charge \\(Q\\) together with spin, i.e. the Kerr–Newman metric; in its main repository GYOTO offers charge only without spin (Reissner–Nordström), while geokerr, GRay2 and RAPTOR are described for Kerr. This simulator integrates neutral particles; EinsteinPy's KerrNewman class also includes the Lorentz force on a charged particle, which its Geodesic module does not use.",
+          coordinatesTitle: "Coordinates and horizon",
+          coordinatesText: "This simulator uses Boyer–Lindquist coordinates only, which are singular at the horizon, and stops at a margin from the outer horizon. GYOTO, GRay2 and RAPTOR offer Kerr–Schild coordinates, which are regular across the horizon.",
+          shadowTitle: "Shadow and lensing",
+          shadowText: "geokerr, GYOTO and RAPTOR start from the image plane \\((\\alpha,\\beta)\\). Here the lensing table is one-dimensional and equatorial: one deflection per angle, with no inclination dependence, no multiple images and no shadow critical curve."
         }
       },
       limitationsEyebrow: "Modelling choices",

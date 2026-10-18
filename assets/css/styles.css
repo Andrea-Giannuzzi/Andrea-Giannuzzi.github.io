@@ -1476,6 +1476,7 @@ code {
 
 .numerical-method,
 .scientific-validation,
+.code-comparison,
 .simulator-limitations,
 .full-simulator-roadmap {
   border-top: 1px solid var(--line);
@@ -1485,6 +1486,7 @@ code {
 #web-demo,
 #numerical-method,
 #scientific-validation,
+#code-comparison,
 #limitations,
 #theoretical-background,
 #full-simulator {
