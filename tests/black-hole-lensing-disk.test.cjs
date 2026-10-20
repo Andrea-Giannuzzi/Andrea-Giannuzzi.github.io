@@ -119,13 +119,22 @@ test('Lensing far-field geodesics conserve invariants and converge at RK4 order'
   const state = P.initialStateFromLocal(params, {
     radius: 40, latitude: 0, azimuth: 150, elevation: 0, speed: 1, massive: false, photonEnergy: 1
   });
+  // Compare the three runs at the same affine parameter, before the photon
+  // reaches escapeRadius: escape stops land at step-dependent lambdas, so
+  // their final states differ at first order in h, not at RK4 order.
   const escapeRadius = 450;
+  const maxLambda = 360;
   const results = [1.2, 0.6, 0.3].map((step) => P.integrateGeodesic(params, state, {
-    step, maxLambda: 1200, maxSteps: Math.ceil(1200 / step), sampleEvery: Math.ceil(1200 / step),
+    step, maxLambda, maxSteps: Math.ceil(maxLambda / step), sampleEvery: Math.ceil(maxLambda / step),
     escapeRadius, guardCoordinates: true
   }));
-  for (const result of results) {
-    assert.equal(result.stopReason, 'escapedToLarge', result.stopReason);
+  // The same ray run on to escapeRadius covers the guarded escape stop in Kerr.
+  const escaped = P.integrateGeodesic(params, state, {
+    step: 0.3, maxLambda: 1200, maxSteps: 4000, sampleEvery: 4000, escapeRadius, guardCoordinates: true
+  });
+  for (const result of results) assert.equal(result.stopReason, 'maximumInterval', result.stopReason);
+  assert.equal(escaped.stopReason, 'escapedToLarge', escaped.stopReason);
+  for (const result of [...results, escaped]) {
     for (const key of ['normalizationError', 'relativeEnergyChange', 'relativeAngularMomentumChange', 'scaledCarterChange']) {
       assert.ok(result.checks[key] < 1e-6, `${key} = ${result.checks[key]}`);
     }

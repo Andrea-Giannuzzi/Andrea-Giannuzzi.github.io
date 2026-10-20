@@ -552,8 +552,8 @@
 
     const analyticalRows = result.analyticalCases.map((entry) => validationRow(
       copy.benchmarks[entry.id],
-      scientificValue(entry.reference, "M"),
-      scientificValue(entry.computed, "M"),
+      scientificValue(entry.reference, entry.unit),
+      scientificValue(entry.computed, entry.unit),
       `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
       entry.passed
     ));
@@ -566,7 +566,7 @@
     ));
     const tensorRows = result.tensorCases.map((entry) => validationRow(
       copy.benchmarks[entry.id],
-      "0",
+      scientificValue(entry.reference),
       scientificValue(entry.computed),
       `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
       entry.passed
@@ -574,27 +574,35 @@
     const geodesicGroups = result.geodesicCases.map((benchmark) => {
       const rows = benchmark.measurements.map((entry) => validationRow(
         copy.measurements[entry.id],
-        "0",
+        scientificValue(entry.reference),
         scientificValue(entry.computed),
         `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
         entry.passed
       ));
-      const note = benchmark.id === "photonCircular" ? copy.photonNote : copy.massiveNote;
+      const note = copy.geodesicNotes?.[benchmark.id];
       const intervalState = benchmark.completed ? copy.completedInterval : copy.incompleteInterval;
       return `<article class="validation-geodesic">
         <div class="validation-geodesic-heading">
-          <div><h4>${copy.benchmarks[benchmark.id]}</h4><p>${note}</p></div>
+          <div><h4>${copy.benchmarks[benchmark.id]}</h4>${note ? `<p>${note}</p>` : ""}</div>
           <p class="validation-metadata">Δλ = ${formatValidationNumber(benchmark.maxLambda)} · h = ${formatValidationNumber(benchmark.step)} · ${intervalState}</p>
         </div>
         ${validationTable(rows)}
       </article>`;
     }).join("");
+    const lensingRows = result.lensingCases.map((entry) => validationRow(
+      copy.benchmarks[entry.id],
+      scientificValue(entry.weakFieldReference, "°"),
+      entry.deflection === null ? "N/A" : scientificValue(entry.deflection, "°"),
+      `${scientificValue(entry.relativeError)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
+      entry.passed
+    ));
 
     elements.validationResults.innerHTML = `
       <section class="validation-group"><h3>${copy.analyticalTitle}</h3>${validationTable(analyticalRows)}</section>
       <section class="validation-group"><h3>${copy.familyTitle}</h3>${validationTable(familyRows)}</section>
       <section class="validation-group"><h3>${copy.tensorTitle}</h3><p>${copy.tensorPoint}</p>${validationTable(tensorRows)}</section>
-      <section class="validation-group"><h3>${copy.geodesicTitle}</h3>${geodesicGroups}</section>`;
+      <section class="validation-group"><h3>${copy.geodesicTitle}</h3>${geodesicGroups}</section>
+      <section class="validation-group"><h3>${copy.lensingTitle}</h3><p>${copy.lensingNote}</p>${validationTable(lensingRows)}</section>`;
     elements.validationResults.hidden = false;
   }
 
