@@ -208,6 +208,143 @@
     return null;
   }
 
+  // Constants xi = L_z/E and eta = Q/E^2 of the spherical photon orbit at
+  // radius rp, from R(rp) = R'(rp) = 0 on the radial potential
+  // R = (E(r^2 + a^2) - a L_z)^2 - Delta (Q + (L_z - aE)^2) (thesis eq. 9.25).
+  // Grenzebach, Perlick & Lammerzahl, PRD 89, 124004 (2014), eq. (15), with
+  // NUT charge and cosmological constant zero:
+  //   a xi = rp^2 + a^2 - 4 rp Delta / Delta',   K/E^2 = 16 rp^2 Delta / Delta'^2,
+  // where K = Q + (L_z - aE)^2; eta = K/E^2 - (xi - a)^2 converts to the Q of
+  // conservedQuantities (Perlick & Tsupko, Phys. Rep. 947 (2022), eq. 56).
+  // Same pair as Takahashi, PASJ 57, 273 (2005), eqs. (6)-(7). Without spin
+  // only xi^2 + eta = b_c^2 is fixed, not xi and eta separately: null.
+  // Where Delta <= 0, g_rr = Sigma/Delta is not positive and no orbit of
+  // constant r exists: throws.
+  function criticalImpactParameters(params, rp) {
+    const type = detectSpacetime(params);
+    if (type === "schwarzschild" || type === "reissnerNordstrom") return null;
+    const { M, a, q } = params;
+    const delta = rp * rp - 2 * M * rp + a * a + q * q;
+    const dDelta = 2 * (rp - M);
+    const xi = ((rp * rp + a * a) * dDelta - 4 * rp * delta) / (a * dDelta);
+    const eta = 16 * rp * rp * delta / (dDelta * dDelta) - (xi - a) ** 2;
+    if (!(delta > 0) || !Number.isFinite(xi) || !Number.isFinite(eta)) {
+      throw physicsError("invalidPhotonOrbit", "No spherical photon orbit at this radius.");
+    }
+    return { xi, eta };
+  }
+
+  // beta^2 = Theta(theta_o)/E^2 for a photon with constants (xi, eta); the
+  // polar potential Theta does not involve the charge.
+  function celestialBetaSquared(params, xi, eta, inclination) {
+    const cosI = Math.cos(inclination);
+    return eta + params.a * params.a * cosI * cosI - (xi * cosI / Math.sin(inclination)) ** 2;
+  }
+
+  // Bardeen's celestial coordinates on the sky of an observer at infinity at
+  // polar angle (inclination) theta_o: alpha is the apparent displacement
+  // perpendicular to the projected spin axis, beta the displacement along it
+  // (Bardeen 1973, eqs. 42a-b, as transcribed in Perlick & Tsupko 2022,
+  // eq. 57; Takahashi 2005, eqs. 12-13):
+  //   alpha = -xi / sin(theta_o),
+  //   beta^2 = eta + a^2 cos^2(theta_o) - xi^2 cot^2(theta_o).
+  // alpha has the sign of -L_z: for a > 0 the extended, counter-rotating side
+  // of the shadow lies at alpha > 0. Only |beta| is returned, since images are
+  // symmetric under beta -> -beta; beta is null when beta^2 < 0, i.e. when the
+  // photon never reaches theta_o.
+  function celestialCoordinates(params, xi, eta, inclination) {
+    if (![xi, eta, inclination].every(Number.isFinite) || inclination <= 0 || inclination >= Math.PI) {
+      throw physicsError("invalidCelestialRequest", "Invalid celestial-coordinate request.");
+    }
+    const betaSquared = celestialBetaSquared(params, xi, eta, inclination);
+    return { alpha: -xi / Math.sin(inclination), beta: betaSquared >= 0 ? Math.sqrt(betaSquared) : null };
+  }
+
+  function bisectSignChange(fn, lo, hi, signLo = Math.sign(fn(lo))) {
+    if (Math.sign(fn(hi)) === signLo) {
+      throw physicsError("invalidShadowRequest", "Bracket without a sign change while tracing the shadow.");
+    }
+    for (let i = 0; i < 100; i += 1) {
+      const mid = 0.5 * (lo + hi);
+      if (Math.sign(fn(mid)) === signLo) lo = mid;
+      else hi = mid;
+    }
+    return 0.5 * (lo + hi);
+  }
+
+  function outwardSignChange(fn, start, signStart = Math.sign(fn(start))) {
+    for (let r = 2 * start, i = 0; i < 60; r *= 2, i += 1) {
+      if (Math.sign(fn(r)) !== signStart) return r;
+    }
+    throw physicsError("invalidShadowRequest", "No sign change found while bracketing the shadow.");
+  }
+
+  // Shadow boundary alpha(beta) seen from infinity at inclination theta_o,
+  // parametrized by the radius rp of the spherical photon orbit each boundary
+  // ray approaches. Points run along the upper half (beta >= 0) from its
+  // smallest-alpha end to its largest-alpha end (rp increasing for a > 0,
+  // decreasing for a < 0), then back along the mirrored lower half: a closed
+  // curve.
+  // Without spin it is the circle of radius b_c = r_ph / sqrt(f(r_ph)),
+  // f = 1 - 2M/r + q^2/r^2 (Perlick & Tsupko 2022, eqs. 17 and 24). With spin
+  // the rp range is where beta^2 >= 0 (Takahashi 2005, below eq. 13). It is
+  // bracketed without a grid, which would miss the O(a)-wide range at small
+  // spin: beta^2 < 0 at the outer horizon (Delta = 0 gives K = 0 and
+  // xi - a = r+^2/a, with |a| <= r+) and at large rp (eta ~ -rp^4/a^2), while
+  // where xi = a sin^2(theta_o) the algebra reduces beta^2 to K/E^2 > 0.
+  // Null without a horizon (a naked singularity casts an arc, not a disk) and
+  // for an exactly extremal spinning hole, where Delta'(r+) = 0 and rp cannot
+  // reach the straight edge of the extremal shadow.
+  function shadowContour(params, inclination, samples = 128) {
+    if (!Number.isInteger(samples) || samples < 2 || !(inclination > 0 && inclination < Math.PI)) {
+      throw physicsError("invalidShadowRequest", "Invalid shadow-contour request.");
+    }
+    const horizons = horizonData(params);
+    if (!horizons.hasHorizon) return null;
+    const type = detectSpacetime(params);
+    const upper = [];
+    let rpMin;
+    let rpMax;
+    if (type === "schwarzschild" || type === "reissnerNordstrom") {
+      rpMin = photonSphereRadius(params, "prograde", type);
+      rpMax = rpMin;
+      const radius = rpMin / Math.sqrt(1 - 2 * params.M / rpMin + params.q * params.q / (rpMin * rpMin));
+      for (let i = 0; i < samples; i += 1) {
+        const angle = Math.PI * (1 - i / (samples - 1));
+        upper.push({ alpha: radius * Math.cos(angle), beta: radius * Math.sin(angle), rp: rpMin });
+      }
+    } else {
+      if (horizons.extremality <= 0) return null;
+      const sinI = Math.sin(inclination);
+      const xiOffset = (rp) => criticalImpactParameters(params, rp).xi - params.a * sinI * sinI;
+      const betaSquaredAt = (rp) => {
+        const { xi, eta } = criticalImpactParameters(params, rp);
+        return celestialBetaSquared(params, xi, eta, inclination);
+      };
+      // Signs at the outer horizon come from the argument above, so nothing is
+      // evaluated on Delta = 0: there xi - a sin^2 = a cos^2 + r+^2/a has the
+      // sign of a, and beta^2 < 0.
+      const xiSignAtHorizon = Math.sign(params.a);
+      const rpTop = bisectSignChange(xiOffset, horizons.outer,
+        outwardSignChange(xiOffset, horizons.outer, xiSignAtHorizon), xiSignAtHorizon);
+      rpMin = bisectSignChange(betaSquaredAt, horizons.outer, rpTop, -1);
+      rpMax = bisectSignChange(betaSquaredAt, rpTop, outwardSignChange(betaSquaredAt, rpTop));
+      for (let i = 0; i < samples; i += 1) {
+        // Chebyshev spacing: denser at the ends, where beta -> 0 and the
+        // curve turns vertical.
+        const rp = rpMin + (rpMax - rpMin) * (1 - Math.cos(Math.PI * i / (samples - 1))) / 2;
+        const { xi, eta } = criticalImpactParameters(params, rp);
+        const { alpha, beta } = celestialCoordinates(params, xi, eta, inclination);
+        // beta^2 can round just below zero at the two ends.
+        upper.push({ alpha, beta: beta === null ? 0 : beta, rp });
+      }
+      // a -> -a maps xi -> -xi at the same rp, mirroring alpha.
+      if (params.a < 0) upper.reverse();
+    }
+    const lower = upper.slice(1, -1).reverse().map((point) => ({ ...point, beta: -point.beta }));
+    return { rpMin, rpMax, points: upper.concat(lower) };
+  }
+
   function formatOrbitPair(prograde, retrograde) {
     return `prograde ${prograde.toFixed(6)} M; retrograde ${retrograde.toFixed(6)} M`;
   }
@@ -1332,6 +1469,9 @@
     maxChristoffelSymmetryResidual,
     runGeodesicBenchmark,
     runScientificValidation,
-    cloneMatrix
+    cloneMatrix,
+    criticalImpactParameters,
+    celestialCoordinates,
+    shadowContour
   });
 }());
