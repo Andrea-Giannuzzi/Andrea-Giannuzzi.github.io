@@ -196,7 +196,9 @@
   function updateImpactParameter() {
     const energy = numberValue(elements.energy);
     const lz = numberValue(elements.lz);
-    elements.impactParameter.textContent = energy !== 0 && isFiniteNumber(energy) && isFiniteNumber(lz)
+    // L_z/E is an impact parameter only for photons; a massive object has none.
+    const photon = elements.object.value !== "massive";
+    elements.impactParameter.textContent = photon && energy !== 0 && isFiniteNumber(energy) && isFiniteNumber(lz)
       ? formatNumber(lz / energy) : "N/A";
   }
 
@@ -729,6 +731,7 @@
       activePreset = config.preset;
       setUnitMode(unitMode);
       renderConfigurationState();
+      updateImpactParameter();
       runSimulation(null, config);
     } else if (stored.error) {
       elements.status.textContent = content().threeD.storageError;
