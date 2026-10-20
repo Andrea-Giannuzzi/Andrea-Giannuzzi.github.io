@@ -583,7 +583,7 @@
       const intervalState = benchmark.completed ? copy.completedInterval : copy.incompleteInterval;
       return `<article class="validation-geodesic">
         <div class="validation-geodesic-heading">
-          <div><h4>${copy.benchmarks[benchmark.id]}</h4><p>${note}</p></div>
+          <div><h4>${copy.benchmarks[benchmark.id]}</h4>${note ? `<p>${note}</p>` : ""}</div>
           <p class="validation-metadata">Δλ = ${formatValidationNumber(benchmark.maxLambda)} · h = ${formatValidationNumber(benchmark.step)} · ${intervalState}</p>
         </div>
         ${validationTable(rows)}
@@ -592,7 +592,7 @@
     const lensingRows = result.lensingCases.map((entry) => validationRow(
       copy.benchmarks[entry.id],
       scientificValue(entry.weakFieldReference, "°"),
-      entry.deflection === null ? "N/A" : scientificValue(Math.abs(entry.deflection), "°"),
+      entry.deflection === null ? "N/A" : scientificValue(entry.deflection, "°"),
       `${scientificValue(entry.relativeError)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
       entry.passed
     ));

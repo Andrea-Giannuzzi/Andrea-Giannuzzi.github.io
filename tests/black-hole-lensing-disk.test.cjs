@@ -128,8 +128,13 @@ test('Lensing far-field geodesics conserve invariants and converge at RK4 order'
     step, maxLambda, maxSteps: Math.ceil(maxLambda / step), sampleEvery: Math.ceil(maxLambda / step),
     escapeRadius, guardCoordinates: true
   }));
-  for (const result of results) {
-    assert.equal(result.stopReason, 'maximumInterval', result.stopReason);
+  // The same ray run on to escapeRadius covers the guarded escape stop in Kerr.
+  const escaped = P.integrateGeodesic(params, state, {
+    step: 0.3, maxLambda: 1200, maxSteps: 4000, sampleEvery: 4000, escapeRadius, guardCoordinates: true
+  });
+  for (const result of results) assert.equal(result.stopReason, 'maximumInterval', result.stopReason);
+  assert.equal(escaped.stopReason, 'escapedToLarge', escaped.stopReason);
+  for (const result of [...results, escaped]) {
     for (const key of ['normalizationError', 'relativeEnergyChange', 'relativeAngularMomentumChange', 'scaledCarterChange']) {
       assert.ok(result.checks[key] < 1e-6, `${key} = ${result.checks[key]}`);
     }

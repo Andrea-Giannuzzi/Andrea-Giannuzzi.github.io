@@ -315,7 +315,7 @@ window.PORTFOLIO_CONTENT = {
           kerrNewmanInclined: "Orbita massiva non equatoriale da r = 12M, latitudine 23°: non esiste una forma chiusa, ma E, L_z, la costante di Carter Q e la normalizzazione sono invarianti esatti."
         },
         lensingTitle: "Lensing gravitazionale",
-        lensingNote: "Il riferimento 4M/b vale al primo ordine in M/b, con sorgente e osservatore all'infinito: lo scarto misurato riflette queste approssimazioni, non l'errore di integrazione, e per questo la tolleranza relativa è del 2%.",
+        lensingNote: "Il riferimento −4M/b vale al primo ordine in M/b, con sorgente e osservatore all'infinito; il segno negativo indica che il raggio piega verso il buco nero. Lo scarto misurato riflette queste approssimazioni, non l'errore di integrazione, e per questo la tolleranza relativa è del 2%.",
         checkColumn: "Controllo / quantità",
         referenceColumn: "Valore di riferimento",
         computedColumn: "Valore calcolato",
@@ -369,7 +369,8 @@ window.PORTFOLIO_CONTENT = {
           analyticalCoordinateTime: "Errore relativo massimo di t rispetto alla forma chiusa t(τ)",
           convergenceOrderCoarse: "Ordine osservato p = log₂[e(4h)/e(2h)]",
           convergenceOrderFine: "Ordine osservato p = log₂[e(2h)/e(h)]",
-          carterConstant: "ΔQ di Carter massimo, scalato su max(1, |Q₀|)"
+          carterConstant: "ΔQ di Carter massimo, scalato su max(1, |Q₀|)",
+          computationError: "Calcolo interrotto da un errore"
         }
       },
       limitationsEyebrow: "Scelte del modello",
@@ -1244,7 +1245,7 @@ window.PORTFOLIO_CONTENT = {
           kerrNewmanInclined: "Non-equatorial massive orbit from r = 12M, latitude 23°: there is no closed form, but E, L_z, the Carter constant Q and the normalization are exact invariants."
         },
         lensingTitle: "Gravitational lensing",
-        lensingNote: "The 4M/b reference holds to first order in M/b, with source and observer at infinity: the measured gap reflects these approximations, not the integration error, which is why the relative tolerance is 2%.",
+        lensingNote: "The −4M/b reference holds to first order in M/b, with source and observer at infinity; the negative sign means the ray bends toward the black hole. The measured gap reflects these approximations, not the integration error, which is why the relative tolerance is 2%.",
         checkColumn: "Check / quantity",
         referenceColumn: "Reference value",
         computedColumn: "Computed value",
@@ -1298,7 +1299,8 @@ window.PORTFOLIO_CONTENT = {
           analyticalCoordinateTime: "Maximum relative error of t against the closed form t(τ)",
           convergenceOrderCoarse: "Observed order p = log₂[e(4h)/e(2h)]",
           convergenceOrderFine: "Observed order p = log₂[e(2h)/e(h)]",
-          carterConstant: "Maximum Carter ΔQ, scaled by max(1, |Q₀|)"
+          carterConstant: "Maximum Carter ΔQ, scaled by max(1, |Q₀|)",
+          computationError: "Computation stopped by an error"
         }
       },
       limitationsEyebrow: "Modelling choices",

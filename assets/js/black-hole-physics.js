@@ -33,10 +33,14 @@
     normalization: 1e-10,
     relativeConservation: 1e-10,
     equatorialDrift: 1e-10,
+    // RK4 at VALIDATION_INTEGRATION.infallStep (0.01) lands at 2.5e-13 (r) and
+    // 1.5e-12 (t) against the radial infall closed form; a third-order method
+    // reaches ~1e-9 and fails here. Re-measure this bound if that step changes.
+    analyticalInfallRelative: 1e-11,
     // Observed order log2(e(2h)/e(h)) must lie within 4 ± 0.5 for RK4.
     convergenceOrder: 0.5,
-    // Deliberately loose: this checks the lensing table's deflection against
-    // the leading-order weak-field formula 4M/b, which itself is only an
+    // Deliberately loose: this checks a weak-field deflection against the
+    // leading-order formula -4M/b (bending toward the hole), itself only an
     // approximation (see computeLensingTable). A physical sanity bound, not
     // a numerical-precision one.
     lensingWeakFieldRelative: 0.02
@@ -47,6 +51,9 @@
     photonMaxLambda: 10,
     massiveMaxLambda: 20,
     infallMaxLambda: 12,
+    // Its own step: below h ≈ 0.005 the infall error reaches the round-off
+    // floor (~3e-14) and the observed order stops measuring RK4.
+    infallStep: 0.01,
     sampleEvery: 1,
     maxSteps: 4000
   });
@@ -816,6 +823,19 @@
     };
   }
 
+  // A check that throws (an invalid local frame, a singular metric, ...)
+  // fails on its own instead of aborting the whole validation run.
+  function isolated(run, failed) {
+    try {
+      return run();
+    } catch (error) {
+      return failed(error);
+    }
+  }
+
+  // stopReason for a check that threw; tolerates a thrown non-Error value.
+  const failureReason = (error) => error?.code || error?.name || String(error);
+
   function integrateValidationGeodesic(params, initialState, maxLambda, configuration = {}) {
     return integrateGeodesic(params, initialState, {
       step: VALIDATION_INTEGRATION.step,
@@ -851,7 +871,7 @@
     return {
       id,
       maxLambda,
-      step: VALIDATION_INTEGRATION.step,
+      step: results[results.length - 1].settings.step,
       completed,
       stopReason: (incomplete || results[results.length - 1]).stopReason,
       measurements,
@@ -897,11 +917,10 @@
   // parameter is proper time and r(tau), t(tau) have closed forms, so unlike
   // the circular orbits this benchmark sees the RK4 truncation error.
   // Repeating it at 4h and 2h gives the observed order of convergence.
-  function runRadialInfallBenchmark() {
+  function runRadialInfallBenchmark({ id, maxLambda }) {
     const params = { M: 1, a: 0, q: 0 };
     const startRadius = 10;
-    const maxLambda = VALIDATION_INTEGRATION.infallMaxLambda;
-    const step = VALIDATION_INTEGRATION.step;
+    const step = VALIDATION_INTEGRATION.infallStep;
     const radiusAt = (tau) => Math.pow(Math.pow(startRadius, 1.5) - 1.5 * Math.SQRT2 * tau, 2 / 3);
     // t = -4 [G(x)] from x0 to x, with x = sqrt(r / 2M).
     const primitive = (x) => x * x * x / 3 + x + 0.5 * Math.log((x - 1) / (x + 1));
@@ -909,10 +928,12 @@
     const initialState = initialStateFromConstants(params, {
       radius: startRadius, energy: 1, angularMomentum: 0, massive: true, radialDirection: "ingoing"
     });
-    // Every step is stored, so point i lies at tau = i * h.
-    const results = [4 * step, 2 * step, step].map((size) => integrateValidationGeodesic(
-      params, initialState, maxLambda, { step: size, sampleEvery: 1 }
-    ));
+    // Only the finest run stores every step, so its point i lies at tau = i * h.
+    const sizes = [4 * step, 2 * step, step];
+    const results = sizes.map((size, index) => integrateValidationGeodesic(params, initialState, maxLambda, {
+      step: size,
+      sampleEvery: index === sizes.length - 1 ? 1 : VALIDATION_INTEGRATION.maxSteps
+    }));
     let radialError = 0;
     let timeError = 0;
     results[2].points.forEach((state, index) => {
@@ -923,12 +944,13 @@
     });
     // Compare at tau = n * h rather than at the accumulated lambda, whose
     // summation round-off (~2e-13) is comparable to the error at h itself.
-    const errors = results.map((result) => Math.abs(
-      result.finalState[1] - radiusAt((result.points.length - 1) * result.settings.step)
-    ));
+    const errors = results.map((result) => {
+      const tau = Math.round(result.lambda / result.settings.step) * result.settings.step;
+      return Math.abs(result.finalState[1] - radiusAt(tau));
+    });
     const measurements = [
-      validationMeasurement("analyticalRadius", radialError, VALIDATION_TOLERANCES.relativeRadialDrift),
-      validationMeasurement("analyticalCoordinateTime", timeError, VALIDATION_TOLERANCES.relativeRadialDrift),
+      validationMeasurement("analyticalRadius", radialError, VALIDATION_TOLERANCES.analyticalInfallRelative),
+      validationMeasurement("analyticalCoordinateTime", timeError, VALIDATION_TOLERANCES.analyticalInfallRelative),
       validationMeasurement(
         "convergenceOrderCoarse",
         Math.log2(errors[0] / errors[1]),
@@ -942,7 +964,7 @@
         4
       )
     ];
-    return geodesicBenchmarkResult("radialInfall", results, maxLambda, measurements);
+    return geodesicBenchmarkResult(id, results, maxLambda, measurements);
   }
 
   // Non-equatorial orbit around a rotating, charged hole: there is no closed
@@ -950,8 +972,11 @@
   // invariants. A first-order integrator drifts far outside these tolerances.
   function runInvariantBenchmark(configuration) {
     const { id, params, initial, maxLambda } = configuration;
+    // Only the invariant checks are read, and integrateGeodesic tracks those
+    // at every step, so no trajectory points are stored.
     const result = integrateValidationGeodesic(
-      params, initialStateFromLocal(params, initial), maxLambda, { guardCoordinates: true }
+      params, initialStateFromLocal(params, initial), maxLambda,
+      { guardCoordinates: true, sampleEvery: VALIDATION_INTEGRATION.maxSteps }
     );
     const measurements = [
       ...invariantMeasurements(result.checks),
@@ -974,9 +999,10 @@
     return g[0][0] + 2 * omega * g[0][3] + omega * omega * g[3][3];
   }
 
-  // Weak-field check for the lensing table's deflection: with the camera far
-  // from the hole compared to the impact parameter (b/r small), the reported
-  // deflection should approach the textbook 4M/b bending angle. See
+  // Weak-field check of the lensing deflection formula (re-implemented here,
+  // not read from computeLensingTable): with the camera far from the hole
+  // compared to the impact parameter (b/r small), the deflection should
+  // approach the textbook 4M/b bending toward the hole, i.e. -4M/b here. See
   // computeLensingTable for why this only holds in that regime.
   function runLensingWeakFieldCheck(configuration) {
     const { id, params, cameraRadius, angle, escapeRadius, maxLambda, step, maxSteps, tolerance } = configuration;
@@ -1000,9 +1026,11 @@
       const asymptoticAngle = Math.atan2(dY, -dX) * 180 / Math.PI;
       deflection = asymptoticAngle - angle;
     }
-    const weakFieldReference = 4 * params.M / impactParameter * 180 / Math.PI;
+    // Bending toward the hole brings the asymptotic angle below the launch
+    // angle, so in this convention the expected deflection is -4M/b.
+    const weakFieldReference = -4 * params.M / impactParameter * 180 / Math.PI;
     const relativeError = deflection === null
-      ? Infinity : Math.abs(Math.abs(deflection) - weakFieldReference) / weakFieldReference;
+      ? Infinity : Math.abs(deflection - weakFieldReference) / Math.abs(weakFieldReference);
     return {
       id,
       impactParameter,
@@ -1018,100 +1046,100 @@
   function runScientificValidation() {
     const schwarzschild = { M: 1, a: 0, q: 0 };
     const kerr = { M: 1, a: 0.7, q: 0 };
-    const schwarzschildProperties = geometryProperties(schwarzschild, "schwarzschild");
+    const schwarzschildProperties = () => geometryProperties(schwarzschild, "schwarzschild");
     const reissnerNordstrom = { M: 1, a: 0, q: 0.6 };
     const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
     const analyticalCases = [
       {
         id: "schwarzschildHorizon",
         reference: 2,
-        computed: schwarzschildProperties.outer,
+        computed: () => schwarzschildProperties().outer,
         unit: "M"
       },
       {
         id: "schwarzschildPhotonOrbit",
         reference: 3,
-        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.photon),
+        computed: () => Number.parseFloat(schwarzschildProperties().orbitInfo.photon),
         unit: "M"
       },
       {
         id: "schwarzschildIsco",
         reference: 6,
-        computed: Number.parseFloat(schwarzschildProperties.orbitInfo.isco),
+        computed: () => Number.parseFloat(schwarzschildProperties().orbitInfo.isco),
         unit: "M"
       },
       {
         id: "kerrHorizon",
         reference: 1 + Math.sqrt(1 - 0.7 * 0.7),
-        computed: horizonData(kerr).outer,
+        computed: () => horizonData(kerr).outer,
         unit: "M"
       },
       {
         // r± = M ± sqrt(M² - a² - q²); these parameters make both roots exact decimals.
         id: "reissnerNordstromOuterHorizon",
         reference: 1.8,
-        computed: horizonData(reissnerNordstrom).outer,
+        computed: () => horizonData(reissnerNordstrom).outer,
         unit: "M"
       },
       {
         id: "reissnerNordstromInnerHorizon",
         reference: 0.2,
-        computed: horizonData(reissnerNordstrom).inner,
+        computed: () => horizonData(reissnerNordstrom).inner,
         unit: "M"
       },
       {
         id: "kerrNewmanOuterHorizon",
         reference: 1.64,
-        computed: horizonData(kerrNewman).outer,
+        computed: () => horizonData(kerrNewman).outer,
         unit: "M"
       },
       {
         id: "kerrNewmanInnerHorizon",
         reference: 0.36,
-        computed: horizonData(kerrNewman).inner,
+        computed: () => horizonData(kerrNewman).inner,
         unit: "M"
       },
       {
         id: "reissnerNordstromPhotonSphere",
         reference: 0,
-        computed: photonSphereNullResidual(reissnerNordstrom, "prograde"),
+        computed: () => photonSphereNullResidual(reissnerNordstrom, "prograde"),
         unit: ""
       },
       {
         // q² = 5/8 puts the photon sphere exactly at r = 2.5M.
         id: "reissnerNordstromPhotonSphereRadius25",
         reference: 2.5,
-        computed: photonSphereRadius({ M: 1, a: 0, q: Math.sqrt(5 / 8) }),
+        computed: () => photonSphereRadius({ M: 1, a: 0, q: Math.sqrt(5 / 8) }),
         unit: "M"
       },
       {
         id: "kerrPhotonSpherePrograde",
         reference: 0,
-        computed: photonSphereNullResidual(kerr, "prograde"),
+        computed: () => photonSphereNullResidual(kerr, "prograde"),
         unit: ""
       },
       {
         id: "kerrPhotonSphereRetrograde",
         reference: 0,
-        computed: photonSphereNullResidual(kerr, "retrograde"),
+        computed: () => photonSphereNullResidual(kerr, "retrograde"),
         unit: ""
       },
       {
         id: "schwarzschildKeplerOmega",
         reference: Math.sqrt(1 / Math.pow(10, 3)),
-        computed: keplerianAngularVelocity(schwarzschild, 10, "prograde"),
+        computed: () => keplerianAngularVelocity(schwarzschild, 10, "prograde"),
         unit: "M⁻¹"
       },
       {
         id: "kerrKeplerOmegaPrograde",
         reference: Math.sqrt(kerr.M) / (Math.pow(10, 1.5) + kerr.a * Math.sqrt(kerr.M)),
-        computed: keplerianAngularVelocity(kerr, 10, "prograde"),
+        computed: () => keplerianAngularVelocity(kerr, 10, "prograde"),
         unit: "M⁻¹"
       },
       {
         id: "kerrKeplerOmegaRetrograde",
         reference: -Math.sqrt(kerr.M) / (Math.pow(10, 1.5) - kerr.a * Math.sqrt(kerr.M)),
-        computed: keplerianAngularVelocity(kerr, 10, "retrograde"),
+        computed: () => keplerianAngularVelocity(kerr, 10, "retrograde"),
         unit: "M⁻¹"
       },
       {
@@ -1119,39 +1147,38 @@
         // Schwarzschild orbit at the ISCO: g = sqrt(1 - 3M/r).
         id: "schwarzschildIscoRedshift",
         reference: Math.sqrt(1 - 3 / 6),
-        computed: diskRedshiftFactor(schwarzschild, 6, "prograde"),
+        computed: () => diskRedshiftFactor(schwarzschild, 6, "prograde"),
         unit: ""
       },
       {
         // The ergosphere is tangent to the outer horizon at the poles.
         id: "kerrErgosphereTangentAtPole",
         reference: horizonData(kerr).outer,
-        computed: outerStaticLimitAtTheta(kerr, 0),
+        computed: () => outerStaticLimitAtTheta(kerr, 0),
         unit: "M"
       },
       {
         // Standard closed-form Schwarzschild ISCO orbital constants.
         id: "schwarzschildIscoEnergy",
         reference: 2 * Math.sqrt(2) / 3,
-        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").energy,
+        computed: () => circularOrbitFourVelocity(schwarzschild, 6, "prograde").energy,
         unit: ""
       },
       {
         id: "schwarzschildIscoAngularMomentum",
         reference: 2 * Math.sqrt(3),
-        computed: circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum,
+        computed: () => circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum,
         unit: "M"
       }
-    ].map((entry) => {
-      const error = Math.abs(entry.computed - entry.reference);
-      return {
-        ...entry,
-        error,
-        tolerance: VALIDATION_TOLERANCES.analyticalAbsolute,
-        passed: Number.isFinite(entry.computed)
-          && error <= VALIDATION_TOLERANCES.analyticalAbsolute
-      };
-    });
+    ].map((entry) => ({
+      ...validationMeasurement(
+        entry.id,
+        isolated(entry.computed, () => NaN),
+        VALIDATION_TOLERANCES.analyticalAbsolute,
+        entry.reference
+      ),
+      unit: entry.unit
+    }));
 
     const familyCases = [
       { id: "schwarzschildFamily", q: 0, a: 0, reference: "schwarzschild" },
@@ -1164,54 +1191,66 @@
     });
 
     const tensorPoint = { params: { M: 1, a: 0.7, q: 0.2 }, r: 10, theta: Math.PI / 3 };
-    const tensorMetric = metric(tensorPoint.params, tensorPoint.r, tensorPoint.theta);
-    const tensorInverse = inverseMetric(tensorMetric);
-    const tensorGamma = christoffelSymbols(
-      tensorPoint.params,
-      tensorPoint.r,
-      tensorPoint.theta
-    );
     const tensorCases = [
       validationMeasurement(
         "metricInverse",
-        maxIdentityResidual(tensorMetric, tensorInverse),
+        isolated(() => {
+          const tensorMetric = metric(tensorPoint.params, tensorPoint.r, tensorPoint.theta);
+          return maxIdentityResidual(tensorMetric, inverseMetric(tensorMetric));
+        }, () => NaN),
         VALIDATION_TOLERANCES.tensorResidual
       ),
       validationMeasurement(
         "christoffelSymmetry",
-        maxChristoffelSymmetryResidual(tensorGamma),
+        isolated(
+          () => maxChristoffelSymmetryResidual(christoffelSymbols(tensorPoint.params, tensorPoint.r, tensorPoint.theta)),
+          () => NaN
+        ),
         VALIDATION_TOLERANCES.christoffelSymmetry
       )
     ];
 
+    // A benchmark that throws keeps the shape of a result, so the page shows
+    // it as one failed row next to the others.
+    const failedBenchmark = (configuration, error) => ({
+      id: configuration.id,
+      maxLambda: configuration.maxLambda,
+      completed: false,
+      stopReason: failureReason(error),
+      measurements: [{ id: "computationError", reference: NaN, computed: NaN, error: NaN, tolerance: NaN, passed: false }],
+      passed: false
+    });
     const geodesicCases = [
-      runGeodesicBenchmark({
+      [runGeodesicBenchmark, {
         id: "photonCircular",
         radius: 3,
         energy: 1,
         angularMomentum: 3 * Math.sqrt(3),
         massive: false,
         maxLambda: VALIDATION_INTEGRATION.photonMaxLambda
-      }),
-      runGeodesicBenchmark({
+      }],
+      [runGeodesicBenchmark, {
         id: "massiveCircular",
         radius: 8,
         energy: (1 - 2 / 8) / Math.sqrt(1 - 3 / 8),
         angularMomentum: Math.sqrt(8) / Math.sqrt(1 - 3 / 8),
         massive: true,
         maxLambda: VALIDATION_INTEGRATION.massiveMaxLambda
-      }),
-      runRadialInfallBenchmark(),
-      runInvariantBenchmark({
+      }],
+      [runRadialInfallBenchmark, { id: "radialInfall", maxLambda: VALIDATION_INTEGRATION.infallMaxLambda }],
+      [runInvariantBenchmark, {
         id: "kerrNewmanInclined",
         params: { M: 1, a: 0.7, q: 0.2 },
         initial: { radius: 12, latitude: 23, azimuth: 110, elevation: 20, speed: 0.4, massive: true, photonEnergy: 1 },
         maxLambda: VALIDATION_INTEGRATION.massiveMaxLambda
-      })
-    ];
+      }]
+    ].map(([run, configuration]) => isolated(
+      () => run(configuration),
+      (error) => failedBenchmark(configuration, error)
+    ));
 
     const lensingCases = [
-      runLensingWeakFieldCheck({
+      {
         id: "schwarzschildWeakFieldDeflection",
         params: schwarzschild,
         cameraRadius: 2000,
@@ -1223,8 +1262,16 @@
         step: 8,
         maxSteps: 40000,
         tolerance: VALIDATION_TOLERANCES.lensingWeakFieldRelative
-      })
-    ];
+      }
+    ].map((configuration) => isolated(() => runLensingWeakFieldCheck(configuration), (error) => ({
+      id: configuration.id,
+      deflection: null,
+      weakFieldReference: NaN,
+      stopReason: failureReason(error),
+      relativeError: Infinity,
+      tolerance: configuration.tolerance,
+      passed: false
+    })));
 
     const passed = analyticalCases.every((entry) => entry.passed)
       && familyCases.every((entry) => entry.passed)

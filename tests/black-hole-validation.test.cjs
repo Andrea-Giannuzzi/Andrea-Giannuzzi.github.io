@@ -80,7 +80,35 @@ test('Every scientific-validation entry has Italian and English labels', () => {
       }
     }
     assert.ok(copy.lensingTitle && copy.lensingNote, `${language}: lensing copy`);
+    // Shown only when a benchmark throws, so the report above never lists it.
+    assert.ok(copy.measurements.computationError, `${language}: measurements.computationError`);
   }
+});
+
+test('Weak-field deflection keeps its sign: the ray bends toward the hole', () => {
+  const [check] = P.runScientificValidation().lensingCases;
+  assert.ok(check.deflection < 0 && check.weakFieldReference < 0, `${check.deflection} vs ${check.weakFieldReference}`);
+});
+
+test('A check that throws fails on its own instead of aborting the validation run', () => {
+  // Make the local-frame launch throw: only the two checks that use it may fail.
+  const source = fs.readFileSync(path.join(__dirname, '../assets/js/black-hole-physics.js'), 'utf8');
+  const signature = 'function initialStateFromLocal(params, options) {';
+  assert.ok(source.includes(signature), 'initialStateFromLocal signature changed; update this test');
+  const broken = vm.createContext({ window: {} });
+  vm.runInContext(source.replace(
+    signature, `${signature} throw Object.assign(new Error('forced'), { code: 'invalidLocalFrame' });`
+  ), broken);
+  const report = broken.window.KerrNewmanPhysics.runScientificValidation();
+  assert.equal(report.passed, false);
+  const failed = ['analyticalCases', 'familyCases', 'tensorCases', 'geodesicCases', 'lensingCases']
+    .flatMap((group) => report[group].filter((entry) => !entry.passed).map((entry) => entry.id));
+  // Arrays built inside the vm context have another realm's prototype, so compare copies.
+  assert.deepEqual(Array.from(failed), ['kerrNewmanInclined', 'schwarzschildWeakFieldDeflection']);
+  const inclined = report.geodesicCases.find((entry) => entry.id === 'kerrNewmanInclined');
+  assert.equal(inclined.stopReason, 'invalidLocalFrame');
+  assert.deepEqual(Array.from(inclined.measurements, (measurement) => measurement.id), ['computationError']);
+  assert.equal(report.lensingCases[0].stopReason, 'invalidLocalFrame');
 });
 
 test('Lensing table deflection matches the exact Schwarzschild value at RK4 order', () => {
