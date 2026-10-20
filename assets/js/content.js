@@ -392,7 +392,7 @@ window.PORTFOLIO_CONTENT = {
             meta: "JavaScript nel browser · MIT",
             integration: "RK4 classico a passo fisso; simboli di Christoffel da derivate analitiche della metrica",
             coordinates: "Boyer–Lindquist",
-            shadow: "Nessuna curva critica; tabella di lensing 1D equatoriale (fotone catturato o sfuggito)",
+            shadow: "Contorno dell'ombra α(β) dalle orbite fotoniche sferiche, nel modulo fisico ma non ancora nella pagina; tabella di lensing 1D equatoriale (fotone catturato o sfuggito)",
             kerrNewman: "Metrica sì; particelle neutre"
           },
           einsteinpy: {
@@ -442,7 +442,7 @@ window.PORTFOLIO_CONTENT = {
           coordinatesTitle: "Coordinate e orizzonte",
           coordinatesText: "Questo simulatore usa soltanto Boyer–Lindquist, singolari all'orizzonte, e si arresta a un margine dall'orizzonte esterno. GYOTO, GRay2 e RAPTOR offrono coordinate di Kerr–Schild, regolari attraverso l'orizzonte.",
           shadowTitle: "Ombra e lensing",
-          shadowText: "geokerr, GYOTO e RAPTOR partono dal piano dell'immagine \\((\\alpha,\\beta)\\). Qui la tabella di lensing è unidimensionale ed equatoriale: una deflessione per angolo, senza dipendenza dall'inclinazione, senza immagini multiple e senza curva critica dell'ombra."
+          shadowText: "geokerr, GYOTO e RAPTOR partono dal piano dell'immagine \\((\\alpha,\\beta)\\). Qui il contorno dell'ombra \\(\\alpha(\\beta)\\) visto da un osservatore lontano è calcolato dalle orbite fotoniche sferiche di Kerr–Newman, ma non è ancora disegnato nella pagina; la tabella di lensing è unidimensionale ed equatoriale: una deflessione per angolo, senza dipendenza dall'inclinazione e senza immagini multiple."
         }
       },
       limitationsEyebrow: "Scelte del modello",
@@ -1394,7 +1394,7 @@ window.PORTFOLIO_CONTENT = {
             meta: "JavaScript in the browser · MIT",
             integration: "Classical fixed-step RK4; Christoffel symbols from analytic metric derivatives",
             coordinates: "Boyer–Lindquist",
-            shadow: "No critical curve; 1D equatorial lensing table (photon captured or escaped)",
+            shadow: "Shadow contour α(β) from spherical photon orbits, in the physics module but not yet on the page; 1D equatorial lensing table (photon captured or escaped)",
             kerrNewman: "Metric yes; neutral particles"
           },
           einsteinpy: {
@@ -1444,7 +1444,7 @@ window.PORTFOLIO_CONTENT = {
           coordinatesTitle: "Coordinates and horizon",
           coordinatesText: "This simulator uses Boyer–Lindquist coordinates only, which are singular at the horizon, and stops at a margin from the outer horizon. GYOTO, GRay2 and RAPTOR offer Kerr–Schild coordinates, which are regular across the horizon.",
           shadowTitle: "Shadow and lensing",
-          shadowText: "geokerr, GYOTO and RAPTOR start from the image plane \\((\\alpha,\\beta)\\). Here the lensing table is one-dimensional and equatorial: one deflection per angle, with no inclination dependence, no multiple images and no shadow critical curve."
+          shadowText: "geokerr, GYOTO and RAPTOR start from the image plane \\((\\alpha,\\beta)\\). Here the shadow contour \\(\\alpha(\\beta)\\) seen by a distant observer is computed from the Kerr–Newman spherical photon orbits but not yet drawn on the page; the lensing table is one-dimensional and equatorial: one deflection per angle, with no inclination dependence and no multiple images."
         }
       },
       limitationsEyebrow: "Modelling choices",
