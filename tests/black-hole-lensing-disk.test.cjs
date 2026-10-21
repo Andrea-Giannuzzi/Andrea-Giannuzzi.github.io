@@ -114,6 +114,35 @@ test('Lensing table: near dead-center falls into the shadow, larger offsets esca
   }
 });
 
+test('Lensing table in Kerr samples the side it shows: its shadow edge is the Bardeen edge at alpha > 0', () => {
+  // The camera looks toward +phi, where for a > 0 the received photons are
+  // counter-rotating (L_z < 0): the wider edge, alpha = -xi = 6.83 at a = 0.9,
+  // not the co-rotating one at alpha = -2.84.
+  const params = { M: 1, a: 0.9, q: 0 };
+  const edge = Math.max(...P.shadowContour(params, Math.PI / 2).points.map((point) => point.alpha));
+  const { samples } = P.computeLensingTable(params, { cameraRadius: 38, samples: 40, maxAngle: 20 });
+  const first = samples.findIndex((sample) => sample.stopReason === 'escapedToLarge');
+  assert.ok(first > 0, 'the table crosses the shadow edge');
+  assert.ok(samples.slice(0, first).every((sample) => sample.stopReason === 'outerHorizon'));
+  assert.ok(samples.slice(first).every((sample) => sample.stopReason === 'escapedToLarge'));
+  const [inside, outside] = [samples[first - 1].impactParameter, samples[first].impactParameter];
+  assert.ok(inside > -edge && -edge > outside, `xi ${inside} > ${-edge} > ${outside}`);
+});
+
+test('Lensing deflection near the shadow edge is accumulated, not folded into (-180, 180]', () => {
+  // The Schwarzschild edge is at 7.648 degrees from camera radius 38; the
+  // closest of these rays winds more than a full turn before escaping.
+  const deflections = [7.655, 7.67, 7.75, 7.85, 8.1].map((angle) => {
+    const [, sample] = P.computeLensingTable(schwarzschild, { cameraRadius: 38, samples: 2, maxAngle: angle }).samples;
+    assert.equal(sample.stopReason, 'escapedToLarge', `angle ${angle}`);
+    return sample.deflection;
+  });
+  assert.ok(deflections[0] < -360, `deflections ${deflections}`);
+  for (let i = 1; i < deflections.length; i += 1) {
+    assert.ok(deflections[i - 1] < deflections[i] && deflections[i] < 0, `deflections ${deflections}`);
+  }
+});
+
 test('Lensing far-field geodesics conserve invariants and converge at RK4 order', () => {
   const params = { M: 1, a: 0.3, q: 0 };
   const state = P.initialStateFromLocal(params, {

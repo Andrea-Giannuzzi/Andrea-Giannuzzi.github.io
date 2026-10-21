@@ -37,14 +37,6 @@ const integrate = (f, a, b, panels) => {
 };
 const observedOrders = (errors) => errors.slice(1).map((error, i) => Math.log2(errors[i] / error));
 
-// Escape direction measured exactly as computeLensingTable does.
-function lensingDeflection(finalState, angle) {
-  const [, r, , phi, , radialVelocity, , azimuthalVelocity] = finalState;
-  const dX = radialVelocity * Math.cos(phi) - r * Math.sin(phi) * azimuthalVelocity;
-  const dY = radialVelocity * Math.sin(phi) + r * Math.cos(phi) * azimuthalVelocity;
-  return Math.atan2(dY, -dX) * 180 / Math.PI - angle;
-}
-
 // Schwarzschild (M = 1) photon launched inward from cameraRadius and observed
 // outgoing at finalRadius: with u = 1/r, dphi/du = 1/sqrt(F) where
 // F(u) = 1/b^2 - u^2 + 2u^3 = 2(u - up)(u - u2)(u - u3) and up = 1/periapsis.
@@ -63,7 +55,7 @@ function exactSchwarzschildDeflection(constants, cameraRadius, finalRadius, angl
   const toPeriapsis = (u) => integrate((s) => 2 / Math.sqrt(2 * (u2 - up + s * s) * (up - s * s - u3)), 0, Math.sqrt(up - u), 200);
   const phi = Math.sign(angularMomentum) * (toPeriapsis(1 / cameraRadius) + toPeriapsis(1 / finalRadius));
   const radialVelocity = Math.sqrt(energy * energy - (1 - 2 / finalRadius) * angularMomentum ** 2 / finalRadius ** 2);
-  return lensingDeflection([0, finalRadius, Math.PI / 2, phi, 0, radialVelocity, 0, angularMomentum / finalRadius ** 2], angle);
+  return P.escapeDeflection([0, finalRadius, Math.PI / 2, phi, 0, radialVelocity, 0, angularMomentum / finalRadius ** 2], angle);
 }
 
 test('Every scientific-validation entry has Italian and English labels', () => {
@@ -121,11 +113,11 @@ test('Lensing table deflection matches the exact Schwarzschild value at RK4 orde
   assert.equal(sample.angle, angle);
   assert.equal(sample.stopReason, 'escapedToLarge');
   const initial = P.initialStateFromLocal(schwarzschild, {
-    radius: cameraRadius, latitude: 0, azimuth: 180 - angle, elevation: 0, speed: 1, massive: false, photonEnergy: 1
+    radius: cameraRadius, latitude: 0, azimuth: angle - 180, elevation: 0, speed: 1, massive: false, photonEnergy: 1
   });
   const constants = P.conservedQuantities(schwarzschild, initial);
   const rerun = P.integrateGeodesic(schwarzschild, initial, table.settings);
-  assert.equal(lensingDeflection(rerun.finalState, angle), sample.deflection);
+  assert.equal(P.escapeDeflection(rerun.finalState, angle), sample.deflection);
   const exact = exactSchwarzschildDeflection(constants, cameraRadius, rerun.finalState[1], angle);
   const relativeError = Math.abs(sample.deflection - exact) / Math.abs(exact);
   assert.ok(relativeError < 1e-5, `production-step relative error ${relativeError}`);
@@ -136,7 +128,7 @@ test('Lensing table deflection matches the exact Schwarzschild value at RK4 orde
     });
     assert.equal(result.stopReason, 'escapedToLarge');
     const reference = exactSchwarzschildDeflection(constants, cameraRadius, result.finalState[1], angle);
-    return Math.abs(lensingDeflection(result.finalState, angle) - reference);
+    return Math.abs(P.escapeDeflection(result.finalState, angle) - reference);
   });
   for (const order of observedOrders(errors)) assert.ok(order > 3.5 && order < 4.5, `orders ${observedOrders(errors)}`);
 });

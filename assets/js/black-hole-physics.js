@@ -818,19 +818,24 @@
   }
 
   // Precomputed deflection table for gravitational lensing of the starfield,
-  // built from real backward-integrated photon geodesics (not a substitute
+  // built from real backward-traced photon geodesics (not a substitute
   // formula). For a spread of angles from the black hole's projected center,
   // a photon is launched from the camera's equatorial position AIMED AT the
-  // black hole (azimuth 180 degrees, tilted by `angle`) and integrated
-  // forward. Null geodesics are time-reversible, so this reproduces backward
-  // ray tracing: a photon that reaches escapeRadius tells us the true sky
-  // direction of the star actually visible at this angular offset from the
-  // black hole; a photon absorbed by the horizon means that offset falls
-  // inside the shadow. The trajectory is kept exactly equatorial (elevation
-  // 0), which is an exact symmetry of this metric family, not an
-  // approximation -- but the table itself is still 1-D (angle only, not
-  // inclination relative to the spin axis), so Kerr-Newman's frame-dragging
-  // lensing asymmetry is not captured for cameras away from the equator; a
+  // black hole (azimuth 180 degrees, turned by `angle` toward -phi) and
+  // integrated forward. Reversing time alone is not a symmetry of a spinning
+  // hole, (t, phi) -> (-t, -phi) is: this ray, run backward and mirrored in
+  // phi, is the photon the camera receives from azimuth 180 - angle (the +phi
+  // side), with the same E and L_z. A photon that reaches escapeRadius tells
+  // us the true sky direction of the star actually visible at this angular
+  // offset from the black hole; a photon absorbed by the horizon means that
+  // offset falls inside the shadow. For a > 0 the +phi side is the
+  // counter-rotating one, so the table's shadow edge is the wider Bardeen
+  // edge (alpha > 0 in shadowContour). The trajectory is kept exactly
+  // equatorial (elevation 0), which is an exact symmetry of this metric
+  // family, not an approximation -- but the table itself is still 1-D (angle
+  // only, one side of the hole, not inclination relative to the spin axis),
+  // so the narrower co-rotating side and Kerr-Newman's frame-dragging lensing
+  // asymmetry for cameras away from the equator are not captured; a
   // documented limitation, not an oversight. It also cannot represent
   // multiple imaging (a star lensed into 2+ apparent positions), since each
   // angle maps to a single deflection value.
@@ -870,34 +875,43 @@
       // deflection there is small and smooth.
       const t = i / (samples - 1);
       const angle = maxAngle * t * t;
+      let impactParameter = null;
       let deflection = null;
       let stopReason;
       try {
         const initial = initialStateFromLocal(params, {
-          radius: cameraRadius, latitude: 0, azimuth: 180 - angle,
+          radius: cameraRadius, latitude: 0, azimuth: angle - 180,
           elevation: 0, speed: 1, massive: false, photonEnergy: 1
         });
+        // L_z / E, shared with the received photon: it places the sample
+        // against the critical impact parameters of the shadow edge.
+        const { energy, angularMomentum } = conservedQuantities(params, initial);
+        impactParameter = angularMomentum / energy;
         const result = integrateGeodesic(params, initial, settings);
         stopReason = result.stopReason;
-        if (stopReason === "escapedToLarge") {
-          const [, r, , phi, , radialVelocity, , azimuthalVelocity] = result.finalState;
-          // Direction of motion in fixed (X = r cos phi, Y = r sin phi)
-          // plane coordinates anchored at the launch point (phi = 0 there),
-          // so this is a genuine fixed-axis comparison, not a frame that
-          // rotates with r. The launch direction pointed toward -X (inward,
-          // azimuth 180); flipping dX's sign expresses the escape direction
-          // relative to that same inward axis, in the same sense as `angle`.
-          const dX = radialVelocity * Math.cos(phi) - r * Math.sin(phi) * azimuthalVelocity;
-          const dY = radialVelocity * Math.sin(phi) + r * Math.cos(phi) * azimuthalVelocity;
-          const asymptoticAngle = Math.atan2(dY, -dX) * 180 / Math.PI;
-          deflection = asymptoticAngle - angle;
-        }
+        if (stopReason === "escapedToLarge") deflection = escapeDeflection(result.finalState, angle);
       } catch (error) {
         stopReason = error.code || "invalidMetric";
       }
-      samplesOut.push({ angle, deflection, stopReason });
+      samplesOut.push({ angle, impactParameter, deflection, stopReason });
     }
     return { cameraRadius, settings, samples: samplesOut };
+  }
+
+  // Deflection in degrees of a lensing-table ray that escaped after a launch
+  // at azimuth angle - 180; negative means bent toward the hole. Its direction
+  // of motion in fixed (X = r cos phi, Y = r sin phi) plane coordinates
+  // anchored at the launch point (phi = 0 there) is phi + atan2(r dphi, dr):
+  // the same direction as atan2(dY, dX), without folding it into
+  // (-180, 180], so a ray that winds around the hole near the shadow edge
+  // keeps its turns and the table stays continuous for the 3D interpolation.
+  // Mirrored in phi (see computeLensingTable), 180 + that direction is the
+  // escape direction measured from the inward (-X) launch axis in the same
+  // sense as `angle`.
+  function escapeDeflection(finalState, angle) {
+    const [, r, , phi, , radialVelocity, , azimuthalVelocity] = finalState;
+    const direction = phi + Math.atan2(r * azimuthalVelocity, radialVelocity);
+    return 180 + direction * 180 / Math.PI - angle;
   }
 
   function nonzeroChristoffelAt(params, r, theta, tolerance = 1e-9) {
@@ -1133,28 +1147,16 @@
   // compared to the impact parameter (b/r small), the deflection should
   // approach the textbook 4M/b bending toward the hole, i.e. -4M/b here. See
   // computeLensingTable for why this only holds in that regime.
+  // Runs computeLensingTable itself, with two samples (0 and `angle`), so
+  // the page validation covers the table's launch and deflection rather
+  // than a copy of them.
   function runLensingWeakFieldCheck(configuration) {
     const { id, params, cameraRadius, angle, escapeRadius, maxLambda, step, maxSteps, tolerance } = configuration;
-    const settings = {
-      step, maxLambda, maxSteps, sampleEvery: maxSteps, escapeRadius,
-      guardCoordinates: true, horizonMargin: NUMERICS.horizonMargin, singularityRadius: NUMERICS.singularityRadius
-    };
-    const initial = initialStateFromLocal(params, {
-      radius: cameraRadius, latitude: 0, azimuth: 180 - angle, elevation: 0,
-      speed: 1, massive: false, photonEnergy: 1
-    });
-    const impactParameter = Math.abs(
-      conservedQuantities(params, initial).angularMomentum / conservedQuantities(params, initial).energy
-    );
-    const result = integrateGeodesic(params, initial, settings);
-    let deflection = null;
-    if (result.stopReason === "escapedToLarge") {
-      const [, r, , phi, , radialVelocity, , azimuthalVelocity] = result.finalState;
-      const dX = radialVelocity * Math.cos(phi) - r * Math.sin(phi) * azimuthalVelocity;
-      const dY = radialVelocity * Math.sin(phi) + r * Math.cos(phi) * azimuthalVelocity;
-      const asymptoticAngle = Math.atan2(dY, -dX) * 180 / Math.PI;
-      deflection = asymptoticAngle - angle;
-    }
+    const sample = computeLensingTable(params, {
+      cameraRadius, samples: 2, maxAngle: angle, escapeRadius, maxLambda, step, maxSteps
+    }).samples[1];
+    const impactParameter = Math.abs(sample.impactParameter ?? NaN);
+    const { deflection } = sample;
     // Bending toward the hole brings the asymptotic angle below the launch
     // angle, so in this convention the expected deflection is -4M/b.
     const weakFieldReference = -4 * params.M / impactParameter * 180 / Math.PI;
@@ -1165,7 +1167,7 @@
       impactParameter,
       deflection,
       weakFieldReference,
-      stopReason: result.stopReason,
+      stopReason: sample.stopReason,
       relativeError,
       tolerance,
       passed: deflection !== null && relativeError <= tolerance
@@ -1455,6 +1457,7 @@
     rk4Step,
     integrateGeodesic,
     computeLensingTable,
+    escapeDeflection,
     nonzeroChristoffelAt,
     matrixProduct,
     maxIdentityResidual,
