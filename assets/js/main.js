@@ -611,7 +611,11 @@ function setupRevealAnimations() {
         observer.unobserve(entry.target);
       }
     });
-  }, { threshold: 0.12 });
+  // A ratio threshold never fires for a section taller than the viewport
+  // divided by that ratio (the simulator demo on a landscape phone, the
+  // validation on a portrait one), which then stays invisible. Reveal instead
+  // once any part of the element is above the bottom 12% of the viewport.
+  }, { threshold: 0, rootMargin: "0px 0px -12% 0px" });
 
   elements.forEach((element) => observer.observe(element));
 }

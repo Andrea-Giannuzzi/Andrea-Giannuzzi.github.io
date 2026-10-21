@@ -20,6 +20,8 @@
   let validationResult = null;
   let validationError = null;
   let validationPromise = null;
+  let shownShadowContour = null;
+  let shadowAspect = 0.64;
 
   const numberValue = (input) => Number.parseFloat(input.value);
   const isFiniteNumber = (value) => Number.isFinite(value);
@@ -81,6 +83,9 @@
       validationResults: document.querySelector("[data-validation-results]"),
       codeComparison: document.querySelector("[data-code-comparison]")
     };
+    // The width/height attributes in the HTML set the plot's proportions;
+    // drawShadow then resizes the buffer to the displayed width.
+    if (elements.shadowCanvas) shadowAspect = elements.shadowCanvas.height / elements.shadowCanvas.width;
   }
 
   function renderLists() {
@@ -450,8 +455,7 @@
   // Shadow contour alpha(beta) seen by a distant observer at the chosen
   // inclination (P.shadowContour), in the palette of the geodesic plot.
   function renderShadow(params) {
-    const canvas = elements.shadowCanvas;
-    if (!canvas) return;
+    if (!elements.shadowCanvas) return;
     const copy = content().shadowPanel || {};
     const inclination = numberValue(elements.inclination);
     elements.inclinationValue.textContent = `${inclination}°`;
@@ -464,24 +468,68 @@
         failure = localizedError(error);
       }
     }
+    shownShadowContour = contour;
+    drawShadow();
 
-    // The canvas is sized to its displayed width and drawn in CSS pixels, so
-    // labels keep a readable size on a phone instead of shrinking with a
-    // fixed 1000-pixel drawing.
-    const context = canvas.getContext("2d");
+    const legend = [["schwarzschild-shadow", copy.schwarzschild]];
+    if (contour) legend.unshift(["shadow-edge", copy.edge]);
+    elements.shadowLegend.innerHTML = legend.map(([className, label]) =>
+      `<span><i class="legend-swatch ${className}"></i>${label}</span>`).join("");
+    if (!params) {
+      elements.shadowReadout.innerHTML = "";
+      return;
+    }
+    if (!contour) {
+      elements.shadowReadout.innerHTML = `<div><dd>${failure || copy.noShadow}</dd></div>`;
+      return;
+    }
+    // Round-off can leave the center shift of a symmetric shadow at ~1e-16.
+    const value = (number) => formatNumber(Math.abs(number) < 1e-9 ? 0 : number, 4);
+    const alphas = contour.points.map((point) => point.alpha);
+    const alphaMin = Math.min(...alphas);
+    const alphaMax = Math.max(...alphas);
+    const betaMax = Math.max(...contour.points.map((point) => point.beta));
+    const rows = [
+      [copy.horizontalRange, `[${value(alphaMin)}, ${value(alphaMax)}] M`],
+      [copy.height, `${value(2 * betaMax)} M`],
+      [copy.centerShift, `${value((alphaMin + alphaMax) / 2)} M`],
+      [copy.photonOrbits, contour.rpMin === contour.rpMax
+        ? `${value(contour.rpMin)} M` : `[${value(contour.rpMin)}, ${value(contour.rpMax)}] M`]
+    ];
+    elements.shadowReadout.innerHTML = rows.map(([label, text]) =>
+      `<div><dt>${label}</dt><dd>${text}</dd></div>`).join("");
+  }
+
+  // Draws the last computed contour at the canvas's displayed size and pixel
+  // ratio, in CSS pixels, so the labels keep a readable size on a phone. A
+  // canvas without a layout box is skipped: the ResizeObserver in bindEvents
+  // draws it once it is displayed.
+  function drawShadow() {
+    const canvas = elements.shadowCanvas;
+    const width = canvas.getBoundingClientRect().width;
+    if (!(width > 0)) return;
+    const height = width * shadowAspect;
     const ratio = window.devicePixelRatio || 1;
-    const width = canvas.clientWidth || 1000;
-    const height = Math.round(width * 0.64);
-    canvas.width = Math.round(width * ratio);
-    canvas.height = Math.round(height * ratio);
-    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const bufferWidth = Math.round(width * ratio);
+    const bufferHeight = Math.round(height * ratio);
+    // Assigning the size reallocates and clears the buffer, so only on change.
+    if (canvas.width !== bufferWidth || canvas.height !== bufferHeight) {
+      canvas.width = bufferWidth;
+      canvas.height = bufferHeight;
+    }
+    const context = canvas.getContext("2d");
+    context.setTransform(bufferWidth / width, 0, 0, bufferHeight / height, 0, 0);
+    const contour = shownShadowContour;
     const fontSize = Math.min(16, Math.max(12, width / 62));
+    // Bands along the edges hold the tick labels and axis titles, so no text
+    // is drawn over the shadow or the reference circle.
+    const band = 2 * fontSize;
     const centerX = width / 2;
     const centerY = height / 2;
     const schwarzschildRadius = 3 * Math.sqrt(3);
-    const extent = 1.18 * Math.max(schwarzschildRadius,
+    const radius = Math.max(schwarzschildRadius,
       ...(contour ? contour.points.flatMap((point) => [Math.abs(point.alpha), Math.abs(point.beta)]) : []));
-    const scale = Math.min(width, height) / 2 / extent;
+    const scale = Math.min(width / 2 - 1.5 * band, height / 2 - band) / (1.06 * radius);
     context.clearRect(0, 0, width, height);
     context.fillStyle = "#080b10";
     context.fillRect(0, 0, width, height);
@@ -515,50 +563,42 @@
     context.moveTo(centerX, 0);
     context.lineTo(centerX, height);
     context.stroke();
+    // Ticks every 2 M (4 M when they would crowd): short marks on the axes,
+    // numbers in the bottom and left bands.
+    const tickStep = scale < fontSize ? 4 : 2;
+    const ticks = (halfSpan) => {
+      const last = tickStep * Math.floor(halfSpan / scale / tickStep);
+      const values = [];
+      for (let tick = -last; tick <= last; tick += tickStep) if (tick !== 0) values.push(tick);
+      return values;
+    };
+    const alphaTicks = ticks(width / 2 - band);
+    const betaTicks = ticks(height / 2 - band);
+    context.strokeStyle = "rgba(155, 183, 212, 0.45)";
+    context.beginPath();
+    alphaTicks.forEach((tick) => {
+      context.moveTo(centerX + tick * scale, centerY - 3);
+      context.lineTo(centerX + tick * scale, centerY + 3);
+    });
+    betaTicks.forEach((tick) => {
+      context.moveTo(centerX - 3, centerY - tick * scale);
+      context.lineTo(centerX + 3, centerY - tick * scale);
+    });
+    context.stroke();
     context.fillStyle = "rgba(232, 227, 216, 0.6)";
     context.font = `${fontSize}px sans-serif`;
     context.textAlign = "center";
-    context.textBaseline = "top";
-    // Labels every 2 M (4 M when they would crowd), kept clear of the edges.
-    const tickStep = 2 * scale < 2 * fontSize ? 4 : 2;
-    const maxTick = tickStep * Math.floor(extent / 1.1 / tickStep);
-    for (let tick = -maxTick; tick <= maxTick; tick += tickStep) {
-      if (tick === 0) continue;
-      context.fillText(String(tick), centerX + tick * scale, centerY + 0.35 * fontSize);
-      context.fillText(String(tick), centerX - fontSize, centerY - tick * scale - fontSize / 2);
-    }
-    context.textAlign = "right";
-    context.fillText("α / M", width - 0.6 * fontSize, centerY + 1.6 * fontSize);
+    context.textBaseline = "bottom";
+    alphaTicks.forEach((tick) => context.fillText(String(tick), centerX + tick * scale, height - 0.4 * fontSize));
     context.textAlign = "left";
-    context.fillText("β / M", centerX + 0.5 * fontSize, 0.6 * fontSize);
-
-    const legend = [["schwarzschild-shadow", copy.schwarzschild]];
-    if (contour) legend.unshift(["shadow-edge", copy.edge]);
-    elements.shadowLegend.innerHTML = legend.map(([className, label]) =>
-      `<span><i class="legend-swatch ${className}"></i>${label}</span>`).join("");
-    if (!params) {
-      elements.shadowReadout.innerHTML = "";
-      return;
-    }
-    if (!contour) {
-      elements.shadowReadout.innerHTML = `<div><dd>${failure || copy.noShadow}</dd></div>`;
-      return;
-    }
-    // Round-off can leave the center shift of a symmetric shadow at ~1e-16.
-    const value = (number) => formatNumber(Math.abs(number) < 1e-9 ? 0 : number, 4);
-    const alphas = contour.points.map((point) => point.alpha);
-    const alphaMin = Math.min(...alphas);
-    const alphaMax = Math.max(...alphas);
-    const betaMax = Math.max(...contour.points.map((point) => point.beta));
-    const rows = [
-      [copy.horizontalRange, `[${value(alphaMin)}, ${value(alphaMax)}] M`],
-      [copy.height, `${value(2 * betaMax)} M`],
-      [copy.centerShift, `${value((alphaMin + alphaMax) / 2)} M`],
-      [copy.photonOrbits, contour.rpMin === contour.rpMax
-        ? `${value(contour.rpMin)} M` : `[${value(contour.rpMin)}, ${value(contour.rpMax)}] M`]
-    ];
-    elements.shadowReadout.innerHTML = rows.map(([label, text]) =>
-      `<div><dt>${label}</dt><dd>${text}</dd></div>`).join("");
+    context.textBaseline = "middle";
+    betaTicks.forEach((tick) => context.fillText(String(tick), 0.5 * fontSize, centerY - tick * scale));
+    context.textAlign = "right";
+    context.textBaseline = "bottom";
+    context.fillText("α / M", width - 0.5 * fontSize, centerY - 0.4 * fontSize);
+    context.textAlign = "left";
+    context.textBaseline = "top";
+    context.fillText("β / M", centerX + 0.5 * fontSize, 0.4 * fontSize);
   }
 
   function renderNumericalChecks(simulation) {
@@ -850,8 +890,19 @@
         elements.status.scrollIntoView({ block: "nearest" });
       }
     });
+    // Redraw the shadow, without recomputing it, when its displayed width or
+    // the screen's pixel ratio changes; the observer also draws the first
+    // frame once the canvas has a layout box.
+    let shadowFrame = 0;
+    const scheduleShadowDraw = () => {
+      cancelAnimationFrame(shadowFrame);
+      shadowFrame = requestAnimationFrame(drawShadow);
+    };
+    new ResizeObserver(scheduleShadowDraw).observe(elements.shadowCanvas.parentElement);
+    const watchPixelRatio = () => window.matchMedia(`(resolution: ${window.devicePixelRatio}dppx)`)
+      .addEventListener("change", () => { scheduleShadowDraw(); watchPixelRatio(); }, { once: true });
+    watchPixelRatio();
     window.addEventListener("resize", () => {
-      renderShadow(currentParams);
       if (currentParams) {
         renderVisualization(lastSimulation, currentParams,
           P.geometryProperties(currentParams, currentSpacetime));
@@ -911,6 +962,7 @@
     if (!initialized) return;
     renderScientificValidation();
     renderCodeComparison();
+    renderShadow(currentParams);
     updateUnitLabels();
     renderConfigurationState();
     if (currentParams) {
@@ -918,7 +970,6 @@
       renderProperties(currentParams, currentPhysical, properties);
       renderMetric(currentParams, properties.spacetime);
       renderVisualization(lastSimulation, currentParams, properties);
-      renderShadow(currentParams);
       renderNumericalChecks(lastSimulation);
       if (lastSimulation) {
         renderCalculationDetails(lastSimulation);
