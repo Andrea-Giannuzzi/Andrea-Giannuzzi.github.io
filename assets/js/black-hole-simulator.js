@@ -73,7 +73,8 @@
       calculationPanel: document.querySelector("#calculation-details"),
       calculationLink: document.querySelector("a[href='#calculation-details']"),
       validationStatus: document.querySelector("[data-validation-status]"),
-      validationResults: document.querySelector("[data-validation-results]")
+      validationResults: document.querySelector("[data-validation-results]"),
+      codeComparison: document.querySelector("[data-code-comparison]")
     };
   }
 
@@ -528,6 +529,43 @@
     return `<div class="validation-table" role="table">${header}${rows.join("")}</div>`;
   }
 
+  // Language-independent part of the code comparison; the cell text is in
+  // content.js under codeComparison.rows, keyed by the same ids.
+  const CODE_COMPARISON = Object.freeze([
+    { id: "thisCode", source: { label: "black-hole-physics.js", url: "assets/js/black-hole-physics.js" } },
+    { id: "einsteinpy", name: "EinsteinPy", url: "https://github.com/einsteinpy/einsteinpy",
+      source: { label: "Zenodo DOI", url: "https://doi.org/10.5281/zenodo.2582387" } },
+    { id: "gyoto", name: "GYOTO", url: "https://github.com/gyoto/Gyoto",
+      source: { label: "Vincent et al. 2011", url: "https://arxiv.org/abs/1109.4769" } },
+    { id: "geokerr", name: "geokerr", url: "https://faculty.washington.edu/agol/geokerr/index.html",
+      source: { label: "Dexter &amp; Agol 2009", url: "https://arxiv.org/abs/0903.0620" } },
+    { id: "gray2", name: "GRay2", url: "https://github.com/luxsrc/gray",
+      source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062" } },
+    { id: "raptor", name: "RAPTOR", url: "https://github.com/tbronzwaer/raptor",
+      source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452" } }
+  ]);
+
+  const externalLink = (url, label) => `<a href="${url}" target="_blank" rel="noopener">${label}</a>`;
+
+  function renderCodeComparison() {
+    const copy = content().codeComparison;
+    if (!elements?.codeComparison || !copy) return;
+    const { columns } = copy;
+    const textColumns = ["integration", "coordinates", "shadow", "kerrNewman"];
+    const header = `<div class="validation-row validation-table-header" role="row">
+      ${["code", ...textColumns].map((key) => `<div role="columnheader">${columns[key]}</div>`).join("")}
+    </div>`;
+    const rows = CODE_COMPARISON.map((code) => {
+      const text = copy.rows[code.id];
+      const name = code.url ? externalLink(code.url, code.name) : text.name;
+      return `<div class="validation-row" role="row">
+        ${validationCell(columns.code, `<div><strong>${name}</strong><br><span class="muted">${text.meta}</span><br>${externalLink(code.source.url, code.source.label)}</div>`, "validation-check")}
+        ${textColumns.map((key) => validationCell(columns[key], `<span>${text[key]}</span>`)).join("")}
+      </div>`;
+    });
+    elements.codeComparison.innerHTML = `<div class="validation-table" role="table" aria-label="${copy.tableLabel}">${header}${rows.join("")}</div>`;
+  }
+
   function scientificValue(value, unit = "") {
     return `${formatValidationNumber(value)}${unit ? ` ${unit}` : ""}`;
   }
@@ -699,6 +737,7 @@
     cacheElements();
     language = document.documentElement.lang || "it";
     renderLists();
+    renderCodeComparison();
     setInputValuesFromPhysical({
       massSolar: DEFAULT_MASS_SOLAR,
       chargeC: 0,
@@ -744,6 +783,7 @@
     renderLists();
     if (!initialized) return;
     renderScientificValidation();
+    renderCodeComparison();
     updateUnitLabels();
     renderConfigurationState();
     if (currentParams) {
