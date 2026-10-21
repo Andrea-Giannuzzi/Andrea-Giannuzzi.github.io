@@ -549,6 +549,7 @@ window.PORTFOLIO_CONTENT = {
       visualizationNote: "Proiezione coordinata di Boyer–Lindquist x = r cosφ, y = r sinφ; non è un embedding euclideo dello spaziotempo curvo.",
       shadowPanel: {
         title: "Ombra vista da un osservatore lontano — α(β)",
+        navLabel: "Ombra del buco nero",
         note: "Coordinate celesti di Bardeen (α, β) sul piano dello schermo, in unità di M. Il bordo è formato dai fotoni che sfiorano le orbite fotoniche sferiche di Kerr–Newman: è calcolato dal modulo fisico, senza ray tracing.",
         inclination: "Inclinazione dell'osservatore θₒ rispetto all'asse di rotazione",
         canvasLabel: "Contorno dell'ombra α(β) sul piano dello schermo",
@@ -1571,6 +1572,7 @@ window.PORTFOLIO_CONTENT = {
       visualizationNote: "Boyer–Lindquist coordinate projection x = r cosφ, y = r sinφ; this is not a Euclidean embedding of curved spacetime.",
       shadowPanel: {
         title: "Shadow seen by a distant observer — α(β)",
+        navLabel: "Black hole shadow",
         note: "Bardeen celestial coordinates (α, β) on the screen plane, in units of M. The edge is made of photons that skim the Kerr–Newman spherical photon orbits: it is computed by the physics module, without ray tracing.",
         inclination: "Observer inclination θₒ from the spin axis",
         canvasLabel: "Shadow contour α(β) on the screen plane",

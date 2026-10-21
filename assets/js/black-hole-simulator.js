@@ -465,8 +465,17 @@
       }
     }
 
+    // The canvas is sized to its displayed width and drawn in CSS pixels, so
+    // labels keep a readable size on a phone instead of shrinking with a
+    // fixed 1000-pixel drawing.
     const context = canvas.getContext("2d");
-    const { width, height } = canvas;
+    const ratio = window.devicePixelRatio || 1;
+    const width = canvas.clientWidth || 1000;
+    const height = Math.round(width * 0.64);
+    canvas.width = Math.round(width * ratio);
+    canvas.height = Math.round(height * ratio);
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    const fontSize = Math.min(16, Math.max(12, width / 62));
     const centerX = width / 2;
     const centerY = height / 2;
     const schwarzschildRadius = 3 * Math.sqrt(3);
@@ -488,14 +497,14 @@
       context.fillStyle = "#000";
       context.fill();
       context.strokeStyle = "#d4b483";
-      context.lineWidth = 3;
+      context.lineWidth = 2.5;
       context.stroke();
     }
     // The reference circle, axes and labels go on top, so they stay visible
     // across the shadow.
-    context.setLineDash([7, 7]);
+    context.setLineDash([6, 5]);
     drawCircle(context, centerX, centerY, schwarzschildRadius * scale, {
-      strokeStyle: "rgba(155, 183, 212, 0.7)", lineWidth: 2
+      strokeStyle: "rgba(155, 183, 212, 0.7)", lineWidth: 1.5
     });
     context.setLineDash([]);
     context.strokeStyle = "rgba(155, 183, 212, 0.2)";
@@ -507,20 +516,21 @@
     context.lineTo(centerX, height);
     context.stroke();
     context.fillStyle = "rgba(232, 227, 216, 0.6)";
-    context.font = "26px sans-serif";
+    context.font = `${fontSize}px sans-serif`;
     context.textAlign = "center";
     context.textBaseline = "top";
-    // Labels every 2 M, kept clear of the canvas edges.
-    const maxTick = 2 * Math.floor(extent / 2.2);
-    for (let tick = -maxTick; tick <= maxTick; tick += 2) {
+    // Labels every 2 M (4 M when they would crowd), kept clear of the edges.
+    const tickStep = 2 * scale < 2 * fontSize ? 4 : 2;
+    const maxTick = tickStep * Math.floor(extent / 1.1 / tickStep);
+    for (let tick = -maxTick; tick <= maxTick; tick += tickStep) {
       if (tick === 0) continue;
-      context.fillText(String(tick), centerX + tick * scale, centerY + 8);
-      context.fillText(String(tick), centerX - 26, centerY - tick * scale - 13);
+      context.fillText(String(tick), centerX + tick * scale, centerY + 0.35 * fontSize);
+      context.fillText(String(tick), centerX - fontSize, centerY - tick * scale - fontSize / 2);
     }
     context.textAlign = "right";
-    context.fillText("α / M", width - 14, centerY + 40);
+    context.fillText("α / M", width - 0.6 * fontSize, centerY + 1.6 * fontSize);
     context.textAlign = "left";
-    context.fillText("β / M", centerX + 12, 14);
+    context.fillText("β / M", centerX + 0.5 * fontSize, 0.6 * fontSize);
 
     const legend = [["schwarzschild-shadow", copy.schwarzschild]];
     if (contour) legend.unshift(["shadow-edge", copy.edge]);
@@ -841,6 +851,7 @@
       }
     });
     window.addEventListener("resize", () => {
+      renderShadow(currentParams);
       if (currentParams) {
         renderVisualization(lastSimulation, currentParams,
           P.geometryProperties(currentParams, currentSpacetime));
