@@ -716,7 +716,9 @@
     return state.map((value, index) => value + scale * derivative[index]);
   }
 
-  function rk4Step(params, state, step, guard = null) {
+  // One classical RK4 step with its four stage derivatives, so the page can
+  // show the k1..k4 of a real step; rk4Step keeps only the advanced state.
+  function rk4Stages(params, state, step, guard = null) {
     const derivative = (point) => {
       if (guard) guard(point);
       return geodesicRightHandSide(params, point);
@@ -725,9 +727,14 @@
     const k2 = derivative(addScaled(state, k1, step / 2));
     const k3 = derivative(addScaled(state, k2, step / 2));
     const k4 = derivative(addScaled(state, k3, step));
-    return state.map((value, index) => value + step * (
+    const next = state.map((value, index) => value + step * (
       k1[index] + 2 * k2[index] + 2 * k3[index] + k4[index]
     ) / 6);
+    return { k1, k2, k3, k4, next };
+  }
+
+  function rk4Step(params, state, step, guard = null) {
+    return rk4Stages(params, state, step, guard).next;
   }
 
   function integrateGeodesic(params, initialState, configuration = {}) {
@@ -737,6 +744,7 @@
     if (guard) guard(initialState);
     const initialConstants = conservedQuantities(params, initialState);
     const points = [initialState.slice()];
+    const sampleLambdas = [0];
     let state = initialState.slice();
     let lambda = 0;
     const intervalSteps = Math.ceil(settings.maxLambda / settings.step);
@@ -792,13 +800,19 @@
       );
       maxThetaDrift = Math.max(maxThetaDrift, Math.abs(state[2] - Math.PI / 2));
       maxCarterChange = Math.max(maxCarterChange, Math.abs(constants.carter - initialConstants.carter));
-      if (index % settings.sampleEvery === 0) points.push(state.slice());
+      // Sample n is the state after n * sampleEvery steps, at an exact multiple
+      // of sampleEvery * step: runs at h, 2h and 4h share sample lambdas.
+      if ((index + 1) % settings.sampleEvery === 0) {
+        points.push(state.slice());
+        sampleLambdas.push(lambda);
+      }
     }
 
     const energyScale = Math.max(Math.abs(initialConstants.energy), 1e-14);
     const angularMomentumScale = Math.max(Math.abs(initialConstants.angularMomentum), 1e-14);
     return {
       points,
+      sampleLambdas,
       finalState: state,
       lambda,
       stopReason,
@@ -815,6 +829,66 @@
         scaledCarterChange: maxCarterChange / Math.max(1, Math.abs(initialConstants.carter))
       }
     };
+  }
+
+  // The same trajectory at factor times the step of baseResult, with every
+  // other setting kept, so that its samples line up with the base run's.
+  function integrateCoarser(params, initialState, baseResult, factor) {
+    return integrateGeodesic(params, initialState, { ...baseResult.settings, step: factor * baseResult.settings.step });
+  }
+
+  const plottedPosition = ([, r, theta, phi]) => [
+    r * Math.sin(theta) * Math.cos(phi), r * Math.sin(theta) * Math.sin(phi), r * Math.cos(theta)
+  ];
+  const sameStopClass = (reason) => reason === "maximumSteps" ? "maximumInterval" : reason;
+
+  // Step-doubling check of a computed trajectory. The run at step h is
+  // compared with the same run at 2h and 4h at the lambdas all three sample,
+  // lambda = 4 * sampleEvery * h * k, up to the earliest stop. The largest
+  // differences of the plotted position, d1 = |X_h - X_2h| and
+  // d2 = |X_2h - X_4h|, give the observed order p = log2(d2 / d1) and
+  // Richardson's estimate d1 / (2^p - 1) of the position error left at h.
+  // Final states are not compared: they share a lambda only when the step
+  // counts are exactly proportional. Exact circular orbits have zero RK4
+  // truncation error, so their differences are round-off: reported as the
+  // upper bound d1, not as a failure. The coarse runs can be passed in, so
+  // the page can compute them in separate idle callbacks.
+  function convergenceEstimate(params, initialState, baseResult,
+    coarseRuns = [2, 4].map((factor) => integrateCoarser(params, initialState, baseResult, factor))) {
+    const runs = [baseResult, ...coarseRuns];
+    // Sample k of the 4h run sits at the lambda of sample 2k at 2h and 4k at h.
+    const strides = [4, 2, 1];
+    let samples = 0;
+    let d1 = 0;
+    let d2 = 0;
+    let scale = 0;
+    let comparedLambda = 0;
+    for (let k = 1; runs.every((run, index) => run.points[k * strides[index]]); k += 1) {
+      const [atH, at2h, at4h] = runs.map((run, index) => plottedPosition(run.points[k * strides[index]]));
+      d1 = Math.max(d1, Math.hypot(atH[0] - at2h[0], atH[1] - at2h[1], atH[2] - at2h[2]));
+      d2 = Math.max(d2, Math.hypot(at2h[0] - at4h[0], at2h[1] - at4h[1], at2h[2] - at4h[2]));
+      scale = Math.max(scale, Math.hypot(...atH));
+      comparedLambda = baseResult.sampleLambdas[4 * k];
+      samples += 1;
+    }
+    const order = Math.log2(d2 / d1);
+    const estimate = {
+      steps: runs.map((run) => run.settings.step),
+      differences: [d1, d2],
+      order,
+      errorEstimate: null,
+      comparedLambda,
+      samples
+    };
+    if (new Set(runs.map((run) => sameStopClass(run.stopReason))).size > 1) {
+      return { ...estimate, status: "unreliable", reason: "stopMismatch" };
+    }
+    if (samples < 2) return { ...estimate, status: "unreliable", reason: "tooShort" };
+    if (order >= 3 && order <= 5 && d1 >= 1e-13 * scale) {
+      return { ...estimate, status: "reliable", reason: null, errorEstimate: d1 / (2 ** order - 1) };
+    }
+    if (d1 < 1e-11 * scale) return { ...estimate, status: "roundOff", reason: "roundOff", errorEstimate: d1 };
+    return { ...estimate, status: "unreliable", reason: "orderOutOfRange" };
   }
 
   // Precomputed deflection table for gravitational lensing of the starfield,
@@ -1097,7 +1171,9 @@
   // Schwarzschild radial fall from rest at infinity (E = 1, L = 0): the affine
   // parameter is proper time and r(tau), t(tau) have closed forms, so unlike
   // the circular orbits this benchmark sees the RK4 truncation error.
-  // Repeating it at 4h and 2h gives the observed order of convergence.
+  // Repeating it at 8h, 4h and 2h gives the observed order of convergence and
+  // the points of the page's convergence plot. Below h the error reaches the
+  // round-off floor, so the step is not halved further.
   function runRadialInfallBenchmark({ id, maxLambda }) {
     const params = { M: 1, a: 0, q: 0 };
     const startRadius = 10;
@@ -1109,38 +1185,43 @@
     const initialState = initialStateFromConstants(params, {
       radius: startRadius, energy: 1, angularMomentum: 0, massive: true, radialDirection: "ingoing"
     });
-    // Only the finest run stores every step, so its point i lies at tau = i * h.
-    const sizes = [4 * step, 2 * step, step];
+    // Only the finest run stores every step, for the pointwise check.
+    const sizes = [8 * step, 4 * step, 2 * step, step];
     const results = sizes.map((size, index) => integrateValidationGeodesic(params, initialState, maxLambda, {
       step: size,
       sampleEvery: index === sizes.length - 1 ? 1 : VALIDATION_INTEGRATION.maxSteps
     }));
+    const finest = results[results.length - 1];
     let radialError = 0;
     let timeError = 0;
-    results[2].points.forEach((state, index) => {
+    finest.points.forEach((state, index) => {
       if (index === 0) return;
-      const tau = index * step;
+      const tau = finest.sampleLambdas[index];
       radialError = Math.max(radialError, Math.abs(state[1] - radiusAt(tau)) / radiusAt(tau));
       timeError = Math.max(timeError, Math.abs(state[0] - timeAt(tau)) / timeAt(tau));
     });
     const errors = results.map((result) => Math.abs(result.finalState[1] - radiusAt(result.lambda)));
+    // The two order rows keep comparing 4h with 2h and 2h with h.
     const measurements = [
       validationMeasurement("analyticalRadius", radialError, VALIDATION_TOLERANCES.analyticalInfallRelative),
       validationMeasurement("analyticalCoordinateTime", timeError, VALIDATION_TOLERANCES.analyticalInfallRelative),
       validationMeasurement(
         "convergenceOrderCoarse",
-        Math.log2(errors[0] / errors[1]),
+        Math.log2(errors[1] / errors[2]),
         VALIDATION_TOLERANCES.convergenceOrder,
         4
       ),
       validationMeasurement(
         "convergenceOrderFine",
-        Math.log2(errors[1] / errors[2]),
+        Math.log2(errors[2] / errors[3]),
         VALIDATION_TOLERANCES.convergenceOrder,
         4
       )
     ];
-    return geodesicBenchmarkResult(id, results, maxLambda, measurements);
+    return {
+      ...geodesicBenchmarkResult(id, results, maxLambda, measurements),
+      convergence: sizes.map((size, index) => ({ step: size, error: errors[index] }))
+    };
   }
 
   // Non-equatorial orbit around a rotating, charged hole: there is no closed
@@ -1529,7 +1610,10 @@
     zamoFrame,
     geodesicRightHandSide,
     rk4Step,
+    rk4Stages,
     integrateGeodesic,
+    integrateCoarser,
+    convergenceEstimate,
     computeLensingTable,
     escapeDeflection,
     nonzeroChristoffelAt,
