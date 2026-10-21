@@ -636,12 +636,9 @@
         continue;
       }
       // Thin the raw samples out to ~40 per stream instead of every RK4
-      // step, and reconstruct each kept sample's own affine time the same
-      // way showSimulation() builds `times` for the main trajectory (the
-      // solver stores the initial state, step 1, then every sampleEvery
-      // steps) -- needed here so updatePlungingRegion() can interpolate by
-      // elapsed lambda, not just by array index.
-      const { settings } = result;
+      // step, keeping each kept sample's own affine time from the solver's
+      // sampleLambdas -- needed here so updatePlungingRegion() can
+      // interpolate by elapsed lambda, not just by array index.
       const stride = Math.max(1, Math.floor(result.points.length / 40));
       const lambdas = [];
       const streamPositions = [];
@@ -655,7 +652,7 @@
         // which would otherwise poison the whole Points object's bounding
         // sphere.
         if (![r, theta, phi, uT].every(Number.isFinite) || r <= horizonOuter) continue;
-        lambdas.push(i === 0 ? 0 : (1 + (i - 1) * settings.sampleEvery) * settings.step);
+        lambdas.push(result.sampleLambdas[i]);
         streamPositions.push(new THREE.Vector3(r * Math.sin(theta) * Math.cos(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.sin(phi)));
         const localG = uT > 0 ? 1 / uT : 0;
         streamColors.push(P.blackbodyColor(baseTemperature * localG));
@@ -958,9 +955,7 @@
   function showSimulation(next) {
     simulation = next;
     points = next.result.points.slice();
-    const { settings } = next.result;
-    // The solver stores the initial state, step 1, then every sampleEvery steps.
-    times = points.map((_, i) => i === 0 ? 0 : (1 + (i - 1) * settings.sampleEvery) * settings.step);
+    times = next.result.sampleLambdas.slice();
     const final = next.result.finalState;
     if (next.result.stopReason !== "nonFinite" && final.every(Number.isFinite) && final[1] > 0 && next.result.lambda > times[times.length - 1] + 1e-9) {
       points.push(final); times.push(next.result.lambda);

@@ -1566,6 +1566,8 @@ code {
 
 .method-columns p,
 .method-initial-conditions p,
+.method-convergence p,
+.convergence-detail p,
 .validation-group > p,
 .validation-geodesic p,
 .limitations-list dd,
@@ -1580,7 +1582,8 @@ code {
   box-shadow: none;
 }
 
-.method-initial-conditions {
+.method-initial-conditions,
+.method-convergence {
   display: grid;
   grid-template-columns: minmax(180px, 0.55fr) minmax(0, 1fr);
   gap: 24px;
@@ -1593,6 +1596,67 @@ code {
 .method-initial-conditions .formula {
   grid-column: 2;
   margin-top: -8px;
+}
+
+.method-convergence .formula.method-formula {
+  margin-top: 0;
+  overflow-x: auto;
+}
+
+.convergence-detail p {
+  margin: 12px 0 0;
+  font-size: 0.86rem;
+}
+
+.convergence-plot {
+  margin: 16px 0 0;
+}
+
+.convergence-plot svg {
+  display: block;
+  width: 100%;
+  max-width: 440px;
+  height: auto;
+}
+
+.convergence-plot figcaption {
+  margin-top: 6px;
+  color: var(--muted);
+  font-size: 0.78rem;
+  overflow-wrap: anywhere;
+}
+
+.cp-grid {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.cp-axis-text,
+.cp-reference-label {
+  fill: var(--muted);
+  font-size: 11px;
+}
+
+.cp-series {
+  fill: none;
+  stroke: var(--accent-strong);
+  stroke-width: 2;
+}
+
+.cp-point {
+  fill: var(--accent-strong);
+  stroke: var(--surface);
+  stroke-width: 2;
+}
+
+.cp-hit {
+  fill: transparent;
+}
+
+.cp-reference {
+  stroke: var(--muted);
+  stroke-width: 1.5;
+  stroke-dasharray: 5 4;
 }
 
 .validation-status {
@@ -2067,6 +2131,7 @@ code {
   }
 
   .method-initial-conditions,
+  .method-convergence,
   .roadmap-list {
     grid-template-columns: minmax(0, 1fr);
   }
