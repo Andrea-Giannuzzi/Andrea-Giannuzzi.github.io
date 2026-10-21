@@ -143,6 +143,20 @@ test('Lensing deflection near the shadow edge is accumulated, not folded into (-
   }
 });
 
+test('A camera close to the hole still lenses: the default table starts at the shadow edge', () => {
+  // A static observer at r sees the Schwarzschild edge at
+  // sin(psi) = 3 sqrt(3) M sqrt(1 - 2M/r) / r: 66.7 degrees at r = 4, past
+  // the 60 degrees the table used to stop at.
+  for (const cameraRadius of [4, 38]) {
+    const edge = Math.asin(3 * Math.sqrt(3) * Math.sqrt(1 - 2 / cameraRadius) / cameraRadius) * 180 / Math.PI;
+    const { samples } = P.computeLensingTable(schwarzschild, { cameraRadius });
+    assert.ok(Math.abs(samples[0].angle - edge) < 1e-9, `r ${cameraRadius}: ${samples[0].angle} vs ${edge}`);
+    const escaped = samples.filter((sample) => sample.stopReason === 'escapedToLarge');
+    assert.ok(escaped.length >= samples.length - 1, `r ${cameraRadius}: ${escaped.length} of ${samples.length} escape`);
+    assert.ok(samples[samples.length - 1].angle >= 60 && samples[samples.length - 1].angle < 90);
+  }
+});
+
 test('Lensing far-field geodesics conserve invariants and converge at RK4 order', () => {
   const params = { M: 1, a: 0.3, q: 0 };
   const state = P.initialStateFromLocal(params, {

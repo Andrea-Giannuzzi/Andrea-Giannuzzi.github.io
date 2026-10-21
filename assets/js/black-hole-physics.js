@@ -849,18 +849,29 @@
   // where that condition holds); at closer cameras it correctly reports a
   // smaller deflection, because part of the bending a distant-source photon
   // would have accumulated already happened before it reached the camera.
+  //
+  // Without an explicit maxAngle the angles run from the shadow edge to 25
+  // degrees past it, and at least to 60: a camera close to the hole, whose
+  // shadow is wider than 60 degrees (66.7 at r = 4 in Schwarzschild), still
+  // gets stars to deflect. An explicit maxAngle samples from 0 instead.
   function computeLensingTable(params, options = {}) {
     const {
       cameraRadius,
-      samples = 28,
-      maxAngle = 60,
+      // All but the edge sample escape: at camera radius 38 the 20 rays cost
+      // about what 28 from the center did, 8 of them captured in the shadow.
+      samples = 20,
       escapeRadius = 450,
       maxLambda = 1200,
       step = 0.3,
       maxSteps = 4000
     } = options;
-    if (![cameraRadius, samples, maxAngle, escapeRadius, maxLambda, step, maxSteps].every(Number.isFinite)
-      || cameraRadius <= 0 || samples < 2 || maxAngle <= 0 || maxAngle >= 90) {
+    if (!Number.isFinite(cameraRadius) || cameraRadius <= 0) {
+      throw physicsError("invalidLensingRequest", "Invalid lensing table request.");
+    }
+    const { minAngle, maxAngle } = options.maxAngle === undefined
+      ? defaultLensingRange(params, cameraRadius) : { minAngle: 0, maxAngle: options.maxAngle };
+    if (![samples, maxAngle, escapeRadius, maxLambda, step, maxSteps].every(Number.isFinite)
+      || samples < 2 || maxAngle <= minAngle || maxAngle >= 90) {
       throw physicsError("invalidLensingRequest", "Invalid lensing table request.");
     }
     const settings = {
@@ -869,12 +880,12 @@
     };
     const samplesOut = [];
     for (let i = 0; i < samples; i += 1) {
-      // Geometric spacing concentrates samples near the shadow boundary,
-      // where deflection is large and varies rapidly; the outer samples
-      // (large angle, large impact parameter) need only a few points since
-      // deflection there is small and smooth.
+      // Geometric spacing concentrates samples at minAngle -- the shadow
+      // boundary by default -- where deflection is large and varies rapidly;
+      // the outer samples (large angle, large impact parameter) need only a
+      // few points since deflection there is small and smooth.
       const t = i / (samples - 1);
-      const angle = maxAngle * t * t;
+      const angle = minAngle + (maxAngle - minAngle) * t * t;
       let impactParameter = null;
       let deflection = null;
       let stopReason;
@@ -896,6 +907,28 @@
       samplesOut.push({ angle, impactParameter, deflection, stopReason });
     }
     return { cameraRadius, settings, samples: samplesOut };
+  }
+
+  // Angle from the direction of the hole at which an equatorial ZAMO camera
+  // sees the shadow edge on the +phi side, the side computeLensingTable
+  // samples; null without a shadow, 90 when the edge lies outside the
+  // hemisphere facing the hole.
+  function lensingShadowEdgeAngle(params, cameraRadius) {
+    const contour = shadowContour(params, Math.PI / 2, 2);
+    if (!contour) return null;
+    // At inclination pi/2, alpha = -xi, and the +phi side receives xi < 0.
+    const xi = -Math.max(...contour.points.map((point) => point.alpha));
+    const frame = zamoFrame(params, cameraRadius, Math.PI / 2);
+    // A photon launched at azimuth angle - 180 with unit local energy has
+    // L = -azimuthalScale sin(angle) and E = lapse + omega L; solve L/E = xi.
+    const sine = -xi * frame.lapse / (frame.azimuthalScale * (1 - frame.omega * xi));
+    return sine > 0 && sine < 1 ? Math.asin(sine) * 180 / Math.PI : 90;
+  }
+
+  function defaultLensingRange(params, cameraRadius) {
+    const edge = lensingShadowEdgeAngle(params, cameraRadius);
+    if (edge === null || edge >= 89) return { minAngle: 0, maxAngle: 60 };
+    return { minAngle: edge, maxAngle: Math.min(89, Math.max(60, edge + 25)) };
   }
 
   // Deflection in degrees of a lensing-table ray that escaped after a launch
