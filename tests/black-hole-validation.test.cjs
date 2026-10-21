@@ -60,7 +60,7 @@ function exactSchwarzschildDeflection(constants, cameraRadius, finalRadius, angl
 
 test('Every scientific-validation entry has Italian and English labels', () => {
   const report = P.runScientificValidation();
-  const ids = ['analyticalCases', 'familyCases', 'tensorCases', 'geodesicCases', 'lensingCases']
+  const ids = ['analyticalCases', 'familyCases', 'tensorCases', 'geodesicCases', 'lensingCases', 'shadowCases']
     .flatMap((group) => report[group].map((entry) => entry.id));
   for (const language of ['it', 'en']) {
     const copy = context.window.PORTFOLIO_CONTENT[language].blackHoleSimulator.validation;
@@ -72,6 +72,7 @@ test('Every scientific-validation entry has Italian and English labels', () => {
       }
     }
     assert.ok(copy.lensingTitle && copy.lensingNote, `${language}: lensing copy`);
+    assert.ok(copy.shadowTitle && copy.shadowNote, `${language}: shadow copy`);
     // Shown only when a benchmark throws, so the report above never lists it.
     assert.ok(copy.measurements.computationError, `${language}: measurements.computationError`);
   }
@@ -93,7 +94,7 @@ test('A check that throws fails on its own instead of aborting the validation ru
   ), broken);
   const report = broken.window.KerrNewmanPhysics.runScientificValidation();
   assert.equal(report.passed, false);
-  const failed = ['analyticalCases', 'familyCases', 'tensorCases', 'geodesicCases', 'lensingCases']
+  const failed = ['analyticalCases', 'familyCases', 'tensorCases', 'geodesicCases', 'lensingCases', 'shadowCases']
     .flatMap((group) => report[group].filter((entry) => !entry.passed).map((entry) => entry.id));
   // Arrays built inside the vm context have another realm's prototype, so compare copies.
   assert.deepEqual(Array.from(failed), ['kerrNewmanInclined', 'schwarzschildWeakFieldDeflection']);

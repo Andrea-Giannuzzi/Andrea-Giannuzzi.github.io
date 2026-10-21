@@ -1213,6 +1213,15 @@
     const schwarzschildProperties = () => geometryProperties(schwarzschild, "schwarzschild");
     const reissnerNordstrom = { M: 1, a: 0, q: 0.6 };
     const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
+    const analyticalMeasurement = (entry) => ({
+      ...validationMeasurement(
+        entry.id,
+        isolated(entry.computed, () => NaN),
+        VALIDATION_TOLERANCES.analyticalAbsolute,
+        entry.reference
+      ),
+      unit: entry.unit
+    });
     const analyticalCases = [
       {
         id: "schwarzschildHorizon",
@@ -1334,15 +1343,45 @@
         computed: () => circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum,
         unit: "M"
       }
-    ].map((entry) => ({
-      ...validationMeasurement(
-        entry.id,
-        isolated(entry.computed, () => NaN),
-        VALIDATION_TOLERANCES.analyticalAbsolute,
-        entry.reference
-      ),
-      unit: entry.unit
-    }));
+    ].map(analyticalMeasurement);
+
+    // Edges of the shadow contour drawn on the page, for a distant observer on
+    // the equator (theta_o = pi/2, where alpha = -xi), against closed forms
+    // that share no root finding with shadowContour.
+    const kerrShadow = { M: 1, a: 0.9, q: 0 };
+    // Bardeen's equatorial circular photon orbits r = 2M(1 + cos[(2/3) arccos(-+a/M)])
+    // and their impact parameter xi = -(r^3 - 3Mr^2 + a^2 r + a^2 M) / (a (r - M)).
+    const bardeenOrbit = (sign) => 2 * (1 + Math.cos(2 / 3 * Math.acos(sign * kerrShadow.a)));
+    const bardeenXi = (r) => -(r ** 3 - 3 * r ** 2 + kerrShadow.a ** 2 * (r + 1)) / (kerrShadow.a * (r - 1));
+    const edgeAlphas = (params) => shadowContour(params, Math.PI / 2).points.map((point) => point.alpha);
+    const shadowCases = [
+      {
+        id: "schwarzschildShadowRadius",
+        reference: 3 * Math.sqrt(3),
+        computed: () => Math.max(...edgeAlphas(schwarzschild)),
+        unit: "M"
+      },
+      {
+        // q^2 = 5/8 puts the photon sphere at r_p = 2.5M, where f(r_p) = 0.3
+        // and the shadow radius is r_p / sqrt(f(r_p)).
+        id: "reissnerNordstromShadowRadius",
+        reference: 2.5 / Math.sqrt(0.3),
+        computed: () => Math.max(...edgeAlphas({ M: 1, a: 0, q: Math.sqrt(5 / 8) })),
+        unit: "M"
+      },
+      {
+        id: "kerrShadowProgradeEdge",
+        reference: -bardeenXi(bardeenOrbit(-1)),
+        computed: () => Math.min(...edgeAlphas(kerrShadow)),
+        unit: "M"
+      },
+      {
+        id: "kerrShadowRetrogradeEdge",
+        reference: -bardeenXi(bardeenOrbit(1)),
+        computed: () => Math.max(...edgeAlphas(kerrShadow)),
+        unit: "M"
+      }
+    ].map(analyticalMeasurement);
 
     const familyCases = [
       { id: "schwarzschildFamily", q: 0, a: 0, reference: "schwarzschild" },
@@ -1441,7 +1480,8 @@
       && familyCases.every((entry) => entry.passed)
       && tensorCases.every((entry) => entry.passed)
       && geodesicCases.every((entry) => entry.passed)
-      && lensingCases.every((entry) => entry.passed);
+      && lensingCases.every((entry) => entry.passed)
+      && shadowCases.every((entry) => entry.passed);
     return {
       passed,
       tolerances: VALIDATION_TOLERANCES,
@@ -1451,7 +1491,8 @@
       tensorPoint,
       tensorCases,
       geodesicCases,
-      lensingCases
+      lensingCases,
+      shadowCases
     };
   }
 

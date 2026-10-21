@@ -702,13 +702,15 @@
     elements.validationStatus.className = `validation-status ${result.passed ? "passed" : "failed"}`;
     elements.validationStatus.innerHTML = `<span class="validation-badge ${result.passed ? "pass" : "fail"}">${result.passed ? copy.pass : copy.fail}</span><span>${result.passed ? copy.overallPass : copy.overallFail}</span>`;
 
-    const analyticalRows = result.analyticalCases.map((entry) => validationRow(
+    const analyticalRow = (entry) => validationRow(
       copy.benchmarks[entry.id],
       scientificValue(entry.reference, entry.unit),
       scientificValue(entry.computed, entry.unit),
       `${scientificValue(entry.error)}; ${copy.tolerance} ≤ ${scientificValue(entry.tolerance)}`,
       entry.passed
-    ));
+    );
+    const analyticalRows = result.analyticalCases.map(analyticalRow);
+    const shadowRows = result.shadowCases.map(analyticalRow);
     const familyRows = result.familyCases.map((entry) => validationRow(
       copy.benchmarks[entry.id],
       spacetimeDisplayName(entry.reference),
@@ -754,7 +756,8 @@
       <section class="validation-group"><h3>${copy.familyTitle}</h3>${validationTable(familyRows)}</section>
       <section class="validation-group"><h3>${copy.tensorTitle}</h3><p>${copy.tensorPoint}</p>${validationTable(tensorRows)}</section>
       <section class="validation-group"><h3>${copy.geodesicTitle}</h3>${geodesicGroups}</section>
-      <section class="validation-group"><h3>${copy.lensingTitle}</h3><p>${copy.lensingNote}</p>${validationTable(lensingRows)}</section>`;
+      <section class="validation-group"><h3>${copy.lensingTitle}</h3><p>${copy.lensingNote}</p>${validationTable(lensingRows)}</section>
+      <section class="validation-group"><h3>${copy.shadowTitle}</h3><p>${copy.shadowNote}</p>${validationTable(shadowRows)}</section>`;
     elements.validationResults.hidden = false;
   }
 
