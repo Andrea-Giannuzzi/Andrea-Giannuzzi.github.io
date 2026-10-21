@@ -20,6 +20,9 @@
   let validationResult = null;
   let validationError = null;
   let validationPromise = null;
+  // Step-doubling estimate of a computed trajectory: { simulation, estimate },
+  // shown only while that simulation is the one on the page.
+  let convergence = null;
   let shownShadowContour = null;
   let shadowAspect = 0.64;
 
@@ -81,6 +84,8 @@
       calculationLink: document.querySelector("a[href='#calculation-details']"),
       validationStatus: document.querySelector("[data-validation-status]"),
       validationResults: document.querySelector("[data-validation-results]"),
+      convergenceDetail: document.querySelector("[data-convergence-detail]"),
+      firstRk4Step: document.querySelector("[data-first-rk4-step]"),
       codeComparison: document.querySelector("[data-code-comparison]")
     };
     // The width/height attributes in the HTML set the plot's proportions;
@@ -334,6 +339,7 @@
       currentSpacetime = properties.spacetime;
       renderVisualization(lastSimulation, params, properties);
       renderShadow(params);
+      scheduleConvergence(simulation);
       renderNumericalChecks(lastSimulation);
       renderCalculationDetails(lastSimulation);
       elements.status.textContent = `${content().simulationReady} ${content().stopReasons[result.stopReason] || result.stopReason}`;
@@ -615,10 +621,89 @@
       [copy.energyChange, checks ? formatNumber(checks.relativeEnergyChange) : "—"],
       [copy.momentumChange, momentumValue],
       [copy.thetaDrift, checks ? formatNumber(checks.thetaDrift) : "—"],
-      [copy.stopReason, stop ? copy.stopReasons[stop] || stop : "—"]
+      [copy.stopReason, stop ? copy.stopReasons[stop] || stop : "—"],
+      ...convergenceRows(simulation)
     ];
     elements.checks.innerHTML = rows.map(([label, value]) =>
       `<div><dt>${label}</dt><dd>${value}</dd></div>`).join("");
+    renderConvergenceDetail(simulation);
+  }
+
+  // Repeats the trajectory at 2h and 4h in two idle callbacks, so no single
+  // task blocks the page for long (up to ~0.3 s in node on the longest
+  // preset), and keeps the estimate only while that trajectory is shown.
+  function scheduleConvergence(simulation) {
+    convergence = { simulation, estimate: null, failed: false };
+    const { params, initialState, result } = simulation;
+    const later = (task) => ("requestIdleCallback" in window
+      ? window.requestIdleCallback(task, { timeout: 1500 })
+      : window.setTimeout(task, 0));
+    const shown = () => lastSimulation === simulation;
+    const finish = (estimate) => {
+      convergence = { simulation, estimate, failed: !estimate };
+      renderNumericalChecks(lastSimulation);
+    };
+    later(() => {
+      if (!shown()) return;
+      let at2h;
+      try {
+        at2h = P.integrateCoarser(params, initialState, result, 2);
+      } catch (_) {
+        finish(null);
+        return;
+      }
+      later(() => {
+        if (!shown()) return;
+        try {
+          const at4h = P.integrateCoarser(params, initialState, result, 4);
+          finish(P.convergenceEstimate(params, initialState, result, [at2h, at4h]));
+        } catch (_) {
+          finish(null);
+        }
+      });
+    });
+  }
+
+  function convergenceFor(simulation) {
+    return simulation && convergence?.simulation === simulation ? convergence : null;
+  }
+
+  function convergenceRows(simulation) {
+    const copy = content().convergence;
+    const state = convergenceFor(simulation);
+    const labels = [copy.order, copy.error, copy.interval];
+    if (!simulation) return labels.map((label) => [label, "—"]);
+    if (!state || (!state.estimate && !state.failed)) return labels.map((label) => [label, copy.pending]);
+    const { estimate } = state;
+    if (!estimate) return labels.map((label) => [label, copy.unavailable]);
+    const order = estimate.status === "roundOff" ? "N/A" : formatNumber(estimate.order, 2);
+    const error = estimate.status === "reliable"
+      ? `≈ ${formatNumber(estimate.errorEstimate)} M`
+      : estimate.status === "roundOff"
+        ? `≲ ${formatNumber(estimate.errorEstimate)} M (${copy.upperBound})`
+        : "—";
+    const interval = `Δλ = ${formatNumber(estimate.comparedLambda)} (${estimate.samples} ${copy.points})`;
+    return [[labels[0], order], [labels[1], error], [labels[2], interval]];
+  }
+
+  function renderConvergenceDetail(simulation) {
+    if (!elements.convergenceDetail) return;
+    const copy = content().convergence;
+    const estimate = convergenceFor(simulation)?.estimate;
+    if (!estimate) {
+      elements.convergenceDetail.innerHTML = "";
+      return;
+    }
+    const note = estimate.reason ? `<p>${copy.reasons[estimate.reason]}</p>` : "";
+    // d1 belongs to step h, d2 to step 2h; the plot only means something when
+    // the estimate is reliable.
+    const plot = estimate.status === "reliable"
+      ? convergencePlot(
+        estimate.differences.map((value, index) => ({ step: estimate.steps[index], value })),
+        { title: copy.chartTitle, desc: copy.chartDesc, yLabel: copy.differenceAxis }
+      )
+      : "";
+    elements.convergenceDetail.innerHTML = note + plot;
   }
 
   function formatMatrix(matrix) {
@@ -649,6 +734,17 @@
       `${copy.calculationMaximumInterval} = ${result.settings.maxLambda}`,
       `${copy.calculationCompletedInterval} = ${formatNumber(result.lambda)}`,
       `${copy.calculationStoredPoints} = ${result.points.length}`
+    ].join("\n");
+    const stages = P.rk4Stages(params, initialState, result.settings.step);
+    const vectorText = (values) => `[${values.map((value) => formatNumber(value, 8)).join(", ")}]`;
+    elements.firstRk4Step.textContent = [
+      `h = ${result.settings.step}`,
+      `Y₀ = ${vectorText(initialState)}`,
+      `k₁ = F(Y₀) = ${vectorText(stages.k1)}`,
+      `k₂ = F(Y₀ + h k₁/2) = ${vectorText(stages.k2)}`,
+      `k₃ = F(Y₀ + h k₂/2) = ${vectorText(stages.k3)}`,
+      `k₄ = F(Y₀ + h k₃) = ${vectorText(stages.k4)}`,
+      `Y₁ = Y₀ + h/6 (k₁ + 2k₂ + 2k₃ + k₄) = ${vectorText(stages.next)}`
     ].join("\n");
     elements.christoffel.textContent = P.nonzeroChristoffelAt(
       params, initialState[1], initialState[2]
@@ -689,6 +785,56 @@
       <div role="columnheader">${copy.statusColumn}</div>
     </div>`;
     return `<div class="validation-table" role="table">${header}${rows.join("")}</div>`;
+  }
+
+  let convergencePlotCount = 0;
+
+  // Log-log plot of a quantity against the step, with the slope-4 line a
+  // fourth-order method follows, drawn through the finest point. The values
+  // are also in each point's tooltip and in the caption, so the plot is not
+  // the only way to read them.
+  function convergencePlot(points, { title, desc, yLabel }) {
+    const copy = content().convergence;
+    convergencePlotCount += 1;
+    const id = `convergence-plot-${convergencePlotCount}`;
+    const width = 320;
+    const height = 200;
+    const margin = { left: 52, right: 14, top: 12, bottom: 40 };
+    const xs = points.map((point) => Math.log10(point.step));
+    const ys = points.map((point) => Math.log10(point.value));
+    const finest = xs.indexOf(Math.min(...xs));
+    const reference = (x) => ys[finest] + 4 * (x - xs[finest]);
+    const xMin = Math.min(...xs) - 0.12;
+    const xMax = Math.max(...xs) + 0.12;
+    const yMin = Math.floor(Math.min(...ys, reference(xMin)));
+    const yMax = Math.ceil(Math.max(...ys, reference(xMax)));
+    const px = (x) => margin.left + (x - xMin) / (xMax - xMin) * (width - margin.left - margin.right);
+    const py = (y) => height - margin.bottom - (y - yMin) / (yMax - yMin) * (height - margin.top - margin.bottom);
+    const decades = [];
+    for (let y = yMin; y <= yMax; y += 1) decades.push(y);
+    const grid = decades.map((y) => `<line class="cp-grid" x1="${margin.left}" x2="${width - margin.right}" y1="${py(y)}" y2="${py(y)}"/>
+      <text class="cp-axis-text" x="${margin.left - 6}" y="${py(y) + 4}" text-anchor="end">10<tspan dy="-5" font-size="8">${y}</tspan></text>`).join("");
+    const ticks = points.map((point, index) => `<text class="cp-axis-text" x="${px(xs[index])}" y="${height - margin.bottom + 15}" text-anchor="middle">${formatNumber(point.step)}</text>`).join("");
+    const order = xs.map((x, index) => index).sort((a, b) => xs[a] - xs[b]);
+    const line = order.map((index, position) => `${position ? "L" : "M"}${px(xs[index])},${py(ys[index])}`).join(" ");
+    const marks = points.map((point, index) => `<g><title>h = ${formatNumber(point.step)}: ${formatNumber(point.value)} M</title>
+      <circle class="cp-hit" cx="${px(xs[index])}" cy="${py(ys[index])}" r="10"/>
+      <circle class="cp-point" cx="${px(xs[index])}" cy="${py(ys[index])}" r="4"/></g>`).join("");
+    const caption = points.map((point) => `h = ${formatNumber(point.step)}: ${formatNumber(point.value)} M`).join(" · ");
+    return `<figure class="convergence-plot">
+      <svg viewBox="0 0 ${width} ${height}" role="img" aria-labelledby="${id}-title ${id}-desc">
+        <title id="${id}-title">${title}</title>
+        <desc id="${id}-desc">${desc}</desc>
+        ${grid}${ticks}
+        <line class="cp-reference" x1="${px(xMin)}" y1="${py(reference(xMin))}" x2="${px(xMax)}" y2="${py(reference(xMax))}"/>
+        <text class="cp-reference-label" x="${px((xMin + xMax) / 2) + 6}" y="${py(reference((xMin + xMax) / 2)) + 18}">${copy.slope}</text>
+        <path class="cp-series" d="${line}"/>
+        ${marks}
+        <text class="cp-axis-text" x="${(margin.left + width - margin.right) / 2}" y="${height - 6}" text-anchor="middle">${copy.stepAxis}</text>
+        <text class="cp-axis-text" transform="translate(12 ${(margin.top + height - margin.bottom) / 2}) rotate(-90)" text-anchor="middle">${yLabel}</text>
+      </svg>
+      <figcaption>${title}: ${caption}</figcaption>
+    </figure>`;
   }
 
   // Language-independent part of the code comparison; the cell text is in
@@ -791,6 +937,10 @@
           <p class="validation-metadata">Δλ = ${formatValidationNumber(benchmark.maxLambda)} · h = ${formatValidationNumber(benchmark.step)} · ${intervalState}</p>
         </div>
         ${validationTable(rows)}
+        ${benchmark.convergence ? convergencePlot(
+          benchmark.convergence.map(({ step, error }) => ({ step, value: error })),
+          { title: content().convergence.validationChartTitle, desc: content().convergence.validationChartDesc, yLabel: content().convergence.errorAxis }
+        ) : ""}
       </article>`;
     }).join("");
     const lensingRows = result.lensingCases.map((entry) => validationRow(

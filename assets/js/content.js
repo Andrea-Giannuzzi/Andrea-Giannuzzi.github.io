@@ -292,6 +292,9 @@ window.PORTFOLIO_CONTENT = {
       covariantConstantsText: "Le quantità conservate sono naturalmente covarianti: \\(p_t=-E\\), \\(p_\\phi=L_z\\) e \\(p_\\mu=g_{\\mu\\nu}v^\\nu\\). L'inversa permette quindi di ricavare \\(v^\\mu=g^{\\mu\\nu}p_\\nu\\).",
       methodEvolutionTitle: "Sistema geodetico e RK4",
       methodEvolutionText: "La connessione genera il sistema del primo ordine per lo stato completo. Il simulatore web usa il metodo classico Runge–Kutta del quarto ordine a passo fisso: una scelta trasparente per questa implementazione nel browser, non un integratore di produzione ad alta precisione.",
+      methodConvergenceTitle: "Passo RK4, ordine di convergenza e stima dell'errore",
+      methodConvergenceText: "Ogni passo valuta quattro volte il secondo membro \\(F(Y)\\) del sistema geodetico. L'errore commesso in un singolo passo è \\(O(h^5)\\) e quello accumulato sull'intervallo è \\(O(h^4)\\): dimezzando \\(h\\) l'errore si riduce di circa 16 volte. Il simulatore lo verifica sulla traiettoria calcolata ripetendola con passi \\(2h\\) e \\(4h\\): confronta le posizioni agli stessi valori di \\(\\lambda\\) e ne ricava l'ordine osservato \\(p\\) e la stima di Richardson dell'errore rimasto al passo \\(h\\).",
+      methodConvergenceLimits: "Due casi vanno letti a parte. Sulle orbite circolari esatte il secondo membro resta costante lungo l'orbita e RK4 lo integra senza errore di troncamento: le differenze tra i passi sono solo arrotondamento, e la pagina ne mostra il limite superiore. Le orbite fotoniche circolari però sono instabili: lo scarto di arrotondamento dallo stato circolare cresce in modo esponenziale lungo l'orbita, e lì la stima può risultare non affidabile. Gli arresti a un margine dall'orizzonte cadono a valori di \\(\\lambda\\) diversi per passi diversi, quindi il confronto si ferma prima dell'arresto più precoce.",
       methodInitialTitle: "Condizioni iniziali da \\(E\\) e \\(L_z\\)",
       methodInitialText: "Dopo aver ottenuto \\(v^t\\) e \\(v^\\phi\\), la componente radiale segue dalla normalizzazione; Entrante/Uscente seleziona il segno di \\(v^r\\).",
       openCalculationDetails: "Consulta i dettagli di calcolo del simulatore web",
@@ -311,7 +314,7 @@ window.PORTFOLIO_CONTENT = {
         geodesicNotes: {
           photonCircular: "L'orbita fotonica di Schwarzschild a r = 3M è instabile; il test usa intenzionalmente un intervallo affine breve e controllato.",
           massiveCircular: "Orbita circolare timelike di Schwarzschild a r = 8M con le condizioni analitiche E e L_z.",
-          radialInfall: "Caduta da fermo all'infinito (E = 1, L_z = 0): r(τ) e t(τ) sono noti in forma chiusa, quindi il test misura l'errore di troncamento di RK4. L'ordine osservato confronta i passi 4h, 2h e h.",
+          radialInfall: "Caduta da fermo all'infinito (E = 1, L_z = 0): r(τ) e t(τ) sono noti in forma chiusa, quindi il test misura l'errore di troncamento di RK4. L'ordine osservato confronta i passi 4h, 2h e h; il grafico aggiunge il passo 8h.",
           kerrNewmanInclined: "Orbita massiva non equatoriale da r = 12M, latitudine 23°: non esiste una forma chiusa, ma E, L_z, la costante di Carter Q e la normalizzazione sono invarianti esatti."
         },
         lensingTitle: "Lensing gravitazionale",
@@ -578,6 +581,7 @@ window.PORTFOLIO_CONTENT = {
       inverseMetric: "Metrica inversa al punto iniziale",
       initialVector: "Quadrivelocità/quadrivettore iniziale",
       integrationParameters: "Parametri d'integrazione",
+      firstRk4Step: "Primo passo RK4 dallo stato iniziale",
       calculationCoordinates: "coordinate",
       calculationState: "stato",
       calculationIntegrator: "integratore",
@@ -605,6 +609,29 @@ window.PORTFOLIO_CONTENT = {
         nonRealRadialVelocity: "I valori selezionati di E e L_z non producono una velocità radiale reale in r₀.",
         insideOuterHorizon: "r₀ deve trovarsi all'esterno dell'orizzonte esterno nelle coordinate di Boyer–Lindquist.",
         unexpected: "Errore numerico inatteso. Controllare parametri e condizioni iniziali."
+      },
+      convergence: {
+        order: "Ordine osservato (passi h, 2h, 4h)",
+        error: "Errore della posizione a parità di λ",
+        upperBound: "limite superiore",
+        interval: "Intervallo confrontato",
+        points: "punti",
+        pending: "Calcolo in corso…",
+        unavailable: "Stima non disponibile",
+        chartTitle: "Differenza tra passi successivi",
+        chartDesc: "Differenza massima della posizione tra le corse a passo h e 2h e tra le corse a passo 2h e 4h, su scala logaritmica, con la retta di pendenza 4 attesa per RK4.",
+        validationChartTitle: "Errore al variare del passo",
+        validationChartDesc: "Errore del raggio finale rispetto alla soluzione esatta per i passi 0,08, 0,04, 0,02 e 0,01, su scala logaritmica, con la retta di pendenza 4 attesa per RK4.",
+        stepAxis: "passo h",
+        differenceAxis: "differenza (M)",
+        errorAxis: "errore (M)",
+        slope: "pendenza 4",
+        reasons: {
+          roundOff: "Le differenze tra i passi sono al livello dell'arrotondamento: l'errore di troncamento è trascurabile, come sulle orbite circolari esatte, e il valore mostrato è un limite superiore.",
+          orderOutOfRange: "L'ordine osservato è lontano da 4, quindi la stima di Richardson non è affidabile per questa traiettoria.",
+          stopMismatch: "Le corse con passi diversi si arrestano per motivi diversi: le traiettorie differiscono qualitativamente e la stima non è affidabile.",
+          tooShort: "La traiettoria è troppo breve per confrontare le corse su almeno due punti."
+        }
       },
       stopReasons: {
         coordinateAxis: "Arresto al limite delle coordinate polari: non è una cattura fisica",
@@ -1315,6 +1342,9 @@ window.PORTFOLIO_CONTENT = {
       covariantConstantsText: "The conserved quantities are naturally covariant: \\(p_t=-E\\), \\(p_\\phi=L_z\\), and \\(p_\\mu=g_{\\mu\\nu}v^\\nu\\). The inverse therefore gives \\(v^\\mu=g^{\\mu\\nu}p_\\nu\\).",
       methodEvolutionTitle: "Geodesic system and RK4",
       methodEvolutionText: "The connection generates the first-order system for the complete state. The web simulator uses classical fixed-step fourth-order Runge–Kutta: a transparent choice for this browser implementation, not a high-precision production integrator.",
+      methodConvergenceTitle: "RK4 step, order of convergence and error estimate",
+      methodConvergenceText: "Each step evaluates the right-hand side \\(F(Y)\\) of the geodesic system four times. The error made in a single step is \\(O(h^5)\\) and the error accumulated over the interval is \\(O(h^4)\\): halving \\(h\\) reduces the error by about 16 times. The simulator checks this on the computed trajectory by repeating it with steps \\(2h\\) and \\(4h\\): it compares the positions at the same values of \\(\\lambda\\) and derives the observed order \\(p\\) and Richardson's estimate of the error left at step \\(h\\).",
+      methodConvergenceLimits: "Two cases need a separate reading. On exact circular orbits the right-hand side stays constant along the orbit and RK4 integrates it with no truncation error: the differences between the steps are pure round-off, and the page shows their upper bound. Circular photon orbits, however, are unstable: the round-off departure from the circular state grows exponentially along the orbit, and there the estimate can turn out unreliable. Stops at a margin from the horizon fall at different values of \\(\\lambda\\) for different steps, so the comparison ends before the earliest stop.",
       methodInitialTitle: "Initial conditions from \\(E\\) and \\(L_z\\)",
       methodInitialText: "After obtaining \\(v^t\\) and \\(v^\\phi\\), the radial component follows from normalization; Ingoing/Outgoing selects the sign of \\(v^r\\).",
       openCalculationDetails: "See the web simulator calculation details",
@@ -1334,7 +1364,7 @@ window.PORTFOLIO_CONTENT = {
         geodesicNotes: {
           photonCircular: "The Schwarzschild photon orbit at r = 3M is unstable; the test deliberately uses a short, controlled affine interval.",
           massiveCircular: "Schwarzschild timelike circular orbit at r = 8M with analytical E and L_z initial conditions.",
-          radialInfall: "Fall from rest at infinity (E = 1, L_z = 0): r(τ) and t(τ) are known in closed form, so the test measures the RK4 truncation error. The observed order compares steps 4h, 2h and h.",
+          radialInfall: "Fall from rest at infinity (E = 1, L_z = 0): r(τ) and t(τ) are known in closed form, so the test measures the RK4 truncation error. The observed order compares steps 4h, 2h and h; the plot adds step 8h.",
           kerrNewmanInclined: "Non-equatorial massive orbit from r = 12M, latitude 23°: there is no closed form, but E, L_z, the Carter constant Q and the normalization are exact invariants."
         },
         lensingTitle: "Gravitational lensing",
@@ -1601,6 +1631,7 @@ window.PORTFOLIO_CONTENT = {
       inverseMetric: "Inverse metric at the initial point",
       initialVector: "Initial four-velocity/four-wavevector",
       integrationParameters: "Integration parameters",
+      firstRk4Step: "First RK4 step from the initial state",
       calculationCoordinates: "coordinates",
       calculationState: "state",
       calculationIntegrator: "integrator",
@@ -1628,6 +1659,29 @@ window.PORTFOLIO_CONTENT = {
         nonRealRadialVelocity: "The selected E and L_z do not produce a real radial velocity at r₀.",
         insideOuterHorizon: "r₀ must lie outside the outer horizon in Boyer–Lindquist coordinates.",
         unexpected: "Unexpected numerical error. Check the parameters and initial conditions."
+      },
+      convergence: {
+        order: "Observed order (steps h, 2h, 4h)",
+        error: "Position error at equal λ",
+        upperBound: "upper bound",
+        interval: "Compared interval",
+        points: "points",
+        pending: "Computing…",
+        unavailable: "Estimate unavailable",
+        chartTitle: "Difference between successive steps",
+        chartDesc: "Largest position difference between the runs at steps h and 2h and between the runs at steps 2h and 4h, on logarithmic scales, with the slope-4 line expected for RK4.",
+        validationChartTitle: "Error versus step",
+        validationChartDesc: "Error of the final radius against the exact solution for steps 0.08, 0.04, 0.02 and 0.01, on logarithmic scales, with the slope-4 line expected for RK4.",
+        stepAxis: "step h",
+        differenceAxis: "difference (M)",
+        errorAxis: "error (M)",
+        slope: "slope 4",
+        reasons: {
+          roundOff: "The differences between the steps are at round-off level: the truncation error is negligible, as on exact circular orbits, and the value shown is an upper bound.",
+          orderOutOfRange: "The observed order is far from 4, so Richardson's estimate is not reliable for this trajectory.",
+          stopMismatch: "The runs at different steps stop for different reasons: the trajectories differ qualitatively and the estimate is not reliable.",
+          tooShort: "The trajectory is too short to compare the runs at two or more points."
+        }
       },
       stopReasons: {
         coordinateAxis: "Stopped at the polar coordinate boundary, not a physical capture",
