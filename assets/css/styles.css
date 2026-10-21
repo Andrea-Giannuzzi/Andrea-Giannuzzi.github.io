@@ -1394,13 +1394,44 @@ code {
   background: var(--text);
 }
 
-.legend-swatch.outer-horizon {
+.legend-swatch.outer-horizon,
+.legend-swatch.shadow-edge {
   background: var(--accent-strong);
 }
 
-.legend-swatch.inner-horizon {
+.legend-swatch.inner-horizon,
+.legend-swatch.schwarzschild-shadow {
   border-top: 2px dashed var(--accent);
   background: transparent;
+}
+
+.shadow-controls {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 16px;
+  color: var(--muted);
+}
+
+.shadow-controls input[type="range"] {
+  flex: 1 1 220px;
+  max-width: 420px;
+  accent-color: var(--accent-strong);
+}
+
+.shadow-controls output {
+  min-width: 3.5ch;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+
+.shadow-panel .property-grid {
+  margin-top: 18px;
+}
+
+.shadow-panel .property-grid div:only-child {
+  grid-column: 1 / -1;
 }
 
 .legend-swatch.ergoregion {

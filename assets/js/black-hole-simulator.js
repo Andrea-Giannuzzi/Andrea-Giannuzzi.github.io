@@ -64,6 +64,11 @@
       metricLatex: document.querySelector("[data-metric-latex]"),
       canvas: document.querySelector("[data-geodesic-canvas]"),
       legend: document.querySelector("[data-plot-legend]"),
+      shadowCanvas: document.querySelector("[data-shadow-canvas]"),
+      shadowLegend: document.querySelector("[data-shadow-legend]"),
+      shadowReadout: document.querySelector("[data-shadow-readout]"),
+      inclination: document.querySelector("#bh-inclination"),
+      inclinationValue: document.querySelector("[data-inclination-value]"),
       checks: document.querySelector("[data-numerical-checks]"),
       initialMetric: document.querySelector("[data-initial-metric]"),
       inverseMetric: document.querySelector("[data-inverse-metric]"),
@@ -227,10 +232,12 @@
       renderProperties(params, physical, properties);
       renderMetric(params, properties.spacetime);
       renderVisualization(lastSimulation, params, properties);
+      renderShadow(params);
       renderNumericalChecks(lastSimulation);
       if (!quiet) elements.status.textContent = content().geometryLive || "";
     } catch (error) {
       currentParams = null;
+      renderShadow(null);
       elements.status.textContent = `${content().initialConditionError}: ${localizedError(error)}`;
     }
   }
@@ -321,6 +328,7 @@
       currentPhysical = physical;
       currentSpacetime = properties.spacetime;
       renderVisualization(lastSimulation, params, properties);
+      renderShadow(params);
       renderNumericalChecks(lastSimulation);
       renderCalculationDetails(lastSimulation);
       elements.status.textContent = `${content().simulationReady} ${content().stopReasons[result.stopReason] || result.stopReason}`;
@@ -437,6 +445,110 @@
     }
     elements.legend.innerHTML = items.map(([className, label]) =>
       `<span><i class="legend-swatch ${className}"></i>${label}</span>`).join("");
+  }
+
+  // Shadow contour alpha(beta) seen by a distant observer at the chosen
+  // inclination (P.shadowContour), in the palette of the geodesic plot.
+  function renderShadow(params) {
+    const canvas = elements.shadowCanvas;
+    if (!canvas) return;
+    const copy = content().shadowPanel || {};
+    const inclination = numberValue(elements.inclination);
+    elements.inclinationValue.textContent = `${inclination}°`;
+    let contour = null;
+    let failure = null;
+    if (params) {
+      try {
+        contour = P.shadowContour(params, inclination * Math.PI / 180, 256);
+      } catch (error) {
+        failure = localizedError(error);
+      }
+    }
+
+    const context = canvas.getContext("2d");
+    const { width, height } = canvas;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    const schwarzschildRadius = 3 * Math.sqrt(3);
+    const extent = 1.18 * Math.max(schwarzschildRadius,
+      ...(contour ? contour.points.flatMap((point) => [Math.abs(point.alpha), Math.abs(point.beta)]) : []));
+    const scale = Math.min(width, height) / 2 / extent;
+    context.clearRect(0, 0, width, height);
+    context.fillStyle = "#080b10";
+    context.fillRect(0, 0, width, height);
+    if (contour) {
+      context.beginPath();
+      contour.points.forEach(({ alpha, beta }, index) => {
+        const x = centerX + alpha * scale;
+        const y = centerY - beta * scale;
+        if (index === 0) context.moveTo(x, y);
+        else context.lineTo(x, y);
+      });
+      context.closePath();
+      context.fillStyle = "#000";
+      context.fill();
+      context.strokeStyle = "#d4b483";
+      context.lineWidth = 3;
+      context.stroke();
+    }
+    // The reference circle, axes and labels go on top, so they stay visible
+    // across the shadow.
+    context.setLineDash([7, 7]);
+    drawCircle(context, centerX, centerY, schwarzschildRadius * scale, {
+      strokeStyle: "rgba(155, 183, 212, 0.7)", lineWidth: 2
+    });
+    context.setLineDash([]);
+    context.strokeStyle = "rgba(155, 183, 212, 0.2)";
+    context.lineWidth = 1;
+    context.beginPath();
+    context.moveTo(0, centerY);
+    context.lineTo(width, centerY);
+    context.moveTo(centerX, 0);
+    context.lineTo(centerX, height);
+    context.stroke();
+    context.fillStyle = "rgba(232, 227, 216, 0.6)";
+    context.font = "26px sans-serif";
+    context.textAlign = "center";
+    context.textBaseline = "top";
+    // Labels every 2 M, kept clear of the canvas edges.
+    const maxTick = 2 * Math.floor(extent / 2.2);
+    for (let tick = -maxTick; tick <= maxTick; tick += 2) {
+      if (tick === 0) continue;
+      context.fillText(String(tick), centerX + tick * scale, centerY + 8);
+      context.fillText(String(tick), centerX - 26, centerY - tick * scale - 13);
+    }
+    context.textAlign = "right";
+    context.fillText("α / M", width - 14, centerY + 40);
+    context.textAlign = "left";
+    context.fillText("β / M", centerX + 12, 14);
+
+    const legend = [["schwarzschild-shadow", copy.schwarzschild]];
+    if (contour) legend.unshift(["shadow-edge", copy.edge]);
+    elements.shadowLegend.innerHTML = legend.map(([className, label]) =>
+      `<span><i class="legend-swatch ${className}"></i>${label}</span>`).join("");
+    if (!params) {
+      elements.shadowReadout.innerHTML = "";
+      return;
+    }
+    if (!contour) {
+      elements.shadowReadout.innerHTML = `<div><dd>${failure || copy.noShadow}</dd></div>`;
+      return;
+    }
+    // Round-off can leave the center shift of a symmetric shadow at ~1e-16.
+    const value = (number) => formatNumber(Math.abs(number) < 1e-9 ? 0 : number, 4);
+    const alphas = contour.points.map((point) => point.alpha);
+    const alphaMin = Math.min(...alphas);
+    const alphaMax = Math.max(...alphas);
+    const betaMax = Math.max(...contour.points.map((point) => point.beta));
+    const rows = [
+      [copy.horizontalRange, `[${value(alphaMin)}, ${value(alphaMax)}] M`],
+      [copy.height, `${value(2 * betaMax)} M`],
+      [copy.centerShift, `${value((alphaMin + alphaMax) / 2)} M`],
+      [copy.photonOrbits, contour.rpMin === contour.rpMax
+        ? `${value(contour.rpMin)} M` : `[${value(contour.rpMin)}, ${value(contour.rpMax)}] M`]
+    ];
+    elements.shadowReadout.innerHTML = rows.map(([label, text]) =>
+      `<div><dt>${label}</dt><dd>${text}</dd></div>`).join("");
   }
 
   function renderNumericalChecks(simulation) {
@@ -696,6 +808,7 @@
       markConfigurationCustom();
       markTrajectoryStale();
     });
+    elements.inclination.addEventListener("input", () => renderShadow(currentParams));
     elements.calculationLink?.addEventListener("click", () => {
       elements.calculationPanel.open = true;
     });
@@ -791,6 +904,7 @@
       renderProperties(currentParams, currentPhysical, properties);
       renderMetric(currentParams, properties.spacetime);
       renderVisualization(lastSimulation, currentParams, properties);
+      renderShadow(currentParams);
       renderNumericalChecks(lastSimulation);
       if (lastSimulation) {
         renderCalculationDetails(lastSimulation);

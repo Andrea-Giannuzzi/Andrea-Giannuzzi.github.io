@@ -392,7 +392,7 @@ window.PORTFOLIO_CONTENT = {
             meta: "JavaScript nel browser · MIT",
             integration: "RK4 classico a passo fisso; simboli di Christoffel da derivate analitiche della metrica",
             coordinates: "Boyer–Lindquist",
-            shadow: "Contorno dell'ombra α(β) dalle orbite fotoniche sferiche, nel modulo fisico ma non ancora nella pagina; tabella di lensing 1D equatoriale (fotone catturato o sfuggito)",
+            shadow: "Contorno dell'ombra α(β) dalle orbite fotoniche sferiche, disegnato nella pagina per un osservatore lontano; tabella di lensing 1D equatoriale (fotone catturato o sfuggito)",
             kerrNewman: "Metrica sì; particelle neutre"
           },
           einsteinpy: {
@@ -442,7 +442,7 @@ window.PORTFOLIO_CONTENT = {
           coordinatesTitle: "Coordinate e orizzonte",
           coordinatesText: "Questo simulatore usa soltanto Boyer–Lindquist, singolari all'orizzonte, e si arresta a un margine dall'orizzonte esterno. GYOTO, GRay2 e RAPTOR offrono coordinate di Kerr–Schild, regolari attraverso l'orizzonte.",
           shadowTitle: "Ombra e lensing",
-          shadowText: "geokerr, GYOTO e RAPTOR partono dal piano dell'immagine \\((\\alpha,\\beta)\\). Qui il contorno dell'ombra \\(\\alpha(\\beta)\\) visto da un osservatore lontano è calcolato dalle orbite fotoniche sferiche di Kerr–Newman, ma non è ancora disegnato nella pagina; la tabella di lensing è unidimensionale ed equatoriale: una deflessione per angolo, senza dipendenza dall'inclinazione e senza immagini multiple."
+          shadowText: "geokerr, GYOTO e RAPTOR partono dal piano dell'immagine \\((\\alpha,\\beta)\\). Qui il contorno dell'ombra \\(\\alpha(\\beta)\\) visto da un osservatore lontano è calcolato dalle orbite fotoniche sferiche di Kerr–Newman e disegnato sotto la visualizzazione geodetica, per l'inclinazione scelta, senza tracciare raggi; la tabella di lensing del 3D è unidimensionale ed equatoriale: una deflessione per angolo, senza dipendenza dall'inclinazione e senza immagini multiple."
         }
       },
       limitationsEyebrow: "Scelte del modello",
@@ -541,6 +541,19 @@ window.PORTFOLIO_CONTENT = {
       metricCoordinates: "Elemento di linea completo in coordinate di Boyer–Lindquist, con segnatura (−+++).",
       visualizationTitle: "Visualizzazione geodetica equatoriale — θ = π/2",
       visualizationNote: "Proiezione coordinata di Boyer–Lindquist x = r cosφ, y = r sinφ; non è un embedding euclideo dello spaziotempo curvo.",
+      shadowPanel: {
+        title: "Ombra vista da un osservatore lontano — α(β)",
+        note: "Coordinate celesti di Bardeen (α, β) sul piano dello schermo, in unità di M. Il bordo è formato dai fotoni che sfiorano le orbite fotoniche sferiche di Kerr–Newman: è calcolato dal modulo fisico, senza ray tracing.",
+        inclination: "Inclinazione dell'osservatore θₒ rispetto all'asse di rotazione",
+        canvasLabel: "Contorno dell'ombra α(β) sul piano dello schermo",
+        edge: "Bordo dell'ombra",
+        schwarzschild: "Schwarzschild, raggio 3√3 M",
+        horizontalRange: "Estensione orizzontale α",
+        height: "Altezza",
+        centerShift: "Spostamento orizzontale del centro",
+        photonOrbits: "Raggi delle orbite fotoniche sferiche rₚ",
+        noShadow: "Nessun contorno per questi parametri: lo spaziotempo non ha orizzonte, oppure è esattamente estremale con rotazione."
+      },
       trajectory: "Traiettoria",
       initialPoint: "Punto iniziale",
       outerEventHorizon: "Orizzonte esterno",
@@ -1395,7 +1408,7 @@ window.PORTFOLIO_CONTENT = {
             meta: "JavaScript in the browser · MIT",
             integration: "Classical fixed-step RK4; Christoffel symbols from analytic metric derivatives",
             coordinates: "Boyer–Lindquist",
-            shadow: "Shadow contour α(β) from spherical photon orbits, in the physics module but not yet on the page; 1D equatorial lensing table (photon captured or escaped)",
+            shadow: "Shadow contour α(β) from spherical photon orbits, drawn on the page for a distant observer; 1D equatorial lensing table (photon captured or escaped)",
             kerrNewman: "Metric yes; neutral particles"
           },
           einsteinpy: {
@@ -1445,7 +1458,7 @@ window.PORTFOLIO_CONTENT = {
           coordinatesTitle: "Coordinates and horizon",
           coordinatesText: "This simulator uses Boyer–Lindquist coordinates only, which are singular at the horizon, and stops at a margin from the outer horizon. GYOTO, GRay2 and RAPTOR offer Kerr–Schild coordinates, which are regular across the horizon.",
           shadowTitle: "Shadow and lensing",
-          shadowText: "geokerr, GYOTO and RAPTOR start from the image plane \\((\\alpha,\\beta)\\). Here the shadow contour \\(\\alpha(\\beta)\\) seen by a distant observer is computed from the Kerr–Newman spherical photon orbits but not yet drawn on the page; the lensing table is one-dimensional and equatorial: one deflection per angle, with no inclination dependence and no multiple images."
+          shadowText: "geokerr, GYOTO and RAPTOR start from the image plane \\((\\alpha,\\beta)\\). Here the shadow contour \\(\\alpha(\\beta)\\) seen by a distant observer is computed from the Kerr–Newman spherical photon orbits and drawn below the geodesic visualization, for the chosen inclination, without tracing rays; the 3D lensing table is one-dimensional and equatorial: one deflection per angle, with no inclination dependence and no multiple images."
         }
       },
       limitationsEyebrow: "Modelling choices",
@@ -1544,6 +1557,19 @@ window.PORTFOLIO_CONTENT = {
       metricCoordinates: "Complete line element in Boyer–Lindquist coordinates with signature (−+++).",
       visualizationTitle: "Equatorial geodesic visualization — θ = π/2",
       visualizationNote: "Boyer–Lindquist coordinate projection x = r cosφ, y = r sinφ; this is not a Euclidean embedding of curved spacetime.",
+      shadowPanel: {
+        title: "Shadow seen by a distant observer — α(β)",
+        note: "Bardeen celestial coordinates (α, β) on the screen plane, in units of M. The edge is made of photons that skim the Kerr–Newman spherical photon orbits: it is computed by the physics module, without ray tracing.",
+        inclination: "Observer inclination θₒ from the spin axis",
+        canvasLabel: "Shadow contour α(β) on the screen plane",
+        edge: "Shadow edge",
+        schwarzschild: "Schwarzschild, radius 3√3 M",
+        horizontalRange: "Horizontal extent α",
+        height: "Height",
+        centerShift: "Horizontal shift of the center",
+        photonOrbits: "Spherical photon orbit radii rₚ",
+        noShadow: "No contour for these parameters: the spacetime has no horizon, or it is exactly extremal with spin."
+      },
       trajectory: "Trajectory",
       initialPoint: "Initial point",
       outerEventHorizon: "Outer event horizon",
