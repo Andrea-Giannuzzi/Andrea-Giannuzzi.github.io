@@ -469,9 +469,62 @@ window.PORTFOLIO_CONTENT = {
             quantity: "Variazione massima della costante di Carter, scalata su max(1, |Q₀|)",
             conditions: "Stessa orbita inclinata in Kerr–Newman, passo 0,01, 2000 passi"
           },
-          ownStepRate: {
-            quantity: "Passi RK4 al secondo",
-            conditions: "Fotone in Kerr–Newman, 2000 passi da 0,01 dopo un'esecuzione di riscaldamento; ogni passo include i controlli degli invarianti; dipende da dispositivo e browser"
+          ownStepTime: {
+            quantity: "Tempo per passo RK4 di un raggio",
+            conditions: "Fotone in Kerr–Newman, 2000 passi da 0,01 dopo un'esecuzione di riscaldamento; ogni passo include i controlli degli invarianti; JavaScript nel browser, dipende da dispositivo e browser"
+          },
+          fantasyCircular: {
+            quantity: "Conservazione delle costanti del moto su orbite circolari",
+            value: "alla precisione di macchina",
+            conditions: "Integratore FANTASY usato da EinsteinPy; ISCO in Schwarzschild e orbita circolare in Kerr con a = 0,5; nessun valore numerico riportato"
+          },
+          fantasyOrder: {
+            quantity: "Ordine di convergenza dell'errore sulla costante di Carter",
+            conditions: "Schemi FANTASY di secondo e quarto ordine su un'orbita generica in Kerr con a = 0,5; pendenze confrontate con le rette Δt² e Δt⁴"
+          },
+          gyotoInvariants: {
+            quantity: "Conservazione delle costanti K₁ e K₂ (Walker–Penrose)",
+            conditions: "GYOTO 2.0, geodetiche nulle specifiche in Kerr, parametri d'integrazione predefiniti; la fonte non dice se l'errore è relativo o assoluto"
+          },
+          gyotoImageTime: {
+            quantity: "Tempo di calcolo di un'immagine",
+            conditions: "1000 × 1000 pixel, osservatore a r = 100 M, un core di un Intel Core 2 Duo a 2,4 GHz; versione del 2011"
+          },
+          geokerrDigits: {
+            quantity: "Cifre significative concordi tra le due inversioni (I_μ = I_u)",
+            conditions: "Verifica interna della soluzione semi-analitica \"in tutti i casi\"; nessuna integrazione a passi"
+          },
+          geokerrSpeedup: {
+            quantity: "Accelerazione rispetto all'integrazione numerica",
+            conditions: "Contro un integratore Bulirsch–Stoer degli autori; dipende soprattutto dall'applicazione; hardware non indicato"
+          },
+          gray2Order: {
+            quantity: "Ordine di convergenza osservato",
+            conditions: "Errore sulla normalizzazione u² per sei orbite fotoniche sferiche instabili in Kerr con soluzione analitica, Δλ da 1/4 a 1/1024; ordine letto dalle pendenze"
+          },
+          gray2StepCpu: {
+            quantity: "Tempo per passo RK4 di un raggio",
+            conditions: "Doppia precisione, coordinate di Kerr–Schild, CPU mobile Intel i7-3720QM (4 core); raggi da r = 1024M verso a = 0,999M"
+          },
+          gray2StepGpu: {
+            quantity: "Tempo per passo RK4 di un raggio",
+            conditions: "Stesso test in doppia precisione su una GPU NVIDIA Titan Black"
+          },
+          raptorOrder: {
+            quantity: "Ordine di convergenza degli errori su E, L e Q",
+            conditions: "Geodetica in Kerr con a = 0,998 e inclinazione 90°; norme L1 al tempo finale confrontate con rette di pendenza −2 e −4"
+          },
+          raptorCpu: {
+            quantity: "Geodetiche integrate al secondo",
+            conditions: "Trasporto radiativo in uno snapshot GRMHD (non solo geodetiche), 512 × 512 pixel, RK2, passo 0,03, precisione singola; 10 core Intel i7-6950X a 3,0 GHz"
+          },
+          raptorGpu: {
+            quantity: "Geodetiche integrate al secondo",
+            conditions: "Stesso test su una GPU GeForce GTX 1080"
+          },
+          raptorCrossCode: {
+            quantity: "Discrepanza relativa del flusso totale tra codici (verifica incrociata EHT)",
+            conditions: "Cinque test d'immagine standard; sette codici: BHOSS, GRTRANS, IPOLE, ODYSSEY, RAIKOU, RAPTOR e VRT2"
           }
         },
         differencesTitle: "Differenze principali",
@@ -1553,9 +1606,62 @@ window.PORTFOLIO_CONTENT = {
             quantity: "Maximum change of the Carter constant, scaled by max(1, |Q₀|)",
             conditions: "Same inclined Kerr–Newman orbit, step 0.01, 2000 steps"
           },
-          ownStepRate: {
-            quantity: "RK4 steps per second",
-            conditions: "Kerr–Newman photon, 2000 steps of 0.01 after a warm-up run; each step includes the invariant checks; depends on device and browser"
+          ownStepTime: {
+            quantity: "Time per RK4 step of one ray",
+            conditions: "Kerr–Newman photon, 2000 steps of 0.01 after a warm-up run; each step includes the invariant checks; JavaScript in the browser, depends on device and browser"
+          },
+          fantasyCircular: {
+            quantity: "Conservation of the constants of motion on circular orbits",
+            value: "to machine accuracy",
+            conditions: "FANTASY integrator used by EinsteinPy; Schwarzschild ISCO and a circular orbit in Kerr with a = 0.5; no numerical value given"
+          },
+          fantasyOrder: {
+            quantity: "Order of convergence of the Carter-constant error",
+            conditions: "Second- and fourth-order FANTASY schemes on a generic orbit in Kerr with a = 0.5; slopes compared with Δt² and Δt⁴ lines"
+          },
+          gyotoInvariants: {
+            quantity: "Conservation of the constants K₁ and K₂ (Walker–Penrose)",
+            conditions: "GYOTO 2.0, specific null geodesics in Kerr, default integration parameters; the source does not say whether the error is relative or absolute"
+          },
+          gyotoImageTime: {
+            quantity: "Computing time of one image",
+            conditions: "1000 × 1000 pixels, observer at r = 100 M, one core of a 2.4 GHz Intel Core 2 Duo; 2011 version"
+          },
+          geokerrDigits: {
+            quantity: "Significant digits agreeing between the two inversions (I_μ = I_u)",
+            conditions: "Internal check of the semi-analytic solution \"in all cases\"; no step-by-step integration"
+          },
+          geokerrSpeedup: {
+            quantity: "Speed-up over numerical integration",
+            conditions: "Against the authors' Bulirsch–Stoer integrator; depends mostly on the application; hardware not stated"
+          },
+          gray2Order: {
+            quantity: "Observed order of convergence",
+            conditions: "Error in the normalization u² for six unstable spherical photon orbits in Kerr with analytic solutions, Δλ from 1/4 to 1/1024; order read from the slopes"
+          },
+          gray2StepCpu: {
+            quantity: "Time per RK4 step of one ray",
+            conditions: "Double precision, Kerr–Schild coordinates, Intel i7-3720QM mobile CPU (4 cores); rays from r = 1024M toward a = 0.999M"
+          },
+          gray2StepGpu: {
+            quantity: "Time per RK4 step of one ray",
+            conditions: "Same double-precision test on an NVIDIA Titan Black GPU"
+          },
+          raptorOrder: {
+            quantity: "Order of convergence of the errors in E, L and Q",
+            conditions: "Geodesic in Kerr with a = 0.998 and inclination 90°; L1 norms at the final time compared with slope −2 and −4 lines"
+          },
+          raptorCpu: {
+            quantity: "Geodesics integrated per second",
+            conditions: "Radiative transfer through a GRMHD snapshot (not geodesics alone), 512 × 512 pixels, RK2, step 0.03, single precision; 10 cores of an Intel i7-6950X at 3.0 GHz"
+          },
+          raptorGpu: {
+            quantity: "Geodesics integrated per second",
+            conditions: "Same test on a GeForce GTX 1080 GPU"
+          },
+          raptorCrossCode: {
+            quantity: "Relative total-flux discrepancy among codes (EHT cross-code verification)",
+            conditions: "Five standardized image tests; seven codes: BHOSS, GRTRANS, IPOLE, ODYSSEY, RAIKOU, RAPTOR and VRT2"
           }
         },
         differencesTitle: "Main differences",

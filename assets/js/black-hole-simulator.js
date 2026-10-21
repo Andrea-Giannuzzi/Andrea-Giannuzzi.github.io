@@ -847,20 +847,51 @@
   const CODE_COMPARISON = Object.freeze([
     { id: "thisCode", source: { label: "black-hole-physics.js", url: "assets/js/black-hole-physics.js" }, metrics: [] },
     { id: "einsteinpy", name: "EinsteinPy", url: "https://github.com/einsteinpy/einsteinpy",
-      source: { label: "Zenodo DOI", url: "https://doi.org/10.5281/zenodo.2582387" }, metrics: [] },
+      source: { label: "Zenodo DOI", url: "https://doi.org/10.5281/zenodo.2582387" }, metrics: [
+        // EinsteinPy's Geodesic module runs the FANTASY integrator.
+        { id: "fantasyCircular", value: null,
+          source: { label: "Christian &amp; Chan 2021 (FANTASY)", url: "https://arxiv.org/abs/2010.02237", locator: "Sect. 5.1" } },
+        { id: "fantasyOrder", value: "2, 4",
+          source: { label: "Christian &amp; Chan 2021 (FANTASY)", url: "https://arxiv.org/abs/2010.02237", locator: "Sect. 5.3, Fig. 4" } }
+      ] },
     { id: "gyoto", name: "GYOTO", url: "https://github.com/gyoto/Gyoto",
-      source: { label: "Vincent et al. 2011", url: "https://arxiv.org/abs/1109.4769" }, metrics: [] },
+      source: { label: "Vincent et al. 2011", url: "https://arxiv.org/abs/1109.4769" }, metrics: [
+        { id: "gyotoInvariants", value: "10<sup>−5</sup>",
+          source: { label: "Aimar et al. 2023 (GYOTO 2.0)", url: "https://arxiv.org/abs/2311.18802", locator: "Sect. 3.1" } },
+        { id: "gyotoImageTime", value: "~15 min",
+          source: { label: "Vincent et al. 2011", url: "https://arxiv.org/abs/1109.4769", locator: "Appendix" } }
+      ] },
     { id: "geokerr", name: "geokerr", url: "https://faculty.washington.edu/agol/geokerr/index.html",
-      source: { label: "Dexter &amp; Agol 2009", url: "https://arxiv.org/abs/0903.0620" }, metrics: [] },
+      source: { label: "Dexter &amp; Agol 2009", url: "https://arxiv.org/abs/0903.0620" }, metrics: [
+        { id: "geokerrDigits", value: "≥ 14",
+          source: { label: "Dexter &amp; Agol 2009", url: "https://arxiv.org/abs/0903.0620", locator: "Sect. 5" } },
+        { id: "geokerrSpeedup", value: "5–500×",
+          source: { label: "Dexter &amp; Agol 2009", url: "https://arxiv.org/abs/0903.0620", locator: "Sect. 5" } }
+      ] },
     { id: "gray2", name: "GRay2", url: "https://github.com/luxsrc/gray",
-      source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062" }, metrics: [] },
+      source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062" }, metrics: [
+        { id: "gray2Order", value: "4",
+          source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062", locator: "Sect. 3.1, Figs. 4–5" } },
+        { id: "gray2StepCpu", value: "66.0 ns",
+          source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062", locator: "Sect. 4, Table 2" } },
+        { id: "gray2StepGpu", value: "1.15 ns",
+          source: { label: "Chan et al. 2018", url: "https://arxiv.org/abs/1706.07062", locator: "Sect. 4, Table 2" } }
+      ] },
     { id: "raptor", name: "RAPTOR", url: "https://github.com/tbronzwaer/raptor",
-      source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452" }, metrics: [] }
+      source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452" }, metrics: [
+        { id: "raptorOrder", value: "2 (Verlet), 4 (RK4)",
+          source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452", locator: "Sect. 4.1, Fig. 3" } },
+        { id: "raptorCpu", value: "10 707",
+          source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452", locator: "Sect. 4.2.2, App. B" } },
+        { id: "raptorGpu", value: "104 900",
+          source: { label: "Bronzwaer et al. 2018", url: "https://arxiv.org/abs/1801.10452", locator: "Sect. 4.2.2, App. B" } },
+        { id: "raptorCrossCode", value: "≲ 0.6%", source: { label: "Gold et al. 2020", url: "https://doi.org/10.3847/1538-4357/ab96c6", locator: "Sect. 3.2, Table 2" } }
+      ] }
   ]);
   // Read by the tests, which check every metric's source and copy.
   window.BlackHoleCodeComparison = CODE_COMPARISON;
 
-  // RK4 steps per second on this device for a fixed Kerr–Newman photon run
+  // RK4 steps per second on this device (shown as time per step) for a fixed Kerr–Newman photon run
   // of 2000 steps, after one warm-up run so the integrator is compiled. Each
   // step includes the invariant checks integrateGeodesic always makes.
   let stepRate = null;
@@ -890,7 +921,7 @@
       { id: "ownAnalyticError", value: measured(infall, "analyticalRadius"), where: "#scientific-validation" },
       { id: "ownEnergyDrift", value: measured(inclined, "relativeEnergy"), where: "#scientific-validation" },
       { id: "ownCarterDrift", value: measured(inclined, "carterConstant"), where: "#scientific-validation" },
-      { id: "ownStepRate", value: stepRate === null ? null : Math.round(stepRate), digits: 0 }
+      { id: "ownStepTime", value: stepRate === null ? null : 1e6 / stepRate, digits: 1, unit: "µs" }
     ];
   }
 
@@ -911,13 +942,15 @@
     const own = ownMetrics().map((metric) => row(
       copy.rows.thisCode.name,
       metric.id,
-      metric.value === undefined || metric.value === null ? copy.measuring : formatNumber(metric.value, metric.digits ?? 6),
+      metric.value === undefined || metric.value === null
+        ? copy.measuring
+        : `${formatNumber(metric.value, metric.digits ?? 6)}${metric.unit ? ` ${metric.unit}` : ""}`,
       metric.where ? `<a href="${metric.where}">${copy.measuredHere}</a>` : copy.measuredOnDevice
     ));
     const published = CODE_COMPARISON.flatMap((code) => code.metrics.map((metric) => row(
       code.name,
       metric.id,
-      metric.unit ? `${metric.value} ${metric.unit}` : metric.value,
+      copy.metrics[metric.id].value ?? metric.value,
       externalLink(metric.source.url, `${metric.source.label}, ${metric.source.locator}`)
     )));
     elements.codeMetrics.innerHTML = `<div class="validation-table" role="table" aria-label="${copy.metricsTitle}">${header}${own.join("")}${published.join("")}</div>`;
