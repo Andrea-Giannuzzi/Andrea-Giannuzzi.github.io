@@ -739,14 +739,16 @@
     const points = [initialState.slice()];
     let state = initialState.slice();
     let lambda = 0;
-    let stopReason = "maximumInterval";
+    const intervalSteps = Math.ceil(settings.maxLambda / settings.step);
+    // A step budget that runs out before maxLambda must not pass for a completed interval.
+    let stopReason = intervalSteps > settings.maxSteps ? "maximumSteps" : "maximumInterval";
     let maxNormalizationError = 0;
     let maxEnergyChange = 0;
     let maxAngularMomentumChange = 0;
     let maxThetaDrift = 0;
     let maxCarterChange = 0;
 
-    const stepCount = Math.min(settings.maxSteps, Math.ceil(settings.maxLambda / settings.step));
+    const stepCount = Math.min(settings.maxSteps, intervalSteps);
     for (let index = 0; index < stepCount; index += 1) {
       if (horizons.hasHorizon && state[1] <= horizons.outer + settings.horizonMargin) {
         stopReason = "outerHorizon";
@@ -770,7 +772,9 @@
           ? error.code : "invalidMetric";
         break;
       }
-      lambda += settings.step;
+      // Multiplied, not summed: lambda += step drifts by ~2e-13 over 1200 steps,
+      // as much as the RK4 error the validation measures.
+      lambda = (index + 1) * settings.step;
       if (!state.every(Number.isFinite) || state[1] <= 0) {
         stopReason = "nonFinite";
         break;
@@ -983,13 +987,6 @@
     });
   }
 
-  // Completed means the whole interval was integrated, not one step short of
-  // it; half a step absorbs the round-off accumulated by lambda += step.
-  function completedInterval(result, maxLambda) {
-    return result.stopReason === "maximumInterval"
-      && result.lambda >= maxLambda - 0.5 * result.settings.step;
-  }
-
   function invariantMeasurements(checks) {
     return [
       validationMeasurement("normalization", checks.normalizationError, VALIDATION_TOLERANCES.normalization),
@@ -1003,7 +1000,7 @@
   }
 
   function geodesicBenchmarkResult(id, results, maxLambda, measurements) {
-    const incomplete = results.find((result) => !completedInterval(result, maxLambda));
+    const incomplete = results.find((result) => result.stopReason !== "maximumInterval");
     const completed = !incomplete;
     return {
       id,
@@ -1079,12 +1076,7 @@
       radialError = Math.max(radialError, Math.abs(state[1] - radiusAt(tau)) / radiusAt(tau));
       timeError = Math.max(timeError, Math.abs(state[0] - timeAt(tau)) / timeAt(tau));
     });
-    // Compare at tau = n * h rather than at the accumulated lambda, whose
-    // summation round-off (~2e-13) is comparable to the error at h itself.
-    const errors = results.map((result) => {
-      const tau = Math.round(result.lambda / result.settings.step) * result.settings.step;
-      return Math.abs(result.finalState[1] - radiusAt(tau));
-    });
+    const errors = results.map((result) => Math.abs(result.finalState[1] - radiusAt(result.lambda)));
     const measurements = [
       validationMeasurement("analyticalRadius", radialError, VALIDATION_TOLERANCES.analyticalInfallRelative),
       validationMeasurement("analyticalCoordinateTime", timeError, VALIDATION_TOLERANCES.analyticalInfallRelative),

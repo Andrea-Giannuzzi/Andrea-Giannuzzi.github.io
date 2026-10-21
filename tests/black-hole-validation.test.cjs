@@ -162,3 +162,19 @@ test('Kerr-Newman equatorial infall matches the quadrature reference at RK4 orde
   assert.ok(errors[2] < 1e-8, `error at the production step ${errors[2]}`);
   for (const order of observedOrders(errors)) assert.ok(order > 3.5 && order < 4.5, `orders ${observedOrders(errors)}`);
 });
+
+test('The affine parameter is exactly n * step and a step budget that runs out is not a completed interval', () => {
+  const state = P.initialStateFromConstants(schwarzschild, {
+    radius: 20, energy: 1, angularMomentum: 0, massive: true, radialDirection: 'ingoing'
+  });
+  const settings = { step: 0.01, maxLambda: 12, maxSteps: 4000, sampleEvery: 4000 };
+  const full = P.integrateGeodesic(schwarzschild, state, settings);
+  assert.equal(full.stopReason, 'maximumInterval');
+  assert.equal(full.lambda, 1200 * 0.01);
+  const truncated = P.integrateGeodesic(schwarzschild, state, { ...settings, maxSteps: 500 });
+  assert.equal(truncated.stopReason, 'maximumSteps');
+  assert.equal(truncated.lambda, 500 * 0.01);
+  for (const language of ['it', 'en']) {
+    assert.ok(context.window.PORTFOLIO_CONTENT[language].blackHoleSimulator.stopReasons.maximumSteps, language);
+  }
+});

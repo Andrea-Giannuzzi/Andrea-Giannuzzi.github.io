@@ -589,6 +589,7 @@ window.PORTFOLIO_CONTENT = {
       stopReasons: {
         coordinateAxis: "Arresto al limite delle coordinate polari: non è una cattura fisica",
         maximumInterval: "Intervallo massimo raggiunto",
+        maximumSteps: "Numero massimo di passi raggiunto prima della fine dell'intervallo",
         outerHorizon: "Arresto a un margine di sicurezza (0,12 M) appena fuori dall'orizzonte: le coordinate di Boyer–Lindquist diventano singolari proprio lì, non è possibile integrare oltre in modo affidabile",
         singularState: "Avvicinamento allo stato singolare",
         invalidMetric: "Stato metrico singolare o non valido",
@@ -1591,6 +1592,7 @@ window.PORTFOLIO_CONTENT = {
       stopReasons: {
         coordinateAxis: "Stopped at the polar coordinate boundary, not a physical capture",
         maximumInterval: "Maximum integration interval reached",
+        maximumSteps: "Maximum number of steps reached before the end of the interval",
         outerHorizon: "Stopped at a safety margin (0.12 M) just outside the horizon: Boyer–Lindquist coordinates become singular exactly there, so integrating any further cannot be trusted",
         singularState: "Approach to the singular state",
         invalidMetric: "Singular or invalid metric state",
