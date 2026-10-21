@@ -385,7 +385,7 @@ window.PORTFOLIO_CONTENT = {
       codeComparison: {
         eyebrow: "Codici di riferimento",
         title: "Confronto con codici pubblici",
-        intro: "Il simulatore web è affiancato a codici pubblici affermati per geodetiche in Kerr e ray tracing relativistico. Il confronto riguarda scopo e metodo, non prestazioni o accuratezza: non è stata eseguita alcuna misura comparativa.",
+        intro: "Il simulatore web è affiancato a codici pubblici affermati per geodetiche in Kerr e ray tracing relativistico. La prima tabella confronta scopo e metodo; la seconda affianca i numeri di accuratezza e prestazioni pubblicati dagli autori di ciascun codice a quelli misurati in questa pagina. Non è stata eseguita nessuna misura comparativa sugli stessi problemi.",
         sourcesNote: "Dati tratti dai repository e dagli articoli originali, consultati il 18 ottobre 2026.",
         tableLabel: "Confronto tra codici",
         columns: {
@@ -438,6 +438,40 @@ window.PORTFOLIO_CONTENT = {
             coordinates: "Boyer–Lindquist e Kerr–Schild, anche in forma modificata",
             shadow: "Immagini con trasporto radiativo da una griglia della camera (α, β)",
             kerrNewman: "No: Kerr senza carica"
+          }
+        },
+        metricsTitle: "Numeri dichiarati e misurati",
+        metricsIntro: "Per gli altri codici sono riportati i valori pubblicati dai loro autori, copiati come sono scritti e con la posizione esatta nella fonte; per questo simulatore i valori sono misurati in questa pagina. Problemi di prova, passi, tolleranze e hardware sono diversi: i numeri dicono che cosa ciascun metodo ottiene nelle condizioni indicate, non stilano una classifica.",
+        metricsColumns: {
+          code: "Codice",
+          quantity: "Grandezza",
+          value: "Valore",
+          conditions: "Condizioni",
+          source: "Fonte"
+        },
+        measuring: "misura in corso…",
+        measuredHere: "misurato in questa pagina (validazione)",
+        measuredOnDevice: "misurato sul tuo dispositivo",
+        metrics: {
+          ownOrder: {
+            quantity: "Ordine di convergenza osservato",
+            conditions: "Caduta radiale in Schwarzschild, passi 0,02 e 0,01, contro la soluzione in forma chiusa"
+          },
+          ownAnalyticError: {
+            quantity: "Errore relativo massimo su r(τ)",
+            conditions: "Caduta radiale in Schwarzschild da r = 10M, passo 0,01, 1200 passi"
+          },
+          ownEnergyDrift: {
+            quantity: "Variazione relativa massima dell'energia E",
+            conditions: "Particella massiva su orbita inclinata in Kerr–Newman (a = 0,7, Q = 0,2), passo 0,01, 2000 passi"
+          },
+          ownCarterDrift: {
+            quantity: "Variazione massima della costante di Carter, scalata su max(1, |Q₀|)",
+            conditions: "Stessa orbita inclinata in Kerr–Newman, passo 0,01, 2000 passi"
+          },
+          ownStepRate: {
+            quantity: "Passi RK4 al secondo",
+            conditions: "Fotone in Kerr–Newman, 2000 passi da 0,01 dopo un'esecuzione di riscaldamento; ogni passo include i controlli degli invarianti; dipende da dispositivo e browser"
           }
         },
         differencesTitle: "Differenze principali",
@@ -1435,7 +1469,7 @@ window.PORTFOLIO_CONTENT = {
       codeComparison: {
         eyebrow: "Reference codes",
         title: "Comparison with Public Codes",
-        intro: "The web simulator is set beside established public codes for Kerr geodesics and relativistic ray tracing. The comparison concerns scope and method, not performance or accuracy: no comparative measurement has been made.",
+        intro: "The web simulator is set beside established public codes for Kerr geodesics and relativistic ray tracing. The first table compares scope and method; the second sets the accuracy and performance numbers published by each code's authors beside those measured on this page. No comparative measurement on the same problems has been made.",
         sourcesNote: "Data taken from the original repositories and papers, consulted on 18 October 2026.",
         tableLabel: "Code comparison",
         columns: {
@@ -1488,6 +1522,40 @@ window.PORTFOLIO_CONTENT = {
             coordinates: "Boyer–Lindquist and Kerr–Schild, including modified forms",
             shadow: "Radiative-transfer images from a camera grid (α, β)",
             kerrNewman: "No: uncharged Kerr"
+          }
+        },
+        metricsTitle: "Published and measured numbers",
+        metricsIntro: "For the other codes the table gives the values published by their authors, copied as written and with the exact place in the source; for this simulator the values are measured on this page. Test problems, steps, tolerances and hardware differ: the numbers say what each method achieves under the stated conditions, they do not make a ranking.",
+        metricsColumns: {
+          code: "Code",
+          quantity: "Quantity",
+          value: "Value",
+          conditions: "Conditions",
+          source: "Source"
+        },
+        measuring: "measuring…",
+        measuredHere: "measured on this page (validation)",
+        measuredOnDevice: "measured on your device",
+        metrics: {
+          ownOrder: {
+            quantity: "Observed order of convergence",
+            conditions: "Schwarzschild radial infall, steps 0.02 and 0.01, against the closed-form solution"
+          },
+          ownAnalyticError: {
+            quantity: "Maximum relative error in r(τ)",
+            conditions: "Schwarzschild radial infall from r = 10M, step 0.01, 1200 steps"
+          },
+          ownEnergyDrift: {
+            quantity: "Maximum relative change of the energy E",
+            conditions: "Massive particle on an inclined Kerr–Newman orbit (a = 0.7, Q = 0.2), step 0.01, 2000 steps"
+          },
+          ownCarterDrift: {
+            quantity: "Maximum change of the Carter constant, scaled by max(1, |Q₀|)",
+            conditions: "Same inclined Kerr–Newman orbit, step 0.01, 2000 steps"
+          },
+          ownStepRate: {
+            quantity: "RK4 steps per second",
+            conditions: "Kerr–Newman photon, 2000 steps of 0.01 after a warm-up run; each step includes the invariant checks; depends on device and browser"
           }
         },
         differencesTitle: "Main differences",
