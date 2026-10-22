@@ -1737,6 +1737,11 @@ code {
   .code-comparison .validation-row {
     grid-template-columns: minmax(0, 1.15fr) minmax(0, 1.3fr) minmax(0, 0.85fr) minmax(0, 1.3fr) minmax(0, 1.1fr);
   }
+
+  /* Same guard for the numbers table: quantity and conditions get the room. */
+  .code-comparison .code-metrics .validation-row {
+    grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.25fr) minmax(0, 0.75fr) minmax(0, 1.6fr) minmax(0, 1.1fr);
+  }
 }
 
 .validation-table-header {
