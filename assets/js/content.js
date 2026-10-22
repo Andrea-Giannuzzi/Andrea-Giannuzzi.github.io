@@ -726,6 +726,7 @@ window.PORTFOLIO_CONTENT = {
         maximumSteps: "Numero massimo di passi raggiunto prima della fine dell'intervallo",
         outerHorizon: "Arresto a un margine di sicurezza (0,12 M) appena fuori dall'orizzonte: le coordinate di Boyer–Lindquist diventano singolari proprio lì, non è possibile integrare oltre in modo affidabile",
         singularState: "Avvicinamento allo stato singolare",
+        escapedToLarge: "Fuga a grande distanza: raggiunto il raggio di fuga impostato",
         invalidMetric: "Stato metrico singolare o non valido",
         nonFinite: "Valori numerici non finiti"
       }
@@ -1863,6 +1864,7 @@ window.PORTFOLIO_CONTENT = {
         maximumSteps: "Maximum number of steps reached before the end of the interval",
         outerHorizon: "Stopped at a safety margin (0.12 M) just outside the horizon: Boyer–Lindquist coordinates become singular exactly there, so integrating any further cannot be trusted",
         singularState: "Approach to the singular state",
+        escapedToLarge: "Escaped to large distance: the set escape radius was reached",
         invalidMetric: "Singular or invalid metric state",
         nonFinite: "Non-finite numerical values"
       }
