@@ -927,7 +927,17 @@
   // Without an explicit maxAngle the angles run from the shadow edge to 25
   // degrees past it, and at least to 60: a camera close to the hole, whose
   // shadow is wider than 60 degrees (66.7 at r = 4 in Schwarzschild), still
-  // gets stars to deflect. An explicit maxAngle samples from 0 instead.
+  // gets stars to deflect. Eight more samples then carry it on to 180 degrees,
+  // the ray straight away from the hole, so the 3D view deflects every star
+  // without a jump at maxAngle: the deflection there is still -5.6 degrees
+  // (Schwarzschild, camera 38), -47.5 at camera 6, and falls smoothly to 0 at
+  // 180 (+0.04 for Kerr a = 0.9, frame dragging). Past 90 the traced ray
+  // leaves outward: the photon received there never came closer than the
+  // camera. They are traced like the others rather than fitted to a weak-field
+  // law, which the finite camera radius rules out (above); densest at
+  // maxAngle, they keep the linear interpolation within 0.03 degrees of the
+  // traced curve at camera 38 and 0.35 at camera 4, for ~40% more time per
+  // table. An explicit maxAngle samples from 0 to it, with no tail.
   function computeLensingTable(params, options = {}) {
     const {
       cameraRadius,
@@ -952,14 +962,23 @@
       step, maxLambda, maxSteps, sampleEvery: maxSteps, escapeRadius,
       guardCoordinates: true, horizonMargin: NUMERICS.horizonMargin, singularityRadius: NUMERICS.singularityRadius
     };
-    const samplesOut = [];
+    // Geometric spacing concentrates samples at minAngle -- the shadow
+    // boundary by default -- where deflection is large and varies rapidly;
+    // the outer samples (large angle, large impact parameter) need only a
+    // few points since deflection there is small and smooth.
+    const angles = [];
     for (let i = 0; i < samples; i += 1) {
-      // Geometric spacing concentrates samples at minAngle -- the shadow
-      // boundary by default -- where deflection is large and varies rapidly;
-      // the outer samples (large angle, large impact parameter) need only a
-      // few points since deflection there is small and smooth.
       const t = i / (samples - 1);
-      const angle = minAngle + (maxAngle - minAngle) * t * t;
+      angles.push(minAngle + (maxAngle - minAngle) * t * t);
+    }
+    if (options.maxAngle === undefined) {
+      for (let k = 1; k <= 8; k += 1) {
+        const t = k / 8;
+        angles.push(maxAngle + (180 - maxAngle) * t * t);
+      }
+    }
+    const samplesOut = [];
+    for (const angle of angles) {
       let impactParameter = null;
       let deflection = null;
       let stopReason;
