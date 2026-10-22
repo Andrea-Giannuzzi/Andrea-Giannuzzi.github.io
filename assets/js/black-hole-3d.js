@@ -5,6 +5,7 @@
   "use strict";
   const P = window.KerrNewmanPhysics;
   const S = window.BlackHoleSimulation;
+  const C = window.BlackHole3DCore;
   const $ = (selector) => document.querySelector(selector);
   const form = $("[data-3d-form]");
   const field = (name) => form.elements.namedItem(name);
@@ -66,14 +67,7 @@
 
   function setMessage(key) {
     messageKey = key;
-    let message = text(key);
-    if (simulation && ["running", "imported", "end", "motionReduced"].includes(key)) {
-      message += ` ${copy().stopReasons[simulation.result.stopReason]}`;
-    }
-    if (simulation && !simulation.properties.hasHorizon && key !== "webglError") {
-      message += ` ${copy().overExtremalWarning}`;
-    }
-    $("#scene-status").textContent = message;
+    $("#scene-status").textContent = C.statusMessage(copy(), key, simulation);
   }
   function updateLabels() {
     const c = copy();
@@ -638,49 +632,17 @@
       // Thin the raw samples out to ~40 per stream instead of every RK4
       // step, keeping each kept sample's own affine time from the solver's
       // sampleLambdas -- needed here so updatePlungingRegion() can
-      // interpolate by elapsed lambda, not just by array index.
+      // interpolate by elapsed lambda, not just by array index. The stride
+      // rarely lands on the last state, the closest approach to the horizon,
+      // so trajectorySamples appends it, as for the user's own trajectory.
       const stride = Math.max(1, Math.floor(result.points.length / 40));
-      const lambdas = [];
-      const streamPositions = [];
-      const streamColors = [];
-      for (let i = 0; i < result.points.length; i += stride) {
-        const state = result.points[i];
-        const [, r, theta, phi, uT] = state;
-        // A geodesic can end on (or pass through, before the guard catches
-        // it) a non-finite or sub-horizon state -- skip any such sample
-        // rather than uploading a NaN/inf vertex into the render buffer,
-        // which would otherwise poison the whole Points object's bounding
-        // sphere.
-        if (![r, theta, phi, uT].every(Number.isFinite) || r <= horizonOuter) continue;
-        lambdas.push(result.sampleLambdas[i]);
-        streamPositions.push(new THREE.Vector3(r * Math.sin(theta) * Math.cos(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.sin(phi)));
-        const localG = uT > 0 ? 1 / uT : 0;
-        streamColors.push(P.blackbodyColor(baseTemperature * localG));
-      }
-      // The fixed stride above walks the array in whole steps and so does
-      // not generally land on the LAST index -- for a stopReason of
-      // "outerHorizon" that last, un-sampled point is exactly the closest
-      // approach to the horizon, the one point this fall exists to show.
-      // Verified numerically (node) this was a real, visible gap, not a
-      // cosmetic rounding difference: for Schwarzschild the last strided
-      // sample stopped at r=3.66 while the true stop was r=2.13 (76% of the
-      // horizon radius short), shrinking toward negligible only for very
-      // high spin, where far fewer total steps happen to leave less
-      // remainder behind. Same fix showSimulation() already uses for the
-      // user's own trajectory: append the true final state explicitly.
-      const finalState = result.finalState;
-      if (result.stopReason !== "nonFinite" && finalState.every(Number.isFinite) && finalState[1] > horizonOuter
-        && result.lambda > (lambdas.length ? lambdas[lambdas.length - 1] : -1) + 1e-9) {
-        const [, r, theta, phi, uT] = finalState;
-        lambdas.push(result.lambda);
-        streamPositions.push(new THREE.Vector3(r * Math.sin(theta) * Math.cos(phi), r * Math.cos(theta), r * Math.sin(theta) * Math.sin(phi)));
-        const localG = uT > 0 ? 1 / uT : 0;
-        streamColors.push(P.blackbodyColor(baseTemperature * localG));
-      }
+      const { states, lambdas } = C.trajectorySamples(result, { stride, minRadius: horizonOuter });
       // Need at least two samples to interpolate between; a stream reduced
       // to a single valid sample (an extremely short-lived near-extremal
       // fall) cannot be animated and is dropped.
       if (lambdas.length < 2) continue;
+      const streamPositions = states.map((state) => new THREE.Vector3(...C.scenePosition(state)));
+      const streamColors = states.map((state) => P.blackbodyColor(baseTemperature * (state[4] > 0 ? 1 / state[4] : 0)));
       plungingStreams.push({ lambdas, positions: streamPositions, colors: streamColors, lambdaEnd: lambdas[lambdas.length - 1] });
     }
     if (plungingStreams.length === 0) return;
@@ -713,11 +675,7 @@
         const phase = generation * (lambdaEnd / PLUNGE_PARTICLES_PER_STREAM);
         let localLambda = (diskClock * PLUNGE_SPEED_SCALE + phase) % lambdaEnd;
         if (localLambda < 0) localLambda += lambdaEnd;
-        let index = 0;
-        while (index < lambdas.length - 2 && lambdas[index + 1] <= localLambda) index += 1;
-        const nextIndex = Math.min(index + 1, lambdas.length - 1);
-        const interval = lambdas[nextIndex] - lambdas[index];
-        const fraction = interval > 0 ? Math.min(1, Math.max(0, (localLambda - lambdas[index]) / interval)) : 0;
+        const { index, nextIndex, fraction } = C.sampleCursor(lambdas, localLambda);
         const p0 = streamPositions[index], p1 = streamPositions[nextIndex];
         const c0 = streamColors[index], c1 = streamColors[nextIndex];
         const base = cursor * 3;
@@ -753,61 +711,12 @@
     }
   }
 
-  function angularDeflectionFor(angleDegrees) {
-    const escaped = lensingTable?.samples.filter((sample) => sample.deflection !== null) ?? [];
-    if (escaped.length < 2 || angleDegrees <= escaped[0].angle) return 0;
-    if (angleDegrees >= escaped[escaped.length - 1].angle) return escaped[escaped.length - 1].deflection;
-    let lo = escaped[0];
-    let hi = escaped[escaped.length - 1];
-    for (let i = 1; i < escaped.length; i += 1) {
-      if (escaped[i].angle >= angleDegrees) { hi = escaped[i]; lo = escaped[i - 1]; break; }
-    }
-    const t = (angleDegrees - lo.angle) / (hi.angle - lo.angle);
-    return lo.deflection + t * (hi.deflection - lo.deflection);
-  }
-
-  const toStarDirection = new THREE.Vector3();
-  const toBlackHoleDirection = new THREE.Vector3();
-  const perpDirection = new THREE.Vector3();
-  const newStarDirection = new THREE.Vector3();
   // Displaces each star's rendered position by the lensing table's
-  // deflection at its own true angular offset from the black hole, as a
-  // first-order approximation of the true (harder to invert) apparent
-  // position -- see the "Deflection is measured..." note on
-  // P.computeLensingTable for why this is an approximation, not exact
-  // multiple-imaging near the photon sphere.
+  // deflection at its own true angular offset from the black hole, a
+  // first-order approximation described on C.lensStarField.
   function applyLensing() {
     if (!stars || !starOriginalPositions) return;
-    const positionsAttribute = stars.geometry.attributes.position.array;
-    if (!lensingTable) {
-      positionsAttribute.set(starOriginalPositions);
-      stars.geometry.attributes.position.needsUpdate = true;
-      return;
-    }
-    toBlackHoleDirection.copy(controls.target).sub(camera.position).normalize();
-    const maxAngle = lensingTable.samples[lensingTable.samples.length - 1].angle;
-    for (let i = 0; i < starOriginalPositions.length; i += 3) {
-      toStarDirection.set(starOriginalPositions[i], starOriginalPositions[i + 1], starOriginalPositions[i + 2])
-        .sub(camera.position);
-      const starDistance = toStarDirection.length() || 1;
-      toStarDirection.divideScalar(starDistance);
-      const cosAngle = Math.min(1, Math.max(-1, toStarDirection.dot(toBlackHoleDirection)));
-      const angleDeg = Math.acos(cosAngle) * 180 / Math.PI;
-      const deflection = angleDeg > 0 && angleDeg <= maxAngle ? angularDeflectionFor(angleDeg) : 0;
-      if (!deflection) {
-        positionsAttribute[i] = starOriginalPositions[i];
-        positionsAttribute[i + 1] = starOriginalPositions[i + 1];
-        positionsAttribute[i + 2] = starOriginalPositions[i + 2];
-        continue;
-      }
-      const correctedRad = Math.max(0.01, angleDeg - deflection) * Math.PI / 180;
-      perpDirection.copy(toStarDirection).addScaledVector(toBlackHoleDirection, -cosAngle).normalize();
-      newStarDirection.copy(toBlackHoleDirection).multiplyScalar(Math.cos(correctedRad))
-        .addScaledVector(perpDirection, Math.sin(correctedRad));
-      positionsAttribute[i] = camera.position.x + newStarDirection.x * starDistance;
-      positionsAttribute[i + 1] = camera.position.y + newStarDirection.y * starDistance;
-      positionsAttribute[i + 2] = camera.position.z + newStarDirection.z * starDistance;
-    }
+    C.lensStarField(starOriginalPositions, stars.geometry.attributes.position.array, camera.position, controls.target, lensingTable);
     stars.geometry.attributes.position.needsUpdate = true;
   }
 
@@ -954,13 +863,8 @@
   }
   function showSimulation(next) {
     simulation = next;
-    points = next.result.points.slice();
-    times = next.result.sampleLambdas.slice();
-    const final = next.result.finalState;
-    if (next.result.stopReason !== "nonFinite" && final.every(Number.isFinite) && final[1] > 0 && next.result.lambda > times[times.length - 1] + 1e-9) {
-      points.push(final); times.push(next.result.lambda);
-    }
-    positions = points.map((state) => new THREE.Vector3(state[1] * Math.sin(state[2]) * Math.cos(state[3]), state[1] * Math.cos(state[2]), state[1] * Math.sin(state[2]) * Math.sin(state[3])));
+    ({ states: points, lambdas: times } = C.trajectorySamples(next.result));
+    positions = points.map((state) => new THREE.Vector3(...C.scenePosition(state)));
     // g = 1/u^t (state[4]) is the same local redshift factor already used
     // to color the disk/plunging region, here applied to the test-particle
     // itself; t (state[0]) is the Boyer-Lindquist coordinate time the
@@ -1029,10 +933,9 @@
   const particleShade = new THREE.Color();
   function updatePlayback() {
     if (!simulation) return;
-    while (sampleIndex < times.length - 2 && times[sampleIndex + 1] <= affineTime) sampleIndex++;
-    const nextIndex = Math.min(sampleIndex + 1, positions.length - 1);
-    const interval = times[nextIndex] - times[sampleIndex];
-    const fraction = interval > 0 ? Math.min(1, Math.max(0, (affineTime - times[sampleIndex]) / interval)) : 0;
+    const cursor = C.sampleCursor(times, affineTime, sampleIndex);
+    sampleIndex = cursor.index;
+    const { nextIndex, fraction } = cursor;
     particle.position.copy(positions[sampleIndex]).lerp(positions[nextIndex], fraction);
     particleHalo.position.copy(particle.position);
     // Same redshift g = 1/u^t used for the trajectory line's own vertex
