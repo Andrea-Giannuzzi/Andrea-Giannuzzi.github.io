@@ -349,8 +349,8 @@
 
   function buildDisk(params) {
     // ISCO anchors the inner edge physically. Kerr-Newman (spin and charge
-    // both nonzero) has no closed-form ISCO in this project (see
-    // P.iscoRadius); a documented fallback uses the spin-only Kerr value
+    // both nonzero) and an over-extremal Reissner-Nordstrom have no ISCO in
+    // this project (see P.iscoRadius); a documented fallback uses the spin-only Kerr value
     // (charge dropped) for placement, while rotation/redshift/temperature
     // still use the real charged params, since keplerianAngularVelocity and
     // diskRedshiftFactor are derived directly from the metric and stay valid
@@ -619,7 +619,8 @@
         // A longer window (was maxLambda:100) is needed to actually reach
         // the horizon from this much closer seed -- verified numerically
         // (node) across a*=0..0.99 (the full range presets and custom
-        // launches can reach): worst case (Schwarzschild) needs
+        // launches can reach) and Reissner-Nordstrom q*=0.3..0.999 (at most
+        // lambda~350): worst case (Schwarzschild) needs
         // lambda~360, all cases reach the horizon margin within 400. The
         // coarser step (was 0.01) is a deliberate cost/precision trade-off
         // specific to this illustrative background element -- it is
