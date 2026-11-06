@@ -192,9 +192,13 @@ test('Stars move to their true angle minus the deflection, at the same distance 
 });
 
 test('The status line adds the translated stop reason and the over-extremal warning where they belong', () => {
-  // integrateGeodesic's stop reasons for a run of the page; escapedToLarge needs an
-  // escapeRadius, which only the lensing table sets.
-  const reasons = ['coordinateAxis', 'maximumInterval', 'maximumSteps', 'outerHorizon', 'singularState', 'invalidMetric', 'nonFinite'];
+  // Every stop reason integrateGeodesic can return, read from its source: the
+  // string literals there are exactly those (a thrown code is kept only when
+  // listed, otherwise it becomes invalidMetric), so a new reason without IT/EN
+  // copy fails here. escapedToLarge needs an escapeRadius, which only the
+  // lensing table sets, but its copy must still exist.
+  const reasons = [...new Set([...P.integrateGeodesic.toString().matchAll(/"(\w+)"/g)].map(([, reason]) => reason))];
+  assert.ok(reasons.length >= 8 && reasons.includes('escapedToLarge'), `stop reasons found: ${reasons}`);
   for (const language of ['it', 'en']) {
     const copy = copyFor(language);
     for (const stopReason of reasons) {
