@@ -177,9 +177,9 @@
   // disk geometry in particular) can place features exactly rather than by
   // display-string convention. Schwarzschild and Kerr use their standard
   // closed forms (Kerr via the Bardeen-Press-Teukolsky z1/z2 construction).
-  // Reissner-Nordstrom exposes only the photon orbit (its ISCO has no simple
-  // closed form and is not implemented here). Kerr-Newman (both spin and
-  // charge nonzero) has no closed form in this module: both return null.
+  // Reissner-Nordstrom has one too, below, up to the extremal charge; past
+  // it, with no horizon, its ISCO is not implemented. Kerr-Newman (both
+  // spin and charge nonzero) has no closed form in this module: both null.
   function iscoRadius(params, sense = "prograde", type = detectSpacetime(params)) {
     if (type === "schwarzschild") return 6;
     if (type === "kerr") {
@@ -189,6 +189,20 @@
       const z2 = Math.sqrt(3 * spin * spin + z1 * z1);
       const radical = Math.sqrt((3 - z1) * (3 + z1 + 2 * z2));
       return sense === "retrograde" ? 3 + z2 + radical : 3 + z2 - radical;
+    }
+    if (type === "reissnerNordstrom") {
+      // Where the circular-orbit L_z is minimal: the root of
+      // r^3 - 6r^2 + 9q^2 r - 4q^4 = 0 outside the horizon, 6 at q = 0 and 4
+      // at q = 1, the same for both senses. With r = 2 + t it reads
+      // t^3 + p t + c = 0, whose discriminant c^2/4 + p^3/27 is positive for
+      // 0 < q < 1 (one real root, Cardano) and 0 at both ends, where the
+      // other two roots meet at r = 0 and at the horizon r = 1.
+      const q2 = params.q * params.q;
+      if (q2 > 1) return null;
+      const p = 9 * q2 - 12;
+      const c = 18 * q2 - 4 * q2 * q2 - 16;
+      const root = Math.sqrt(Math.max(0, c * c / 4 + p * p * p / 27));
+      return 2 + Math.cbrt(-c / 2 + root) + Math.cbrt(-c / 2 - root);
     }
     return null;
   }

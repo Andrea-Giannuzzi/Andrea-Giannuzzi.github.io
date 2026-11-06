@@ -30,14 +30,59 @@ test('Numeric ISCO/photon-sphere radii agree with the formatted circularOrbitInf
     `prograde ${prograde.toFixed(6)} M; retrograde ${retrograde.toFixed(6)} M`
   );
 
-  // Reissner-Nordstrom and Kerr-Newman have no closed-form ISCO in this
-  // module; both must stay honestly null/"N/A", not a fabricated number.
   const reissnerNordstrom = { M: 1, a: 0, q: 0.3 };
+  assert.equal(P.circularOrbitInformation(reissnerNordstrom).isco, `${P.iscoRadius(reissnerNordstrom).toFixed(6)} M`);
+
+  // Kerr-Newman has no closed-form ISCO in this module, nor has an
+  // over-extremal Reissner-Nordstrom: they must stay honestly null/"N/A",
+  // not a fabricated number.
   const kerrNewman = { M: 1, a: 0.7, q: 0.2 };
-  assert.equal(P.iscoRadius(reissnerNordstrom), null);
   assert.equal(P.iscoRadius(kerrNewman), null);
+  assert.equal(P.iscoRadius({ M: 1, a: 0, q: 1.01 }), null);
   assert.equal(P.photonSphereRadius(kerrNewman), null);
   assert.equal(P.circularOrbitInformation(kerrNewman).isco, 'N/A');
+});
+
+test('Reissner-Nordstrom ISCO: the circular orbit of least L_z, from 6 M uncharged to 4 M extremal', () => {
+  // Checked against the metric, not the cubic it solves: L_z of the circular
+  // orbits from circularOrbitFourVelocity is smallest at the ISCO.
+  assert.ok(Math.abs(P.iscoRadius({ M: 1, a: 0, q: 1e-6 }) - 6) < 1e-9);
+  assert.ok(Math.abs(P.iscoRadius({ M: 1, a: 0, q: 1 }) - 4) < 1e-12);
+  let previous = 6;
+  for (const q of [0.3, 0.5, 0.8, 0.95, 0.999]) {
+    const params = { M: 1, a: 0, q };
+    const isco = P.iscoRadius(params);
+    assert.equal(P.iscoRadius(params, 'retrograde'), isco, `q ${q}: no spin, no sense`);
+    assert.ok(isco < previous && isco > P.horizonData(params).outer, `q ${q}: ${isco}`);
+    previous = isco;
+    const angularMomentum = (r) => P.circularOrbitFourVelocity(params, r, 'prograde').angularMomentum;
+    for (const offset of [-1e-3, 1e-3]) {
+      assert.ok(angularMomentum(isco * (1 + offset)) > angularMomentum(isco), `q ${q}: L_z at ${offset} is not larger`);
+    }
+  }
+  // 4.890767 at q = 0.8, where the 3D disk used to start at the uncharged 6.
+  assert.ok(Math.abs(P.iscoRadius({ M: 1, a: 0, q: 0.8 }) - 4.890767) < 1e-6);
+});
+
+test('Reissner-Nordstrom: gas released just inside the ISCO plunges to the horizon, as the 3D view seeds it', () => {
+  // buildPlungingRegion (black-hole-3d.js) seeds 99% of the way from the
+  // horizon to the ISCO with the ISCO orbit's E and L_z. With the uncharged
+  // ISCO (6 M) that seed lies in the stable region and is rejected, so the
+  // charged view showed no plunging gas.
+  const params = { M: 1, a: 0, q: 0.8 };
+  const horizon = P.horizonData(params).outer;
+  const seedFor = (isco) => {
+    const orbit = P.circularOrbitFourVelocity(params, isco, 'prograde');
+    return P.initialStateFromConstants(params, {
+      radius: horizon + (isco - horizon) * 0.99, energy: orbit.energy, angularMomentum: orbit.angularMomentum,
+      massive: true, radialDirection: 'ingoing'
+    });
+  };
+  assert.throws(() => seedFor(6), (error) => error.code === 'nonRealRadialVelocity');
+  const result = P.integrateGeodesic(params, seedFor(P.iscoRadius(params)), {
+    guardCoordinates: true, maxLambda: 400, step: 0.03, maxSteps: 14000
+  });
+  assert.equal(result.stopReason, 'outerHorizon');
 });
 
 test('circularOrbitFourVelocity at the Schwarzschild ISCO matches the closed-form E and L', () => {
