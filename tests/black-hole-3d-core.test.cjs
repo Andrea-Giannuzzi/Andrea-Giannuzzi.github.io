@@ -172,9 +172,9 @@ test('Stars move to their true angle minus the deflection, at the same distance 
   const before = (i) => [original[3 * i] - camera.x, original[3 * i + 1] - camera.y, original[3 * i + 2] - camera.z];
 
   assert.deepEqual([...out.slice(0, 3)], [0, 0, -10], 'behind the hole: angle 0');
-  assert.deepEqual([...out.slice(9, 12)], [...original.slice(9, 12)], 'beyond the table');
-  for (const i of [1, 2, 4]) {
-    assertClose(angleBetween(moved(i), toHole), 32, 1e-9, `star ${i}: angle`);
+  // Star 3 lies beyond the table's last angle: the last deflection holds.
+  for (const [i, angle] of [[1, 32], [2, 32], [3, 72], [4, 32]]) {
+    assertClose(angleBetween(moved(i), toHole), angle, 1e-9, `star ${i}: angle`);
     assertClose(Math.hypot(...moved(i)), Math.hypot(...before(i)), 1e-9, `star ${i}: distance from the camera`);
     // Same plane through the camera axis: the azimuth around it is kept.
     assertClose(Math.atan2(moved(i)[1], moved(i)[0]), Math.atan2(before(i)[1], before(i)[0]), 1e-12, `star ${i}: azimuth`);
@@ -186,9 +186,20 @@ test('Stars move to their true angle minus the deflection, at the same distance 
 
   const real = P.computeLensingTable({ M: 1, a: 0, q: 0 }, { cameraRadius: 30 });
   const realOut = new Float64Array(3);
-  C.lensStarField(Float64Array.from(star(40, 20, 50)), realOut, camera, target, real);
-  assertClose(angleBetween([realOut[0], realOut[1], realOut[2] - camera.z], toHole), 40 - C.angularDeflectionFor(real, 40), 1e-9,
-    'real table');
+  const lensedAngle = (angle) => {
+    C.lensStarField(Float64Array.from(star(angle, 20, 50)), realOut, camera, target, real);
+    return angleBetween([realOut[0], realOut[1], realOut[2] - camera.z], toHole);
+  };
+  for (const angle of [40, 120, 175]) {
+    assertClose(lensedAngle(angle), angle - C.angularDeflectionFor(real, angle), 1e-9, `real table at ${angle}°`);
+  }
+  assert.ok(C.angularDeflectionFor(real, 120) < -1, 'still deflected at 120°');
+  // 60 degrees ends the shadow-edge range at this camera; the table goes on to
+  // 180, so a star crossing it moves by a continuous amount (it jumped by the
+  // full -4.9 degrees when the deflection stopped there).
+  assert.ok(real.samples.some((sample) => sample.angle === 60), 'the range ends at 60°');
+  const step = lensedAngle(60.01) - lensedAngle(59.99);
+  assert.ok(step > 0 && step < 0.05, `apparent angle from 59.99° to 60.01°: +${step}°`);
 });
 
 test('The status line adds the translated stop reason and the over-extremal warning where they belong', () => {

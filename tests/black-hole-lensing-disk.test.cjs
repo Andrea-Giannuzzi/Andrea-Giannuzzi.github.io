@@ -10,6 +10,9 @@ const P = context.window.KerrNewmanPhysics;
 const schwarzschild = { M: 1, a: 0, q: 0 };
 const kerr = { M: 1, a: 0.7, q: 0 };
 const distance = (a, b) => Math.hypot(...a.map((x, i) => x - b[i]));
+// Default Schwarzschild tables, built once: each costs ~2 s here.
+const defaultTables = {};
+const defaultTable = (cameraRadius) => (defaultTables[cameraRadius] ??= P.computeLensingTable(schwarzschild, { cameraRadius }));
 
 test('Scientific validation, including the new Kepler/redshift/lensing checks, passes', () => {
   const report = P.runScientificValidation();
@@ -149,11 +152,50 @@ test('A camera close to the hole still lenses: the default table starts at the s
   // the 60 degrees the table used to stop at.
   for (const cameraRadius of [4, 38]) {
     const edge = Math.asin(3 * Math.sqrt(3) * Math.sqrt(1 - 2 / cameraRadius) / cameraRadius) * 180 / Math.PI;
-    const { samples } = P.computeLensingTable(schwarzschild, { cameraRadius });
+    const { samples } = defaultTable(cameraRadius);
     assert.ok(Math.abs(samples[0].angle - edge) < 1e-9, `r ${cameraRadius}: ${samples[0].angle} vs ${edge}`);
     const escaped = samples.filter((sample) => sample.stopReason === 'escapedToLarge');
     assert.ok(escaped.length >= samples.length - 1, `r ${cameraRadius}: ${escaped.length} of ${samples.length} escape`);
-    assert.ok(samples[samples.length - 1].angle >= 60 && samples[samples.length - 1].angle < 90);
+    // 20 samples from the edge to maxAngle, in [60, 90), then 8 on to 180.
+    assert.equal(samples.length, 28);
+    assert.ok(samples[19].angle >= 60 && samples[19].angle < 90, `r ${cameraRadius}: maxAngle ${samples[19].angle}`);
+  }
+});
+
+test('The default table carries on to 180 degrees, its deflection shrinking smoothly to about 0', () => {
+  // A ray traced as the table traces it, at an angle the table does not sample.
+  const traced = (params, table, angle) => {
+    const initial = P.initialStateFromLocal(params, {
+      radius: table.cameraRadius, latitude: 0, azimuth: angle - 180, elevation: 0, speed: 1, massive: false, photonEnergy: 1
+    });
+    const result = P.integrateGeodesic(params, initial, table.settings);
+    assert.equal(result.stopReason, 'escapedToLarge', `angle ${angle}`);
+    return P.escapeDeflection(result.finalState, angle);
+  };
+  // Past maxAngle the deflection is still -5.6 degrees at camera 38 and -64 at
+  // camera 4, where the 3D view used to drop it to 0. Kerr ends at +0.04 at
+  // 180 degrees, frame dragging on a ray with L_z = 0.
+  const cases = [
+    { params: schwarzschild, table: defaultTable(38), tolerance: 0.05 },
+    { params: schwarzschild, table: defaultTable(4), tolerance: 0.4 },
+    { params: { M: 1, a: 0.9, q: 0 }, table: P.computeLensingTable({ M: 1, a: 0.9, q: 0 }, { cameraRadius: 38 }) }
+  ];
+  for (const { params, table, tolerance } of cases) {
+    const label = `a ${params.a}, r ${table.cameraRadius}`;
+    const tail = table.samples.slice(19);
+    assert.equal(tail.length, 9, label);
+    assert.equal(tail[8].angle, 180, label);
+    assert.ok(Math.abs(tail[8].deflection) < 0.1, `${label}: ${tail[8].deflection} at 180°`);
+    for (let i = 1; i < tail.length; i += 1) {
+      assert.equal(tail[i].stopReason, 'escapedToLarge', `${label}: ${tail[i].angle}°`);
+      assert.ok(tail[i].deflection > tail[i - 1].deflection, `${label}: ${tail[i - 1].deflection} then ${tail[i].deflection}`);
+      if (tolerance === undefined) continue;
+      // The 3D view interpolates linearly: halfway between two samples the
+      // line stays near the traced curve.
+      const middle = (tail[i - 1].angle + tail[i].angle) / 2;
+      const error = (tail[i - 1].deflection + tail[i].deflection) / 2 - traced(params, table, middle);
+      assert.ok(Math.abs(error) < tolerance, `${label}: ${error} at ${middle}°`);
+    }
   }
 });
 

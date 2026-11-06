@@ -51,11 +51,18 @@
     return { index, nextIndex, fraction };
   }
 
+  // The samples of a P.computeLensingTable table whose ray escaped, the only
+  // ones with a deflection.
+  const escapedSamples = (table) => table?.samples.filter((sample) => sample.deflection !== null) ?? [];
+
   // Deflection (degrees) at a viewing angle from the black hole, linear in the
-  // escaped samples of a P.computeLensingTable table: 0 up to the first one
-  // (captured rays have no deflection), the last value beyond the last one.
+  // escaped samples: 0 up to the first one (captured rays have no
+  // deflection), the last value beyond the last one.
   function angularDeflectionFor(table, angleDegrees) {
-    const escaped = table?.samples.filter((sample) => sample.deflection !== null) ?? [];
+    return interpolatedDeflection(escapedSamples(table), angleDegrees);
+  }
+
+  function interpolatedDeflection(escaped, angleDegrees) {
     if (escaped.length < 2 || angleDegrees <= escaped[0].angle) return 0;
     if (angleDegrees >= escaped[escaped.length - 1].angle) return escaped[escaped.length - 1].deflection;
     let lo = escaped[0];
@@ -70,7 +77,10 @@
   // Writes into `out` each star of `original` (flat x, y, z) moved, at its own
   // distance from the camera and in the plane through camera, target and star,
   // from its true angle ψ from the camera→target direction to ψ − deflection(ψ).
-  // Stars beyond the table's last angle stay put. Using the true angle as if
+  // Beyond the table's last angle the last deflection holds; the default table
+  // reaches 180 degrees, so every star of the 3D view moves by a traced value.
+  // The escaped samples are picked once per call, not per star: the scene
+  // relenses its 4000 stars every frame. Using the true angle as if
   // it were the viewing angle is a first-order approximation of the harder
   // inversion, and the 1-D table cannot represent multiple imaging (both in
   // the comment above P.computeLensingTable).
@@ -82,7 +92,7 @@
     let bx = target.x - camera.x, by = target.y - camera.y, bz = target.z - camera.z;
     const inverseLength = 1 / (Math.sqrt(bx * bx + by * by + bz * bz) || 1);
     bx *= inverseLength; by *= inverseLength; bz *= inverseLength;
-    const maxAngle = table.samples[table.samples.length - 1].angle;
+    const escaped = escapedSamples(table);
     for (let i = 0; i < original.length; i += 3) {
       let sx = original[i] - camera.x, sy = original[i + 1] - camera.y, sz = original[i + 2] - camera.z;
       const starDistance = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1;
@@ -90,7 +100,7 @@
       sx *= inverseDistance; sy *= inverseDistance; sz *= inverseDistance;
       const cosAngle = Math.min(1, Math.max(-1, sx * bx + sy * by + sz * bz));
       const angleDeg = Math.acos(cosAngle) * 180 / Math.PI;
-      const deflection = angleDeg > 0 && angleDeg <= maxAngle ? angularDeflectionFor(table, angleDeg) : 0;
+      const deflection = angleDeg > 0 ? interpolatedDeflection(escaped, angleDeg) : 0;
       if (!deflection) {
         out[i] = original[i]; out[i + 1] = original[i + 1]; out[i + 2] = original[i + 2];
         continue;
