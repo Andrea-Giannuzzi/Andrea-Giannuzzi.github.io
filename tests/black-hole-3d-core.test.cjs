@@ -129,77 +129,123 @@ test('The playback cursor finds the interval and the fraction through it', () =>
   }
 });
 
-test('Lensing deflection is interpolated linearly between the escaped samples', () => {
-  const table = { samples: [
-    { angle: 5, deflection: null }, { angle: 10, deflection: -40 }, { angle: 20, deflection: -10 }, { angle: 40, deflection: -4 }
-  ] };
-  assert.equal(C.angularDeflectionFor(table, 3), 0, 'inside the shadow');
-  assert.equal(C.angularDeflectionFor(table, 7), 0, 'before the first escaped sample');
-  assertClose(C.angularDeflectionFor(table, 12.5), -32.5, 1e-12, 'quarter interval');
-  assertClose(C.angularDeflectionFor(table, 15), -25, 1e-12, 'mid interval');
-  assertClose(C.angularDeflectionFor(table, 20), -10, 1e-12, 'on a sample');
-  assertClose(C.angularDeflectionFor(table, 30), -7, 1e-12, 'second interval');
-  assert.equal(C.angularDeflectionFor(table, 40), -4, 'last sample');
-  assert.equal(C.angularDeflectionFor(table, 55), -4, 'beyond the last sample');
-  assert.equal(C.angularDeflectionFor(null, 15), 0, 'no table');
-  assert.equal(C.angularDeflectionFor({ samples: table.samples.slice(0, 2) }, 15), 0, 'one escaped sample');
-
-  const real = P.computeLensingTable({ M: 1, a: 0, q: 0 }, { cameraRadius: 38 });
-  const escaped = real.samples.filter((sample) => sample.deflection !== null);
-  assert.ok(escaped.length >= 10);
-  for (let i = 1; i < escaped.length; i += 1) {
-    const { angle, deflection } = escaped[i];
-    assertClose(C.angularDeflectionFor(real, angle), deflection, 1e-12 * Math.abs(deflection), `sample at ${angle}°`);
-    const middle = C.angularDeflectionFor(real, (angle + escaped[i - 1].angle) / 2);
-    assertClose(middle, (deflection + escaped[i - 1].deflection) / 2, 1e-9, `between ${escaped[i - 1].angle}° and ${angle}°`);
-  }
+test('The lensing map inverts the table: viewing angle and brightness linear in the true angle', () => {
+  // psi = angle + deflection: -190, -100, -40, 0, 36.
+  const table = { samples: [{ angle: 5, deflection: null }, { angle: 10, deflection: -200 }, { angle: 12, deflection: -112 },
+    { angle: 16, deflection: -56 }, { angle: 20, deflection: -20 }, { angle: 40, deflection: -4 }] };
+  const map = C.lensingImageMap(table);
+  assert.deepEqual([...map.alphas], [10, 12, 16, 20, 40]);
+  assert.deepEqual([...map.psis], [-190, -100, -40, 0, 36]);
+  // Secondary images (psi < 0): (sin alpha / |sin psi|) dalpha/dpsi, from the
+  // samples either side, at most 1; primary images: 1.
+  const sine = (degrees) => Math.sin(degrees * Math.PI / 180);
+  const brightness = [sine(10) / sine(190 - 180) * 2 / 90, sine(12) / sine(100) * 6 / 150, sine(16) / sine(40) * 8 / 100, 1, 1];
+  map.brightness.forEach((value, i) => assertClose(value, brightness[i], 1e-12, `brightness ${i}`));
+  const image = (psi) => C.lensedImage(map, psi);
+  assert.equal(image(0).angle, 20, 'Einstein ring');
+  assertClose(image(18).angle, 30, 1e-12, 'primary, mid interval');
+  assertClose(image(-70).angle, 14, 1e-12, 'secondary, mid interval');
+  assertClose(image(-70).brightness, (brightness[1] + brightness[2]) / 2, 1e-12, 'secondary brightness');
+  assert.equal(image(-190).angle, 10, 'first sample');
+  assert.equal(image(-191), null, 'closer to the shadow edge than the first sample');
+  assert.equal(image(50).angle, 54, 'beyond the last sample the last deflection holds');
+  assert.equal(C.lensingImageMap(null), null, 'no table');
+  assert.equal(C.lensingImageMap({ samples: table.samples.slice(0, 2) }), null, 'one escaped sample');
 });
 
-test('Stars move to their true angle minus the deflection, at the same distance and in the same plane', () => {
+test('Inverting a real table puts each image within 0.2 degrees of the traced one, with no fold', () => {
+  const params = { M: 1, a: 0, q: 0 };
+  const cameraRadius = 30;
+  const map = C.lensingImageMap(P.computeLensingTable(params, { cameraRadius }));
+  // The true direction psi of the star seen at viewing angle alpha (< 90), traced
+  // by computeLensingTable itself with two samples, 0 and alpha.
+  const traced = (alpha) => {
+    const sample = P.computeLensingTable(params, { cameraRadius, samples: 2, maxAngle: alpha }).samples[1];
+    return alpha + sample.deflection;
+  };
+  for (const psi of [-120, -40, -5, 2, 15, 45, 80]) {
+    const { angle } = C.lensedImage(map, psi);
+    // The traced rays 0.2 degrees either side of the drawn image bracket the star.
+    assert.ok(traced(angle - 0.2) < psi && psi < traced(angle + 0.2), `psi ${psi}: drawn at ${angle}°`);
+  }
+  map.alphas.forEach((alpha, i) => assert.equal(C.lensedImage(map, map.psis[i]).angle, alpha, `sample ${i}`));
+  const edge = P.computeLensingTable(params, { cameraRadius }).samples[0].angle;
+  const ring = C.lensedImage(map, 0).angle;
+  let previous = { primary: ring, secondary: ring };
+  for (let psi = 0.25; psi <= 180; psi += 0.25) {
+    const primary = C.lensedImage(map, psi).angle;
+    const secondary = C.lensedImage(map, -psi)?.angle;
+    assert.ok(primary > previous.primary, `primary images move out as psi grows: ${primary}° at psi ${psi}`);
+    if (secondary === undefined) continue;
+    assert.ok(secondary < previous.secondary && secondary > edge, `secondary images close in on the shadow edge: ${secondary}° at psi ${psi}`);
+    previous = { primary, secondary };
+  }
+  assert.ok(ring > edge + 5, `Einstein ring ${ring}° beyond the shadow edge ${edge}°`);
+  // Magnified next to the Einstein ring, the secondary images are capped at
+  // full brightness there and fade toward the shadow edge.
+  const secondaryBrightness = map.brightness.filter((_, i) => map.psis[i] < 0);
+  assert.equal(secondaryBrightness[secondaryBrightness.length - 1], 1, 'capped next to the ring');
+  assert.ok(secondaryBrightness.every((value) => value > 0 && value <= 1) && secondaryBrightness[0] < 0.01,
+    `secondary brightness ${secondaryBrightness.map((value) => value.toFixed(3))}`);
+});
+
+test('Stars move to their images, at the same distance: the primary on their side, the secondary across the hole', () => {
   const camera = { x: 0, y: 0, z: 30 };
-  const target = { x: 0, y: 0, z: 0 };
+  const hole = { x: 0, y: 0, z: 0 };
   const toHole = [0, 0, -1];
-  const table = { samples: [{ angle: 1, deflection: -2 }, { angle: 60, deflection: -2 }] };
+  // psi = -90 at 10 degrees and 90 at 100: alpha = 55 + psi / 2 between them.
+  const table = { samples: [{ angle: 10, deflection: -100 }, { angle: 100, deflection: -10 }] };
+  const map = C.lensingImageMap(table);
   const star = (angle, azimuth, distance) => {
     const a = angle * Math.PI / 180, b = azimuth * Math.PI / 180;
     return [Math.sin(a) * Math.cos(b) * distance, Math.sin(a) * Math.sin(b) * distance, camera.z - Math.cos(a) * distance];
   };
-  const stars = [[0, 0, -10], star(30, 90, 20), star(30, 45, 12), star(70, 10, 25), star(30, 200, 20)];
+  const stars = [[0, 0, -10], star(30, 90, 20), star(30, 45, 12), star(70, 10, 25), star(120, 200, 20)];
   const original = Float64Array.from(stars.flat());
+  const baseColors = Float64Array.from(stars.flatMap((_, i) => [0.2 * i, 0.5, 1]));
   const out = new Float64Array(original.length);
-  C.lensStarField(original, out, camera, target, table);
-  const moved = (i) => [out[3 * i] - camera.x, out[3 * i + 1] - camera.y, out[3 * i + 2] - camera.z];
-  const before = (i) => [original[3 * i] - camera.x, original[3 * i + 1] - camera.y, original[3 * i + 2] - camera.z];
+  const secondary = { positions: new Float64Array(original.length), colors: new Float64Array(original.length), baseColors };
+  C.lensStarField(original, out, camera, hole, table, secondary);
+  const relative = (array, i) => [array[3 * i] - camera.x, array[3 * i + 1] - camera.y, array[3 * i + 2] - camera.z];
+  const azimuth = (vector) => Math.atan2(vector[1], vector[0]);
 
-  assert.deepEqual([...out.slice(0, 3)], [0, 0, -10], 'behind the hole: angle 0');
-  // Star 3 lies beyond the table's last angle: the last deflection holds.
-  for (const [i, angle] of [[1, 32], [2, 32], [3, 72], [4, 32]]) {
-    assertClose(angleBetween(moved(i), toHole), angle, 1e-9, `star ${i}: angle`);
-    assertClose(Math.hypot(...moved(i)), Math.hypot(...before(i)), 1e-9, `star ${i}: distance from the camera`);
-    // Same plane through the camera axis: the azimuth around it is kept.
-    assertClose(Math.atan2(moved(i)[1], moved(i)[0]), Math.atan2(before(i)[1], before(i)[0]), 1e-12, `star ${i}: azimuth`);
+  // A star behind the hole goes to its Einstein ring, at psi = 0.
+  assertClose(angleBetween(relative(out, 0), toHole), 55, 1e-9, 'star 0: Einstein ring');
+  for (const [i, primary, secondaryAngle] of [[0, 55, 55], [1, 70, 40], [2, 70, 40], [3, 90, 20], [4, 130, null]]) {
+    const distance = Math.hypot(...relative(original, i));
+    assertClose(angleBetween(relative(out, i), toHole), primary, 1e-9, `star ${i}: primary angle`);
+    assertClose(Math.hypot(...relative(out, i)), distance, 1e-9, `star ${i}: primary distance`);
+    const colors = [...secondary.colors.slice(3 * i, 3 * i + 3)];
+    if (secondaryAngle === null) {
+      assert.deepEqual(colors, [0, 0, 0], `star ${i}: no secondary image in the table, black`);
+      assert.deepEqual([...secondary.positions.slice(3 * i, 3 * i + 3)], [...out.slice(3 * i, 3 * i + 3)], `star ${i}: parked on its primary`);
+      continue;
+    }
+    assertClose(angleBetween(relative(secondary.positions, i), toHole), secondaryAngle, 1e-9, `star ${i}: secondary angle`);
+    assertClose(Math.hypot(...relative(secondary.positions, i)), distance, 1e-9, `star ${i}: secondary distance`);
+    const { brightness } = C.lensedImage(map, -angleBetween(relative(original, i), toHole));
+    colors.forEach((value, c) => assertClose(value, baseColors[3 * i + c] * brightness, 1e-12, `star ${i}: secondary color ${c}`));
+    if (i === 0) continue;
+    // Same plane through the camera axis: the primary keeps the azimuth around
+    // it, the secondary lies opposite.
+    assertClose(azimuth(relative(out, i)), azimuth(relative(original, i)), 1e-12, `star ${i}: primary azimuth`);
+    assertClose(Math.cos(azimuth(relative(secondary.positions, i)) - azimuth(relative(original, i))), -1, 1e-12, `star ${i}: secondary azimuth`);
   }
+
+  // The lensing is centered on the hole it is given, wherever the camera looks.
+  const shifted = { x: 4, y: -2, z: 1 };
+  const moved = Float64Array.from(stars.flat().map((value, i) => value + [4, -2, 1][i % 3]));
+  const movedOut = new Float64Array(original.length);
+  C.lensStarField(moved, movedOut, { x: 4, y: -2, z: 31 }, shifted, table);
+  movedOut.forEach((value, i) => assertClose(value - [4, -2, 1][i % 3], out[i], 1e-9, `translated scene, component ${i}`));
+  assert.match(source, /C\.lensStarField\([^;]*camera\.position, blackHole\.position, lensingTable/, 'the scene lenses around the hole, not controls.target');
 
   const copy = new Float64Array(original.length);
-  C.lensStarField(original, copy, camera, target, null);
+  const dark = { positions: new Float64Array(original.length), colors: Float64Array.from(baseColors), baseColors };
+  C.lensStarField(original, copy, camera, hole, null, dark);
   assert.deepEqual([...copy], [...original], 'no table: true positions');
-
-  const real = P.computeLensingTable({ M: 1, a: 0, q: 0 }, { cameraRadius: 30 });
-  const realOut = new Float64Array(3);
-  const lensedAngle = (angle) => {
-    C.lensStarField(Float64Array.from(star(angle, 20, 50)), realOut, camera, target, real);
-    return angleBetween([realOut[0], realOut[1], realOut[2] - camera.z], toHole);
-  };
-  for (const angle of [40, 120, 175]) {
-    assertClose(lensedAngle(angle), angle - C.angularDeflectionFor(real, angle), 1e-9, `real table at ${angle}°`);
-  }
-  assert.ok(C.angularDeflectionFor(real, 120) < -1, 'still deflected at 120°');
-  // 60 degrees ends the shadow-edge range at this camera; the table goes on to
-  // 180, so a star crossing it moves by a continuous amount (it jumped by the
-  // full -4.9 degrees when the deflection stopped there).
-  assert.ok(real.samples.some((sample) => sample.angle === 60), 'the range ends at 60°');
-  const step = lensedAngle(60.01) - lensedAngle(59.99);
-  assert.ok(step > 0 && step < 0.05, `apparent angle from 59.99° to 60.01°: +${step}°`);
+  assert.deepEqual([...dark.positions], [...original], 'no table: secondary images at the true positions');
+  assert.ok(dark.colors.every((value) => value === 0), 'no table: secondary images black');
 });
 
 test('The status line adds the translated stop reason and the over-extremal warning where they belong', () => {

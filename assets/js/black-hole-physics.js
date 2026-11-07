@@ -924,9 +924,10 @@
   // only, one side of the hole, not inclination relative to the spin axis),
   // so the narrower co-rotating side and Kerr-Newman's frame-dragging lensing
   // asymmetry for cameras away from the equator are not captured; a
-  // documented limitation, not an oversight. It also cannot represent
-  // multiple imaging (a star lensed into 2+ apparent positions), since each
-  // angle maps to a single deflection value.
+  // documented limitation, not an oversight. Multiple images need no more
+  // than this map from viewing angle to escape direction: a star has one
+  // image wherever the escape direction reaches it, on its side of the hole
+  // or across it (the 3D view draws the first two, BlackHole3DCore.lensStarField).
   //
   // The deflection is measured against the local launch direction at the
   // camera's own (finite) radius, in fixed plane coordinates anchored there

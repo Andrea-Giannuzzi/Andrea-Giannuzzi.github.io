@@ -39,7 +39,7 @@
   let frame = null;
   let previousTime = null;
   let computing = false;
-  let scene, camera, renderer, controls, blackHole, disk, stars, particle, particleHalo, trajectory, ergosphere, ergosphereWire, plungingRegion;
+  let scene, camera, renderer, controls, blackHole, disk, stars, secondaryStars, particle, particleHalo, trajectory, ergosphere, ergosphereWire, plungingRegion;
   // Photon-sphere visual: a sphere pair (fill+wireframe) for a=0, or a ring
   // pair (prograde/retrograde) for Kerr -- see buildPhotonSphere(). Only
   // one representation exists at a time; the unused ones stay null.
@@ -695,14 +695,14 @@
 
   // Recomputes the 1-D gravitational-lensing deflection table (see
   // P.computeLensingTable) for the current physical parameters and camera
-  // distance. This is a real, if bounded, computation (tens to a couple
-  // hundred milliseconds), so it is only called when the configuration or
-  // camera framing changes -- not every animation frame.
+  // distance. 28 traced rays take about a second, so it runs once per run,
+  // right after resetCamera(): zooming or panning keeps the table of the
+  // starting distance.
   function updateLensingTable(params) {
     try {
       // 1 M-unit = 1 scene-unit globally (see setGeometry()), so the
-      // camera-to-target scene distance is already the right M-unit radius.
-      const cameraRadiusM = Math.max(camera.position.distanceTo(controls.target), 4);
+      // camera-to-hole scene distance is already the right M-unit radius.
+      const cameraRadiusM = Math.max(camera.position.distanceTo(blackHole.position), 4);
       lensingTable = P.computeLensingTable(params, { cameraRadius: cameraRadiusM });
     } catch (_) {
       // Lensing is a display enhancement layered on top of the geodesic
@@ -712,13 +712,19 @@
     }
   }
 
-  // Displaces each star's rendered position by the lensing table's
-  // deflection at its own true angular offset from the black hole, a
-  // first-order approximation described on C.lensStarField.
+  // Draws each star at its primary image and, in secondaryStars, at its
+  // secondary image across the hole (see C.lensStarField). Centered on the
+  // hole, not on controls.target, which a pan moves away from it.
   function applyLensing() {
     if (!stars || !starOriginalPositions) return;
-    C.lensStarField(starOriginalPositions, stars.geometry.attributes.position.array, camera.position, controls.target, lensingTable);
-    stars.geometry.attributes.position.needsUpdate = true;
+    const primary = stars.geometry.attributes;
+    const secondary = secondaryStars.geometry.attributes;
+    C.lensStarField(starOriginalPositions, primary.position.array, camera.position, blackHole.position, lensingTable,
+      { positions: secondary.position.array, colors: secondary.color.array, baseColors: primary.color.array });
+    primary.position.needsUpdate = true;
+    secondary.position.needsUpdate = true;
+    secondary.color.needsUpdate = true;
+    secondaryStars.visible = lensingTable !== null;
   }
 
   function createScene() {
@@ -779,6 +785,16 @@
     starGeometry.setAttribute("color", new THREE.BufferAttribute(starColors, 3));
     stars = new THREE.Points(starGeometry, new THREE.PointsMaterial({ size: 0.4, vertexColors: true, transparent: true, opacity: 0.8 }));
     scene.add(stars);
+    // Additive, so a secondary image dimmed toward black adds next to nothing
+    // over whatever lies behind it; hidden while there is no lensing table.
+    const secondaryGeometry = new THREE.BufferGeometry();
+    secondaryGeometry.setAttribute("position", new THREE.BufferAttribute(starPositions.slice(), 3));
+    secondaryGeometry.setAttribute("color", new THREE.BufferAttribute(new Float32Array(starColors.length), 3));
+    secondaryStars = new THREE.Points(secondaryGeometry, new THREE.PointsMaterial({
+      size: 0.4, vertexColors: true, transparent: true, opacity: 0.8, depthWrite: false, blending: THREE.AdditiveBlending
+    }));
+    secondaryStars.visible = false;
+    scene.add(secondaryStars);
     // transparent:true so opacity can fade the marker as it nears a
     // horizon-margin stop (see updatePlayback()); opaque MeshBasicMaterial
     // ignores .opacity entirely. depthTest:false + the same renderOrder as

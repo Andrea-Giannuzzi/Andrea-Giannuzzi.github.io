@@ -235,8 +235,8 @@ test('The default table carries on to 180 degrees, its deflection shrinking smoo
       assert.equal(tail[i].stopReason, 'escapedToLarge', `${label}: ${tail[i].angle}°`);
       assert.ok(tail[i].deflection > tail[i - 1].deflection, `${label}: ${tail[i - 1].deflection} then ${tail[i].deflection}`);
       if (tolerance === undefined) continue;
-      // The 3D view interpolates linearly: halfway between two samples the
-      // line stays near the traced curve.
+      // The 3D view interpolates linearly between samples: halfway between
+      // two of them the line stays near the traced curve.
       const middle = (tail[i - 1].angle + tail[i].angle) / 2;
       const error = (tail[i - 1].deflection + tail[i].deflection) / 2 - traced(params, table, middle);
       assert.ok(Math.abs(error) < tolerance, `${label}: ${error} at ${middle}°`);
