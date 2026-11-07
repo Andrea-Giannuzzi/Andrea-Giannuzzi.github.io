@@ -178,8 +178,8 @@
   // display-string convention. Schwarzschild and Kerr use their standard
   // closed forms (Kerr via the Bardeen-Press-Teukolsky z1/z2 construction).
   // Reissner-Nordstrom has one too, below, up to the extremal charge, and
-  // Kerr-Newman a root found by bisection; without a horizon the ISCO is
-  // null. The Kerr-Newman photon sphere has no formula here: null.
+  // Kerr-Newman a root found by bisection, for the ISCO and the photon orbit
+  // alike; without a horizon both are null.
   function iscoRadius(params, sense = "prograde", type = detectSpacetime(params)) {
     if (type === "schwarzschild") return 6;
     if (type === "kerr") {
@@ -210,28 +210,26 @@
       // (minus prograde, plus retrograde), which is the Kerr condition
       // r^2 - 6Mr +- 8|a| sqrt(Mr) - 3a^2 = 0 at q = 0 and the cubic above at
       // a = 0; the tests check it against the least L_z of the circular orbits.
-      // The left side is negative at large r and the root lies inside 9M
-      // (extremal Kerr, retrograde): stepping in from 10M finds the sign
-      // change, bisection the root.
+      // The root lies inside 9M (extremal Kerr, retrograde).
       const horizons = horizonData(params);
       if (!horizons.hasHorizon) return null;
       const { M, q } = params;
       const spin = Math.abs(params.a);
       const side = sense === "retrograde" ? -1 : 1;
-      const condition = (r) => M * r * (6 * M * r - r * r - 9 * q * q + 3 * spin * spin)
-        + 4 * q * q * (q * q - spin * spin) - side * 8 * spin * Math.pow(M * r - q * q, 1.5);
-      let outer = 10 * M;
-      let inner = outer;
-      while (condition(inner) < 0) {
-        outer = inner;
-        inner -= 0.01 * M;
-        if (inner <= horizons.outer) return null;
-      }
-      for (let i = 0; i < 100 && outer - inner > 1e-15 * outer; i += 1) {
-        const middle = (inner + outer) / 2;
-        if (condition(middle) < 0) outer = middle; else inner = middle;
-      }
-      return (inner + outer) / 2;
+      return outermostRoot((r) => M * r * (6 * M * r - r * r - 9 * q * q + 3 * spin * spin)
+        + 4 * q * q * (q * q - spin * spin) - side * 8 * spin * Math.pow(M * r - q * q, 1.5),
+      10 * M, horizons.outer, 0.01 * M);
+    }
+    return null;
+  }
+
+  // The outermost root of fn outside the horizon: stepping in from `start`,
+  // outside every root, to the first sign change, then bisecting. null when
+  // the steps reach the horizon first.
+  function outermostRoot(fn, start, horizon, step) {
+    const signOutside = Math.sign(fn(start));
+    for (let r = start - step; r > horizon; r -= step) {
+      if (Math.sign(fn(r)) !== signOutside) return bisectSignChange(fn, r, r + step);
     }
     return null;
   }
@@ -247,6 +245,21 @@
       return sense === "retrograde"
         ? 2 * (1 + Math.cos((2 / 3) * Math.acos(spin)))
         : 2 * (1 + Math.cos((2 / 3) * Math.acos(-spin)));
+    }
+    if (type === "kerrNewman") {
+      // The equatorial circular photon orbit: the outermost root of
+      // r^2 - 3Mr + 2q^2 +- 2|a| sqrt(Mr - q^2) = 0 (plus prograde, minus
+      // retrograde), which is Kerr's r^2 - 3Mr +- 2|a| sqrt(Mr) = 0 at q = 0
+      // and Reissner-Nordstrom's r^2 - 3Mr + 2q^2 = 0 at a = 0; the tests
+      // check it against the null circular orbits and the shadow contour's
+      // photon-orbit range. The root lies inside 4M (extremal Kerr, retrograde).
+      const horizons = horizonData(params);
+      if (!horizons.hasHorizon) return null;
+      const { M, q } = params;
+      const spin = Math.abs(params.a);
+      const side = sense === "retrograde" ? -1 : 1;
+      return outermostRoot((r) => r * r - 3 * M * r + 2 * q * q + side * 2 * spin * Math.sqrt(M * r - q * q),
+        5 * M, horizons.outer, 0.01 * M);
     }
     return null;
   }
@@ -1441,6 +1454,18 @@
         id: "kerrPhotonSphereRetrograde",
         reference: 0,
         computed: () => photonSphereNullResidual(kerr, "retrograde"),
+        unit: ""
+      },
+      {
+        id: "kerrNewmanPhotonSpherePrograde",
+        reference: 0,
+        computed: () => photonSphereNullResidual(kerrNewman, "prograde"),
+        unit: ""
+      },
+      {
+        id: "kerrNewmanPhotonSphereRetrograde",
+        reference: 0,
+        computed: () => photonSphereNullResidual(kerrNewman, "retrograde"),
         unit: ""
       },
       {

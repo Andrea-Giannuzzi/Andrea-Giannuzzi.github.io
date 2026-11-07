@@ -37,17 +37,38 @@ test('Numeric ISCO/photon-sphere radii agree with the formatted circularOrbitInf
   assert.equal(P.circularOrbitInformation(reissnerNordstrom).isco, `${P.iscoRadius(reissnerNordstrom).toFixed(6)} M`);
 
   // Kerr-Newman lists both senses, like Kerr. Without a horizon there is no
-  // ISCO, and the Kerr-Newman photon sphere has no formula here: "N/A", not
-  // a fabricated number.
+  // ISCO or photon orbit: "N/A", not a fabricated number.
   const kerrNewman = { M: 1, a: 0.7, q: 0.2 };
-  assert.equal(
-    P.circularOrbitInformation(kerrNewman).isco,
-    `prograde ${P.iscoRadius(kerrNewman).toFixed(6)} M; retrograde ${P.iscoRadius(kerrNewman, 'retrograde').toFixed(6)} M`
-  );
-  assert.equal(P.iscoRadius({ M: 1, a: 0, q: 1.01 }), null);
-  assert.equal(P.iscoRadius({ M: 1, a: 0.8, q: 0.7 }), null);
-  assert.equal(P.photonSphereRadius(kerrNewman), null);
-  assert.equal(P.circularOrbitInformation(kerrNewman).photon, 'N/A');
+  const pair = (radius) => `prograde ${radius(kerrNewman, 'prograde').toFixed(6)} M; retrograde ${radius(kerrNewman, 'retrograde').toFixed(6)} M`;
+  assert.equal(P.circularOrbitInformation(kerrNewman).isco, pair(P.iscoRadius));
+  assert.equal(P.circularOrbitInformation(kerrNewman).photon, pair(P.photonSphereRadius));
+  for (const overExtremal of [{ M: 1, a: 0, q: 1.01 }, { M: 1, a: 0.8, q: 0.7 }]) {
+    assert.equal(P.iscoRadius(overExtremal), null);
+    assert.equal(P.circularOrbitInformation(overExtremal).isco, 'N/A');
+  }
+  assert.equal(P.photonSphereRadius({ M: 1, a: 0.8, q: 0.7 }), null);
+});
+
+test('Kerr-Newman photon orbit: null circular orbits at the edges of the equatorial shadow, between the Kerr and Reissner-Nordstrom limits', () => {
+  for (const params of [{ M: 1, a: 0.7, q: 0.2 }, { M: 1, a: 0.6, q: 0.48 }, { M: 1, a: 0.9, q: 0.3 }, { M: 1, a: 0.3, q: 0.9 }]) {
+    const label = `a ${params.a} q ${params.q}`;
+    const [prograde, retrograde] = ['prograde', 'retrograde'].map((sense) => P.photonSphereRadius(params, sense));
+    assert.ok(P.horizonData(params).outer < prograde && prograde < retrograde, `${label}: ${prograde}, ${retrograde}`);
+    // The circular orbit there, from the metric, is null.
+    for (const [sense, radius] of [['prograde', prograde], ['retrograde', retrograde]]) {
+      const omega = P.keplerianAngularVelocity(params, radius, sense);
+      const g = P.metric(params, radius, Math.PI / 2);
+      assert.ok(Math.abs(g[0][0] + 2 * omega * g[0][3] + omega * omega * g[3][3]) < 1e-14, `${label} ${sense}: not null`);
+    }
+    // Seen edge-on, the shadow edge comes from exactly these two orbits: its
+    // photon-orbit range is bisected on beta^2 = 0, a different equation.
+    const { rpMin, rpMax } = P.shadowContour(params, Math.PI / 2);
+    assert.ok(Math.abs(rpMin - prograde) < 1e-12 && Math.abs(rpMax - retrograde) < 1e-12, `${label}: contour ${rpMin}, ${rpMax}`);
+  }
+  for (const sense of ['prograde', 'retrograde']) {
+    assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 0.7, q: 1e-7 }, sense) - P.photonSphereRadius({ M: 1, a: 0.7, q: 0 }, sense)) < 1e-9, `${sense}: Kerr limit`);
+    assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 1e-8, q: 0.8 }, sense) - P.photonSphereRadius({ M: 1, a: 0, q: 0.8 })) < 1e-6, `${sense}: Reissner-Nordstrom limit`);
+  }
 });
 
 test('Reissner-Nordstrom ISCO: the circular orbit of least L_z, from 6 M uncharged to 4 M extremal', () => {

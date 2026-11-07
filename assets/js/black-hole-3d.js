@@ -479,16 +479,15 @@
 
   // Photon-sphere visual. Unlike the ergosphere (a single well-defined
   // theta-dependent surface for any spin), only the *equatorial* circular
-  // photon orbits have a simple closed form in this engine (see
+  // photon orbits have a simple radius in this engine (see
   // P.photonSphereRadius) -- Kerr's full "photon shell" of inclined
   // spherical photon orbits depends on latitude via a more involved
   // construction this module does not implement. Rendered honestly rather
   // than approximated: a genuine sphere for a=0 (Schwarzschild/Reissner-
   // Nordstrom, where spherical symmetry really does make it one), or two
-  // thin rings in the equatorial plane (prograde/retrograde) for Kerr --
-  // never a full sphere where the physics does not actually guarantee one.
-  // Kerr-Newman (spin and charge both nonzero) has no closed form here
-  // either (photonSphereRadius returns null): nothing is drawn, the same
+  // thin rings in the equatorial plane (prograde/retrograde) for Kerr and
+  // Kerr-Newman -- never a full sphere where the physics does not actually
+  // guarantee one. Without a horizon nothing is drawn, the same
   // graceful-degradation pattern buildErgosphere/buildPlungingRegion use.
   function buildPhotonSphere(params, horizons) {
     for (const object of [photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde]) {
@@ -515,7 +514,7 @@
         color, wireframe: true, transparent: true, opacity: 0.3, depthWrite: false
       }));
       scene.add(photonSphere, photonSphereWire);
-    } else if (type === "kerr") {
+    } else {
       // A torus (a genuine 3D tube), not a flat ring/annulus, so the orbit
       // locus reads as a curve in space from any camera angle rather than
       // a disc that vanishes edge-on or looks like a filled surface.
