@@ -248,6 +248,32 @@ test('Stars move to their images, at the same distance: the primary on their sid
   assert.ok(dark.colors.every((value) => value === 0), 'no table: secondary images black');
 });
 
+test('A lensing table is retraced once the camera is more than 5 % from its distance, in a worker that runs the real table', () => {
+  assert.equal(C.lensingTraceRadius(38), 38, 'first table: the camera distance');
+  assert.equal(C.lensingTraceRadius(2.5), 4, 'never below 4 M');
+  assert.equal(C.lensingTraceRadius(39.5, 38), null, '3.9 % off: kept');
+  assert.equal(C.lensingTraceRadius(36.2, 38), null, '4.7 % closer: kept');
+  assert.equal(C.lensingTraceRadius(40, 38), 40, '5.3 % off: retraced');
+  assert.equal(C.lensingTraceRadius(20, 38), 20, 'zoomed in: retraced');
+  assert.equal(C.lensingTraceRadius(1, 4), null, 'inside 4 M the 4 M table stays');
+
+  // The worker script, run with a stand-in for its global scope.
+  const replies = [];
+  const scope = vm.createContext({ postMessage: (message) => replies.push(message) });
+  scope.self = scope;
+  scope.importScripts = (file) => vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js', file), 'utf8'), scope);
+  vm.runInContext(fs.readFileSync(path.join(__dirname, '../assets/js/black-hole-lensing-worker.js'), 'utf8'), scope);
+  const params = { M: 1, a: 0.7, q: 0.2 };
+  scope.onmessage({ data: { id: 7, params, cameraRadius: 30 } });
+  scope.onmessage({ data: { id: 8, params, cameraRadius: -1 } });
+  assert.equal(replies[0].id, 7);
+  assert.equal(JSON.stringify(replies[0].table), JSON.stringify(P.computeLensingTable(params, { cameraRadius: 30 })), 'the table the page would build');
+  assert.deepEqual({ ...replies[1] }, { id: 8, table: null }, 'a table that cannot be built comes back as null');
+  // The view posts plain numbers, so the request survives structured cloning.
+  assert.match(source, /lensingParams = \{ M: params\.M, a: params\.a, q: params\.q \}/);
+  assert.match(source, /refreshLensingTable\(\);\s*applyLensing\(\);/, 'checked every frame, before the stars are lensed');
+});
+
 test('The status line adds the translated stop reason and the over-extremal warning where they belong', () => {
   // Every stop reason integrateGeodesic can return, read from its source: the
   // string literals there are exactly those (a thrown code is kept only when

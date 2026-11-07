@@ -167,6 +167,15 @@
     }
   }
 
+  // The camera radius to trace a lensing table at: the camera's distance from
+  // the hole, but at least 4 M, as the view has always clamped it. null while
+  // the table traced at `tracedRadius` is within 5 % of that, so the view
+  // does not retrace (about a second in a worker) for every small zoom step.
+  function lensingTraceRadius(distance, tracedRadius = null) {
+    const radius = Math.max(distance, 4);
+    return tracedRadius !== null && Math.abs(radius - tracedRadius) <= 0.05 * tracedRadius ? null : radius;
+  }
+
   // The scene status line: the threeD message for `key`, then why the shown
   // run stopped while it plays or has played, then the over-extremal warning
   // when its spacetime has no horizon (not on a WebGL failure, which has no scene).
@@ -179,6 +188,6 @@
   }
 
   window.BlackHole3DCore = Object.freeze({
-    scenePosition, trajectorySamples, sampleCursor, lensingImageMap, lensedImage, lensStarField, statusMessage
+    scenePosition, trajectorySamples, sampleCursor, lensingImageMap, lensedImage, lensStarField, lensingTraceRadius, statusMessage
   });
 }());

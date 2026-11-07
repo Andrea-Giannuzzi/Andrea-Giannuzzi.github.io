@@ -57,6 +57,13 @@
   let focusMode = false;
   let starOriginalPositions = null;
   let lensingTable = null;
+  // The run's params, the camera radius of the latest table asked for, and
+  // the worker that traces the tables after the first (see refreshLensingTable).
+  let lensingParams = null;
+  let lensingRadius = null;
+  let lensingWorker = null;
+  let lensingRequest = 0;
+  let lensingPending = false;
   let messageKey = "ready";
   let formMessageKey = "";
   let lastError = null;
@@ -694,22 +701,58 @@
   }
 
   // Recomputes the 1-D gravitational-lensing deflection table (see
-  // P.computeLensingTable) for the current physical parameters and camera
-  // distance. 28 traced rays take about a second, so it runs once per run,
-  // right after resetCamera(): zooming or panning keeps the table of the
-  // starting distance.
+  // P.computeLensingTable) for a new run's physical parameters at the
+  // starting camera distance, right after resetCamera(). 28 traced rays take
+  // about a second, here during the run's own wait; later camera moves are
+  // retraced in a worker by refreshLensingTable.
   function updateLensingTable(params) {
+    lensingParams = { M: params.M, a: params.a, q: params.q };
+    // 1 M-unit = 1 scene-unit globally (see setGeometry()), so the
+    // camera-to-hole scene distance is already the right M-unit radius.
+    lensingRadius = C.lensingTraceRadius(camera.position.distanceTo(blackHole.position));
+    // A table still being traced for the previous run is dropped on arrival.
+    lensingRequest += 1;
+    lensingPending = false;
     try {
-      // 1 M-unit = 1 scene-unit globally (see setGeometry()), so the
-      // camera-to-hole scene distance is already the right M-unit radius.
-      const cameraRadiusM = Math.max(camera.position.distanceTo(blackHole.position), 4);
-      lensingTable = P.computeLensingTable(params, { cameraRadius: cameraRadiusM });
+      lensingTable = P.computeLensingTable(lensingParams, { cameraRadius: lensingRadius });
     } catch (_) {
       // Lensing is a display enhancement layered on top of the geodesic
       // simulator; if the table cannot be built the scene still renders
       // correctly without it (stars simply keep their true positions).
       lensingTable = null;
     }
+  }
+
+  // Zooming, panning, focus mode and resizing change the camera's distance from
+  // the hole, and with it the shadow and the Einstein ring. Once it is more
+  // than 5 % from the distance of the current table, the worker traces a new
+  // one while the old one stays on screen; one request at a time, and a
+  // reply to an earlier request or run is dropped. Without a worker (file://)
+  // each run keeps its first table, as it did before the worker.
+  function refreshLensingTable() {
+    if (!lensingWorker || !lensingParams || lensingPending) return;
+    const radius = C.lensingTraceRadius(camera.position.distanceTo(blackHole.position), lensingRadius);
+    if (radius === null) return;
+    lensingRadius = radius;
+    lensingRequest += 1;
+    lensingPending = true;
+    lensingWorker.postMessage({ id: lensingRequest, params: lensingParams, cameraRadius: radius });
+  }
+  function startLensingWorker() {
+    try {
+      lensingWorker = new Worker("assets/js/black-hole-lensing-worker.js");
+    } catch (_) {
+      return;
+    }
+    lensingWorker.addEventListener("message", ({ data }) => {
+      if (data.id !== lensingRequest) return;
+      lensingPending = false;
+      lensingTable = data.table;
+    });
+    lensingWorker.addEventListener("error", () => {
+      lensingWorker = null;
+      lensingPending = false;
+    });
   }
 
   // Draws each star at its primary image and, in secondaryStars, at its
@@ -997,6 +1040,7 @@
     }
     updatePlungingRegion();
     controls.update();
+    refreshLensingTable();
     applyLensing();
     renderer.render(scene, camera);
     frame = requestAnimationFrame(animate);
@@ -1115,6 +1159,7 @@
   if (window.matchMedia("(max-width: 700px)").matches) $("#parameter-panel").open = false;
   localize();
   try { createScene(); } catch (_) { failRenderer(); return; }
+  startLensingWorker();
   startFrames();
   try { fillConfiguration(S.presetConfiguration()); }
   catch (error) { lastError = error; $("[data-simulation-status]").textContent = localError(error); }
