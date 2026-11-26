@@ -3,7 +3,6 @@
   "private": true,
   "scripts": {
     "dev": "python3 -m http.server --bind 127.0.0.1",
-    "test": "node --test tests/*.test.cjs",
-    "worktree": "sh scripts/worktree.sh"
+    "test": "node --test tests/*.test.cjs"
   }
 }

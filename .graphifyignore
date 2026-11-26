@@ -1,8 +1,0 @@
-# Keep third-party implementation details and generated coordination data out of orientation.
-assets/vendor/
-node_modules/
-graphify-out/
-.agents/
-.serena/
-.claude/
-/AGENTS.md

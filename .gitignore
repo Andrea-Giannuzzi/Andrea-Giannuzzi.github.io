@@ -9,16 +9,5 @@
 *.log
 .tmp/
 
-# Parallel worktrees (scripts/worktree.sh, claude -w)
-.claude/worktrees/
-
 # Python local server/cache artifacts
 __pycache__/
-
-# Generated knowledge graph — rebuilt locally, not versioned
-graphify-out/
-
-# Local-only audit notes, kept out of the public repo
-.agents/SIMULATOR-AUDIT.md
-.agents/HANDOFF.md
-.agents/HANDOFF_ARCHIVE.md

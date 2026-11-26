@@ -418,8 +418,7 @@
   // Purely illustrative disk shown only before the first successful run (see
   // createScene()): fixed [6,24] radial range, a static white-to-rust-orange
   // gradient, a tilted plane, and rigid rotation -- matching the original
-  // reference scene in
-  // Codex.context-Blackholesimulator/3D-Simulator_Good_Graphic.html:65-92,114-121.
+  // design of the scene.
   // Not anchored to any physical quantity. The moment a simulation runs,
   // setGeometry() calls buildDisk(params) instead, which permanently
   // replaces this object with the ISCO-anchored, shader-driven one.

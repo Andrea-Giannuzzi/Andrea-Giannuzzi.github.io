@@ -1,96 +1,67 @@
 # Andrea Giannuzzi — Academic Portfolio
 
-Static bilingual academic website built with plain HTML, CSS, and JavaScript and published with GitHub Pages. It presents an academic profile, ongoing research work, scientific projects, notes, a web CV, and the browser-based Kerr–Newman Black Hole Simulator.
+Source code of [andrea-giannuzzi.github.io](https://andrea-giannuzzi.github.io/), my bilingual (Italian/English) academic website: profile, ongoing research, projects, study notes, CV and an interactive Kerr–Newman black hole simulator. It is plain HTML, CSS and JavaScript with no build step, served by GitHub Pages from the `main` branch.
 
-## Main pages
-
-```text
-index.html                  Academic overview and featured work
-research.html               Ongoing research work and research notes
-black-hole-simulator.html   Equatorial-geodesic 2D simulator
-black-hole-simulator-3d.html 3D geodesics with local launch angles and orbit controls
-projects.html               Featured and earlier/learning projects
-notes.html                  Subject-based scientific notes library
-cv.html                     Concise web CV and downloadable PDF CV
-contact.html                Contact details
-```
-
-Project detail pages live under `projects/`. Notes use a subject hierarchy under `notes/`, with each subject page rendering its available entries and PDF actions from shared content data.
-
-## Content and JavaScript architecture
-
-- `assets/js/content.js` contains bilingual page copy, project/research/note entries, shared document metadata, and the centralized `ACADEMIC_PROFILE` object.
-- `assets/js/main.js` renders shared content, normalizes navigation, manages responsive navigation and reveal effects, and applies the saved IT/EN preference. English is the first-visit default; an existing `localStorage` preference is preserved.
-- `assets/js/black-hole-physics.js` contains the readable numerical and relativistic-physics layers used by the simulator.
-- `assets/js/black-hole-simulator.js` connects simulator controls, rendering, and language updates to the physics layer.
-- `assets/css/styles.css` defines the shared theme, academic layouts, Notes/Projects cards, and simulator presentation.
-
-## 3D initial conditions
-
-The 3D view accepts initial radius and latitude, launch azimuth/elevation, and speed measured in the local ZAMO frame. Azimuth 0° points radially outward, 90° in the positive azimuthal direction, and 180° inward. Positive elevation points north of the local radial-azimuthal plane. Initial position azimuth is fixed to zero by axial symmetry.
-
-Massive particles have `0 <= v/c < 1`; photons have `v/c = 1`. Energy, axial angular momentum and the Carter constant are derived. New photon launches use local energy normalized to 1; imported 2D states preserve their original affine normalization until edited. The 2D form remains equatorial. Opening 3D transfers the current 2D fields, including values not yet simulated. Matching completed runs start automatically; edited or unexecuted configurations wait for Run simulation. This transfer does not replace the last completed 2D run. Invalid launch conditions are reported before navigation.
-
-Three additional 3D presets provide inclined photon motion and massive launches from the northern and southern hemispheres. The preview is rendered before configuration loading; its framing reserves space for the controls, which start collapsed on mobile.
-
-The solver uses fixed-step RK4 in Boyer–Lindquist coordinates. Local 3D launches stop safely at the polar coordinate boundary or the existing horizon margin; these stops do not model collisions or continuation through the horizon. Diagnostics report normalization and conserved-quantity errors.
-
-The disk's inner edge is the real numeric ISCO (`P.iscoRadius`: closed forms for Schwarzschild, Kerr and Reissner–Nordström, a bisected root for Kerr–Newman; a spin-only Kerr fallback places the disk only when there is no horizon). Its rotation, gravitational+orbital redshift and Novikov-Thorne-shaped temperature/color are derived directly from the metric (`P.keplerianAngularVelocity`, `P.diskRedshiftFactor`, `P.diskTemperature`); relativistic Doppler beaming is computed live in a vertex/fragment shader from the camera position. Gravitational lensing of the starfield uses a 1-D deflection table (`P.computeLensingTable`) built from real backward-integrated photon geodesics (a new `escapedToLarge` stop reason), traced at each run and, in a Web Worker, again whenever the camera's distance from the hole changes by more than 5 %; each star is drawn at its primary and secondary image, found by inverting that table. Both are deliberate approximations, not full per-pixel ray tracing: the lensing table does not capture Kerr's frame-dragging asymmetry, the higher-order images near the photon sphere are not drawn, and the disk's absolute brightness/temperature scale is a display choice, not derived from an accretion rate. See the source comments in `assets/js/black-hole-physics.js` and `assets/js/black-hole-3d.js` for the exact formulas and their limits.
-
-## Updating academic data
-
-Edit factual profile values only in `window.ACADEMIC_PROFILE` near the top of `assets/js/content.js`. This object is the shared source for institution, degree, academic results, expected graduation, and structured coursework.
-
-Course names are stored once per course with `it` and `en` labels. Completed courses use the `honours` flag to render either `30/30` or the localized honours form. The empty `current` array is ready for future use and is not rendered until it contains a course.
-
-Localized headings and prose remain in the parallel `PORTFOLIO_CONTENT.it` and `PORTFOLIO_CONTENT.en` objects. Update both language blocks whenever adding user-visible copy.
-
-## Adding research or projects
-
-Add research entries to `researchItems` in both language blocks of `assets/js/content.js`. Keep the status, context, current contribution, methods, checks, reference work, and personal research-note PDF distinct so an ongoing contribution is not presented as a publication.
-
-Add projects to `projectItems` in both language blocks. Set `tier: "featured"` and `featuredRank` only for projects that should appear in the Featured Projects group; entries without that tier appear under Earlier / Learning Projects. Project detail pages continue to use `data-project-detail`.
-
-## Notes and documents
-
-The Notes flow is:
+## Pages
 
 ```text
-notes.html → subject page → note detail or shared PDF
+index.html                    Academic overview and featured work
+research.html                 Ongoing research work and research notes
+black-hole-simulator.html     Kerr–Newman simulator, equatorial geodesics (2D)
+black-hole-simulator-3d.html  Kerr–Newman simulator, 3D geodesics
+projects.html                 Featured and earlier projects
+notes.html                    Study notes by subject
+cv.html                       Web CV and downloadable PDF
+contact.html                  Contact details
 ```
 
-Subjects and notes are defined in `noteSubjects` and `noteItems`. PDF paths should point to the existing subject-specific static directories. Shared documents used by more than one page are registered in `PORTFOLIO_DOCUMENTS`; unavailable files keep their explicit work-in-progress state instead of exposing broken links.
+Project pages live in `projects/`, notes and their PDFs in `notes/`, one article in `articles/`.
 
-## CV and profile assets
+## Kerr–Newman black hole simulator
 
-- Profile image: `assets/images/profile.jpg`
-- Downloadable CV: `assets/cv/cv.pdf`
+The simulator integrates geodesics of photons and neutral massive test particles around a black hole of mass M, charge Q and angular momentum J, entirely in the browser. Inputs can be given in physical units or in geometrized units (G = c = 4πε₀ = 1).
 
-Replacing either file at the same path requires no HTML change.
+**2D view.** Equatorial orbits with presets for circular orbits, the ISCO, the photon sphere, capture, scattering and infall. The page also draws the black hole shadow α(β) for a chosen inclination, runs a validation suite against closed-form results and conserved quantities, estimates the convergence of the computed trajectory, and compares the solver with published geodesic codes.
 
-## Local preview
+**3D view.** Built with three.js. A particle can be launched from any latitude, with direction and speed measured by a local zero-angular-momentum observer (ZAMO): azimuth 0° points radially outward, 90° along the rotation and 180° inward; positive elevation points north. Massive particles take 0 ≤ v/c < 1, photons v/c = 1; energy, axial angular momentum and the Carter constant follow from the launch. The scene shows the horizon, the ergosphere, the photon rings and an accretion disk starting at the ISCO, with a Novikov–Thorne-shaped temperature profile, gravitational and orbital redshift and Doppler beaming. The star field is lensed with a deflection table traced from backward photon geodesics: each star is drawn at its primary and secondary image, and the table is retraced in a Web Worker when the camera distance changes.
 
-Requires Node.js/npm and Python 3. No dependency installation or build step is needed.
+**Numerics.** Fixed-step classical RK4 in Boyer–Lindquist coordinates. Integration stops at a small safety margin outside the horizon and at the polar axis, where these coordinates become singular; it does not continue through the horizon. The diagnostics report the normalization error and the drift of energy, angular momentum and Carter constant.
+
+**Limits.** The 3D view is not full per-pixel ray tracing. The lensing table ignores the left–right asymmetry caused by frame dragging in a rotating hole, images of higher order near the photon sphere are not drawn, and the absolute brightness and temperature scale of the disk is a display choice, not derived from an accretion rate. The source comments give the exact formulas and their range of validity.
+
+## Code
+
+```text
+assets/js/content.js                 Bilingual text and the data for profile, research, projects and notes
+assets/js/main.js                    Shared rendering, navigation and IT/EN language switch
+assets/js/black-hole-physics.js      Metric, geodesic equations, RK4, ISCO and photon orbits, shadow, lensing, validation
+assets/js/black-hole-simulation.js   Configuration and runs shared by the 2D and 3D views
+assets/js/black-hole-simulator.js    2D page
+assets/js/black-hole-3d.js           3D page (three.js scene and controls)
+assets/js/black-hole-3d-core.js      3D logic independent of the DOM and WebGL
+assets/js/black-hole-lensing-worker.js  Background retracing of the lensing table
+assets/css/                          Styles
+assets/vendor/three/                 three.js
+tests/                               Tests for the physics and the simulator logic
+```
+
+All page text is in `assets/js/content.js`, in two parallel blocks (`it` and `en`); the profile data (institution, degree, courses) is in the `ACADEMIC_PROFILE` object at the top of the same file.
+
+## Running locally
+
+Requires Python 3; Node.js is needed only for the tests.
 
 ```bash
-npm run dev
+npm run dev     # or: python3 -m http.server 8000 --bind 127.0.0.1
 ```
 
-Open `http://127.0.0.1:8000` while the command remains running. The 3D simulator is at `http://127.0.0.1:8000/black-hole-simulator-3d.html`. Refresh the browser after editing files; this server does not provide automatic reload. Stop it with Ctrl+C. If port 8000 is occupied, run `npm run dev -- 8001` and open port 8001 instead.
+Then open `http://127.0.0.1:8000`. To use another port: `npm run dev -- 8001`.
 
-Without npm, use `python3 -m http.server 8000 --bind 127.0.0.1`. If port 8000 is occupied, use `python3 -m http.server 8001 --bind 127.0.0.1` and open port 8001 instead.
+```bash
+npm test
+```
 
-Run the shared-physics and session-state checks with `npm test`.
-
-Then open `http://127.0.0.1:8000` (or the port you chose) and verify navigation, both languages, project/note links, PDF actions, and the simulator on desktop and mobile widths.
-
-### Parallel worktrees
-
-`npm run worktree -- <branch>` creates `.claude/worktrees/<branch>` from `main` (or checks out `<branch>` if it already exists locally or on `origin`) and links the main checkout's local `.agents` notes into it, so parallel sessions share one `HANDOFF.md`. In a worktree made another way (`claude -w`, Codex), `npm run worktree` with no branch only adds the links. Give each worktree's server its own port, e.g. `npm run dev -- 8001`.
-
-## Deployment
-
-GitHub Pages serves the repository root from the `main` branch.
+runs the tests in `tests/` with Node's built-in test runner.
 
 ## License
 
