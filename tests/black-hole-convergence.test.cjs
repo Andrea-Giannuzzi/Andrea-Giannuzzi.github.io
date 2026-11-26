@@ -14,6 +14,9 @@ const position = ([, r, theta, phi]) => [
   r * Math.sin(theta) * Math.cos(phi), r * Math.sin(theta) * Math.sin(phi), r * Math.cos(theta)
 ];
 const distance = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]);
+const assertClose = (actual, expected, tolerance, message) => {
+  assert.ok(Math.abs(actual - expected) <= tolerance, `${message}: ${actual} vs ${expected}`);
+};
 
 test('Samples sit at exact multiples of sampleEvery * step and carry their lambdas', () => {
   const params = { M: 1, a: 0.6, q: 0.3 };
@@ -99,6 +102,29 @@ test('Different stops, a budget stop and a too short run are classified', () => 
 
   const short = P.integrateGeodesic(simulation.params, simulation.initialState, { ...simulation.result.settings, maxLambda: 0.1 });
   assert.equal(P.convergenceEstimate(simulation.params, simulation.initialState, short).reason, 'tooShort');
+});
+
+test('Step doubling classifies by the observed order alone: 1 and 2 are not reliable, 4 is', () => {
+  // Synthetic runs on a straight line whose position error is c h^p lambda:
+  // the classification sees only the samples.
+  const run = (step, order) => {
+    const count = Math.round(8 / step);
+    const points = Array.from({ length: count + 1 }, (_, i) => {
+      const lambda = i * step;
+      return [0, 10 + lambda + 1e-2 * step ** order * lambda, Math.PI / 2, 0, 0, 0, 0, 0];
+    });
+    return { points, sampleLambdas: points.map((_, i) => i * step), settings: { step }, stopReason: 'maximumInterval' };
+  };
+  const classify = (order) => P.convergenceEstimate(null, null, run(0.01, order), [run(0.02, order), run(0.04, order)]);
+  for (const order of [1, 2]) {
+    const estimate = classify(order);
+    assertClose(estimate.order, order, 1e-6, `order ${order}`);
+    assert.equal(estimate.status, 'unreliable', `order ${order}`);
+    assert.equal(estimate.reason, 'orderOutOfRange', `order ${order}`);
+  }
+  const fourth = classify(4);
+  assert.equal(fourth.status, 'reliable');
+  assertClose(fourth.errorEstimate, 1e-2 * 0.01 ** 4 * 8, 1e-3 * 1e-2 * 0.01 ** 4 * 8, 'Richardson estimate of the error left at h');
 });
 
 test('The radial infall benchmark exposes four decreasing errors at RK4 order', () => {

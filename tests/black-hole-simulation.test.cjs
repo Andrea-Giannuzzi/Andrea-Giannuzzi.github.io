@@ -61,6 +61,29 @@ memory.set(storageKey, '{corrupt'); assert.equal(S.load().error, true);
 window.sessionStorage.getItem = () => { throw new Error('blocked'); };
 window.sessionStorage.setItem = () => { throw new Error('blocked'); };
 assert.equal(S.load().error, true); assert.equal(S.save(S.presetConfiguration()), false);
+// The ISCO presets sit where the circular-orbit |L_z| is least, a property
+// of the metric rather than of the radius they were built from.
+for (const [name, sense] of [['massiveIscoPrograde', 'prograde'], ['massiveIscoRetrograde', 'retrograde']]) {
+  const config = S.presetConfiguration(name);
+  const params = P.dimensionlessParameters(config.physical);
+  const angularMomentum = (r) => Math.abs(P.circularOrbitFourVelocity(params, r, sense).angularMomentum);
+  for (const offset of [-1e-3, 1e-3]) {
+    assert.ok(angularMomentum(config.initial.radius * (1 + offset)) > angularMomentum(config.initial.radius), `${name}: |L_z| at ${offset}`);
+  }
+}
+// Physical units against known values, not the code's own conversion: the
+// Sun's Schwarzschild radius 2GM/c^2 is 2953.25 m from the IAU GM_sun, 2953.34
+// m from CODATA 2018 G times M_sun = 1.98847e30 kg (G's own uncertainty,
+// 2.2e-5); the extremal charge M sqrt(4 pi epsilon0 G) and the maximal angular
+// momentum G M^2 / c of 10 solar masses give q* = 1 and a* = 1.
+const sun = P.dimensionlessParameters({ massSolar: 1, chargeC: 0, angularMomentum: 0 });
+assert.ok(Math.abs(2 * sun.geometry.massMeters - 2953.25) < 0.15, `solar Schwarzschild radius ${2 * sun.geometry.massMeters} m`);
+const tenSuns = 10 * 1.98847e30;
+const extremalCharge = tenSuns * Math.sqrt(4 * Math.PI * 8.8541878128e-12 * 6.67430e-11);
+const maximalSpin = 6.67430e-11 * tenSuns ** 2 / 299792458;
+assert.ok(Math.abs(extremalCharge / 1.7136e21 - 1) < 1e-4, `extremal charge ${extremalCharge} C`);
+const extremal = P.dimensionlessParameters({ massSolar: 10, chargeC: extremalCharge, angularMomentum: maximalSpin });
+assert.ok(Math.abs(extremal.q - 1) < 1e-12 && Math.abs(extremal.a - 1) < 1e-12, `q* ${extremal.q}, a* ${extremal.a}`);
 const validation = P.runScientificValidation();
 assert.equal(validation.passed, true, json(validation));
 console.log('Validation, invalid inputs, super-extremality and storage failure tests passed.');

@@ -177,9 +177,9 @@
   // disk geometry in particular) can place features exactly rather than by
   // display-string convention. Schwarzschild and Kerr use their standard
   // closed forms (Kerr via the Bardeen-Press-Teukolsky z1/z2 construction).
-  // Reissner-Nordstrom has one too, below, up to the extremal charge; past
-  // it, with no horizon, its ISCO is not implemented. Kerr-Newman (both
-  // spin and charge nonzero) has no closed form in this module: both null.
+  // Reissner-Nordstrom has one too, below, up to the extremal charge, and
+  // Kerr-Newman a root found by bisection, for the ISCO and the photon orbit
+  // alike; without a horizon both are null.
   function iscoRadius(params, sense = "prograde", type = detectSpacetime(params)) {
     if (type === "schwarzschild") return 6;
     if (type === "kerr") {
@@ -204,6 +204,33 @@
       const root = Math.sqrt(Math.max(0, c * c / 4 + p * p * p / 27));
       return 2 + Math.cbrt(-c / 2 + root) + Math.cbrt(-c / 2 - root);
     }
+    if (type === "kerrNewman") {
+      // The outermost root of
+      // M r (6Mr - r^2 - 9q^2 + 3a^2) + 4q^2 (q^2 - a^2) -+ 8|a| (Mr - q^2)^(3/2) = 0
+      // (minus prograde, plus retrograde), which is the Kerr condition
+      // r^2 - 6Mr +- 8|a| sqrt(Mr) - 3a^2 = 0 at q = 0 and the cubic above at
+      // a = 0; the tests check it against the least L_z of the circular orbits.
+      // The root lies inside 9M (extremal Kerr, retrograde).
+      const horizons = horizonData(params);
+      if (!horizons.hasHorizon) return null;
+      const { M, q } = params;
+      const spin = Math.abs(params.a);
+      const side = sense === "retrograde" ? -1 : 1;
+      return outermostRoot((r) => M * r * (6 * M * r - r * r - 9 * q * q + 3 * spin * spin)
+        + 4 * q * q * (q * q - spin * spin) - side * 8 * spin * Math.pow(M * r - q * q, 1.5),
+      10 * M, horizons.outer, 0.01 * M);
+    }
+    return null;
+  }
+
+  // The outermost root of fn outside the horizon: stepping in from `start`,
+  // outside every root, to the first sign change, then bisecting. null when
+  // the steps reach the horizon first.
+  function outermostRoot(fn, start, horizon, step) {
+    const signOutside = Math.sign(fn(start));
+    for (let r = start - step; r > horizon; r -= step) {
+      if (Math.sign(fn(r)) !== signOutside) return bisectSignChange(fn, r, r + step);
+    }
     return null;
   }
 
@@ -218,6 +245,21 @@
       return sense === "retrograde"
         ? 2 * (1 + Math.cos((2 / 3) * Math.acos(spin)))
         : 2 * (1 + Math.cos((2 / 3) * Math.acos(-spin)));
+    }
+    if (type === "kerrNewman") {
+      // The equatorial circular photon orbit: the outermost root of
+      // r^2 - 3Mr + 2q^2 +- 2|a| sqrt(Mr - q^2) = 0 (plus prograde, minus
+      // retrograde), which is Kerr's r^2 - 3Mr +- 2|a| sqrt(Mr) = 0 at q = 0
+      // and Reissner-Nordstrom's r^2 - 3Mr + 2q^2 = 0 at a = 0; the tests
+      // check it against the null circular orbits and the shadow contour's
+      // photon-orbit range. The root lies inside 4M (extremal Kerr, retrograde).
+      const horizons = horizonData(params);
+      if (!horizons.hasHorizon) return null;
+      const { M, q } = params;
+      const spin = Math.abs(params.a);
+      const side = sense === "retrograde" ? -1 : 1;
+      return outermostRoot((r) => r * r - 3 * M * r + 2 * q * q + side * 2 * spin * Math.sqrt(M * r - q * q),
+        5 * M, horizons.outer, 0.01 * M);
     }
     return null;
   }
@@ -363,18 +405,17 @@
     return `prograde ${prograde.toFixed(6)} M; retrograde ${retrograde.toFixed(6)} M`;
   }
 
+  // With spin the prograde and retrograde orbits differ, so both are listed.
   function circularOrbitInformation(params, type = detectSpacetime(params)) {
-    if (type === "kerr") {
-      return {
-        isco: formatOrbitPair(iscoRadius(params, "prograde", type), iscoRadius(params, "retrograde", type)),
-        photon: formatOrbitPair(photonSphereRadius(params, "prograde", type), photonSphereRadius(params, "retrograde", type))
-      };
-    }
-    const isco = iscoRadius(params, "prograde", type);
-    const photon = photonSphereRadius(params, "prograde", type);
+    const spinning = type === "kerr" || type === "kerrNewman";
+    const describe = (radiusFor) => {
+      const prograde = radiusFor("prograde");
+      if (prograde === null) return "N/A";
+      return spinning ? formatOrbitPair(prograde, radiusFor("retrograde")) : `${prograde.toFixed(6)} M`;
+    };
     return {
-      isco: isco !== null ? `${isco.toFixed(6)} M` : "N/A",
-      photon: photon !== null ? `${photon.toFixed(6)} M` : "N/A"
+      isco: describe((sense) => iscoRadius(params, sense, type)),
+      photon: describe((sense) => photonSphereRadius(params, sense, type))
     };
   }
 
@@ -569,20 +610,24 @@
     return state ? 1 / state.uT : null;
   }
 
-  // Disk temperature profile: T(r) = T0 * (r_isco/r)^0.75 * sqrt(1 - sqrt(r_isco/r)),
-  // the standard Shakura-Sunyaev/Novikov-Thorne zero-torque-at-the-inner-edge
-  // shape (it correctly drives T to zero exactly at the ISCO rather than
-  // needing an artificial cutoff). referenceKelvin (T0) is a display
-  // constant, not derived from an accretion rate -- none is modeled here, so
-  // only the RELATIVE falloff shape is physical, not the absolute scale.
+  // Disk temperature profile: T(r) ~ (r_isco/r)^(3/4) * (1 - sqrt(r_isco/r))^(1/4),
+  // the fourth root of the Shakura-Sunyaev zero-torque flux
+  // F ~ r^-3 (1 - sqrt(r_isco/r)): zero exactly at the ISCO rather than
+  // needing an artificial cutoff, hottest at r = (49/36) r_isco, T ~ r^(-3/4)
+  // far out. (The bracket used to enter as its square root, which put the
+  // peak at (16/9) r_isco.) peakKelvin, the temperature at that peak, is a
+  // display constant, not derived from an accretion rate -- none is modeled
+  // here, so only the RELATIVE falloff shape is physical, not the absolute
+  // scale; 6500 K keeps the hottest color the disk had before the fix.
   // Returns 0 at/inside the ISCO, or null where the ISCO itself is not known
   // for this spacetime (see iscoRadius).
-  function diskTemperature(params, radius, sense = "prograde", referenceKelvin = 20000, iscoOverride = null) {
+  const DISK_PEAK_SHAPE = Math.pow(36 / 49, 0.75) * Math.pow(1 / 7, 0.25);
+  function diskTemperature(params, radius, sense = "prograde", peakKelvin = 6500, iscoOverride = null) {
     const isco = iscoOverride !== null ? iscoOverride : iscoRadius(params, sense);
     if (isco === null) return null;
     if (!(radius > isco)) return 0;
     const x = isco / radius;
-    return referenceKelvin * Math.pow(x, 0.75) * Math.sqrt(1 - Math.sqrt(x));
+    return peakKelvin * Math.pow(x, 0.75) * Math.pow(1 - Math.sqrt(x), 0.25) / DISK_PEAK_SHAPE;
   }
 
   // Rough blackbody color approximation (Kelvin -> sRGB components in
@@ -1413,6 +1458,18 @@
         unit: ""
       },
       {
+        id: "kerrNewmanPhotonSpherePrograde",
+        reference: 0,
+        computed: () => photonSphereNullResidual(kerrNewman, "prograde"),
+        unit: ""
+      },
+      {
+        id: "kerrNewmanPhotonSphereRetrograde",
+        reference: 0,
+        computed: () => photonSphereNullResidual(kerrNewman, "retrograde"),
+        unit: ""
+      },
+      {
         id: "schwarzschildKeplerOmega",
         reference: Math.sqrt(1 / Math.pow(10, 3)),
         computed: () => keplerianAngularVelocity(schwarzschild, 10, "prograde"),
@@ -1439,11 +1496,13 @@
         unit: ""
       },
       {
-        // The ergosphere is tangent to the outer horizon at the poles.
-        id: "kerrErgosphereTangentAtPole",
-        reference: horizonData(kerr).outer,
-        computed: () => outerStaticLimitAtTheta(kerr, 0),
-        unit: "M"
+        // The ergosphere drawn in 3D is the surface g_tt = 0. (It used to be
+        // checked against the horizon at the pole, where both formulas give
+        // M + sqrt(M^2 - a^2 - q^2) and nothing could fail.)
+        id: "kerrNewmanStaticLimit",
+        reference: 0,
+        computed: () => metric(kerrNewman, outerStaticLimitAtTheta(kerrNewman, Math.PI / 3), Math.PI / 3)[0][0],
+        unit: ""
       },
       {
         // Standard closed-form Schwarzschild ISCO orbital constants.
@@ -1457,7 +1516,19 @@
         reference: 2 * Math.sqrt(3),
         computed: () => circularOrbitFourVelocity(schwarzschild, 6, "prograde").angularMomentum,
         unit: "M"
-      }
+      },
+      // At the Kerr ISCO, and only there, the circular-orbit energy from the
+      // metric is E = sqrt(1 - 2M/(3r)) (Bardeen, Press & Teukolsky 1972):
+      // a check of iscoRadius that shares nothing with its z1/z2 formula.
+      ...["prograde", "retrograde"].map((sense) => {
+        const radius = iscoRadius(kerr, sense);
+        return {
+          id: sense === "prograde" ? "kerrIscoEnergyPrograde" : "kerrIscoEnergyRetrograde",
+          reference: Math.sqrt(1 - 2 / (3 * radius)),
+          computed: () => circularOrbitFourVelocity(kerr, radius, sense).energy,
+          unit: ""
+        };
+      })
     ].map(analyticalMeasurement);
 
     // Edges of the shadow contour drawn on the page, for a distant observer on

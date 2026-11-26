@@ -36,14 +36,39 @@ test('Numeric ISCO/photon-sphere radii agree with the formatted circularOrbitInf
   const reissnerNordstrom = { M: 1, a: 0, q: 0.3 };
   assert.equal(P.circularOrbitInformation(reissnerNordstrom).isco, `${P.iscoRadius(reissnerNordstrom).toFixed(6)} M`);
 
-  // Kerr-Newman has no closed-form ISCO in this module, nor has an
-  // over-extremal Reissner-Nordstrom: they must stay honestly null/"N/A",
-  // not a fabricated number.
+  // Kerr-Newman lists both senses, like Kerr. Without a horizon there is no
+  // ISCO or photon orbit: "N/A", not a fabricated number.
   const kerrNewman = { M: 1, a: 0.7, q: 0.2 };
-  assert.equal(P.iscoRadius(kerrNewman), null);
-  assert.equal(P.iscoRadius({ M: 1, a: 0, q: 1.01 }), null);
-  assert.equal(P.photonSphereRadius(kerrNewman), null);
-  assert.equal(P.circularOrbitInformation(kerrNewman).isco, 'N/A');
+  const pair = (radius) => `prograde ${radius(kerrNewman, 'prograde').toFixed(6)} M; retrograde ${radius(kerrNewman, 'retrograde').toFixed(6)} M`;
+  assert.equal(P.circularOrbitInformation(kerrNewman).isco, pair(P.iscoRadius));
+  assert.equal(P.circularOrbitInformation(kerrNewman).photon, pair(P.photonSphereRadius));
+  for (const overExtremal of [{ M: 1, a: 0, q: 1.01 }, { M: 1, a: 0.8, q: 0.7 }]) {
+    assert.equal(P.iscoRadius(overExtremal), null);
+    assert.equal(P.circularOrbitInformation(overExtremal).isco, 'N/A');
+  }
+  assert.equal(P.photonSphereRadius({ M: 1, a: 0.8, q: 0.7 }), null);
+});
+
+test('Kerr-Newman photon orbit: null circular orbits at the edges of the equatorial shadow, between the Kerr and Reissner-Nordstrom limits', () => {
+  for (const params of [{ M: 1, a: 0.7, q: 0.2 }, { M: 1, a: 0.6, q: 0.48 }, { M: 1, a: 0.9, q: 0.3 }, { M: 1, a: 0.3, q: 0.9 }]) {
+    const label = `a ${params.a} q ${params.q}`;
+    const [prograde, retrograde] = ['prograde', 'retrograde'].map((sense) => P.photonSphereRadius(params, sense));
+    assert.ok(P.horizonData(params).outer < prograde && prograde < retrograde, `${label}: ${prograde}, ${retrograde}`);
+    // The circular orbit there, from the metric, is null.
+    for (const [sense, radius] of [['prograde', prograde], ['retrograde', retrograde]]) {
+      const omega = P.keplerianAngularVelocity(params, radius, sense);
+      const g = P.metric(params, radius, Math.PI / 2);
+      assert.ok(Math.abs(g[0][0] + 2 * omega * g[0][3] + omega * omega * g[3][3]) < 1e-14, `${label} ${sense}: not null`);
+    }
+    // Seen edge-on, the shadow edge comes from exactly these two orbits: its
+    // photon-orbit range is bisected on beta^2 = 0, a different equation.
+    const { rpMin, rpMax } = P.shadowContour(params, Math.PI / 2);
+    assert.ok(Math.abs(rpMin - prograde) < 1e-12 && Math.abs(rpMax - retrograde) < 1e-12, `${label}: contour ${rpMin}, ${rpMax}`);
+  }
+  for (const sense of ['prograde', 'retrograde']) {
+    assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 0.7, q: 1e-7 }, sense) - P.photonSphereRadius({ M: 1, a: 0.7, q: 0 }, sense)) < 1e-9, `${sense}: Kerr limit`);
+    assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 1e-8, q: 0.8 }, sense) - P.photonSphereRadius({ M: 1, a: 0, q: 0.8 })) < 1e-6, `${sense}: Reissner-Nordstrom limit`);
+  }
 });
 
 test('Reissner-Nordstrom ISCO: the circular orbit of least L_z, from 6 M uncharged to 4 M extremal', () => {
@@ -86,6 +111,60 @@ test('Reissner-Nordstrom: gas released just inside the ISCO plunges to the horiz
     guardCoordinates: true, maxLambda: 400, step: 0.03, maxSteps: 14000
   });
   assert.equal(result.stopReason, 'outerHorizon');
+});
+
+test('Kerr-Newman ISCO: the circular orbit of least |L_z| in each sense, between the Kerr and Reissner-Nordstrom limits', () => {
+  // Checked against the metric, not the condition it solves, as for
+  // Reissner-Nordstrom above.
+  for (const sense of ['prograde', 'retrograde']) {
+    for (const a of [0.1, 0.5, 0.9]) {
+      assert.ok(Math.abs(P.iscoRadius({ M: 1, a, q: 1e-6 }, sense) - P.iscoRadius({ M: 1, a, q: 0 }, sense)) < 1e-9, `${sense} a ${a}: Kerr limit`);
+      let previous = P.iscoRadius({ M: 1, a, q: 0 }, sense);
+      for (const q of [0.1, 0.3, 0.4]) {
+        const params = { M: 1, a, q };
+        const isco = P.iscoRadius(params, sense);
+        assert.ok(isco < previous && isco > P.horizonData(params).outer, `${sense} a ${a} q ${q}: ${isco}`);
+        previous = isco;
+        const angularMomentum = (r) => Math.abs(P.circularOrbitFourVelocity(params, r, sense).angularMomentum);
+        for (const offset of [-1e-3, 1e-3]) {
+          assert.ok(angularMomentum(isco * (1 + offset)) > angularMomentum(isco), `${sense} a ${a} q ${q}: |L_z| at ${offset} is not larger`);
+        }
+      }
+    }
+    for (const q of [0.3, 0.8]) {
+      assert.ok(Math.abs(P.iscoRadius({ M: 1, a: 1e-7, q }, sense) - P.iscoRadius({ M: 1, a: 0, q })) < 1e-5, `${sense} q ${q}: Reissner-Nordstrom limit`);
+    }
+  }
+  // The 3D view seeds its plunging gas just inside the ISCO (see the
+  // Reissner-Nordstrom test above). From the spin-only Kerr ISCO it used for
+  // Kerr-Newman, every stream was rejected; from the real one it plunges.
+  const params = { M: 1, a: 0.7, q: 0.5 };
+  const horizon = P.horizonData(params).outer;
+  const seedFor = (isco) => {
+    const orbit = P.circularOrbitFourVelocity(params, isco, 'prograde');
+    return P.initialStateFromConstants(params, {
+      radius: horizon + (isco - horizon) * 0.99, energy: orbit.energy, angularMomentum: orbit.angularMomentum,
+      massive: true, radialDirection: 'ingoing'
+    });
+  };
+  assert.throws(() => seedFor(P.iscoRadius(kerr)), (error) => error.code === 'nonRealRadialVelocity');
+  const result = P.integrateGeodesic(params, seedFor(P.iscoRadius(params)), {
+    guardCoordinates: true, maxLambda: 400, step: 0.03, maxSteps: 14000
+  });
+  assert.equal(result.stopReason, 'outerHorizon');
+});
+
+test('The ergosphere drawn in 3D is where g_tt = 0, outside the horizon except at the poles', () => {
+  const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
+  const horizon = P.horizonData(kerrNewman).outer;
+  for (const theta of [0.2, Math.PI / 4, Math.PI / 3, Math.PI / 2, 2.5]) {
+    const radius = P.outerStaticLimitAtTheta(kerrNewman, theta);
+    assert.ok(radius > horizon, `theta ${theta}: ${radius}`);
+    assert.ok(Math.abs(P.metric(kerrNewman, radius, theta)[0][0]) < 1e-14, `theta ${theta}: g_tt`);
+    // Timelike just outside, spacelike just inside.
+    assert.ok(P.metric(kerrNewman, radius * 1.01, theta)[0][0] < 0 && P.metric(kerrNewman, radius * 0.99, theta)[0][0] > 0, `theta ${theta}: sign`);
+  }
+  assert.ok(Math.abs(P.outerStaticLimitAtTheta(kerrNewman, 0) - horizon) < 1e-15, 'tangent at the pole');
 });
 
 test('circularOrbitFourVelocity at the Schwarzschild ISCO matches the closed-form E and L', () => {
@@ -131,6 +210,16 @@ test('Disk temperature is zero at the ISCO, positive just outside it, and falls 
   // then falls off -- monotonic decrease only holds well past that peak.
   const far = [20, 30, 50, 80, 120].map((r) => P.diskTemperature(schwarzschild, r));
   for (let i = 1; i < far.length; i += 1) assert.ok(far[i] < far[i - 1], far);
+  // T is the fourth root of the flux r^-3 (1 - sqrt(r_isco/r)): hottest at
+  // (49/36) r_isco, T ~ r^(-3/4) far out.
+  let peak = isco;
+  for (let r = isco; r < 3 * isco; r += 1e-4 * isco) {
+    if (P.diskTemperature(schwarzschild, r) > P.diskTemperature(schwarzschild, peak)) peak = r;
+  }
+  assert.ok(Math.abs(peak / isco - 49 / 36) < 2e-4, `peak at ${peak / isco} r_isco`);
+  assert.ok(Math.abs(P.diskTemperature(schwarzschild, 49 / 36 * isco) - 6500) < 1e-9, 'peakKelvin is the peak');
+  const slope = Math.log(P.diskTemperature(schwarzschild, 6e5) / P.diskTemperature(schwarzschild, 6e4)) / Math.log(10);
+  assert.ok(Math.abs(slope + 0.75) < 1e-3, `far slope ${slope}`);
 });
 
 test('Blackbody color stays in range and shifts blue as temperature rises', () => {
@@ -188,6 +277,17 @@ test('Lensing deflection near the shadow edge is accumulated, not folded into (-
   assert.ok(deflections[0] < -360, `deflections ${deflections}`);
   for (let i = 1; i < deflections.length; i += 1) {
     assert.ok(deflections[i - 1] < deflections[i] && deflections[i] < 0, `deflections ${deflections}`);
+  }
+});
+
+test('The default table starts on the shadow edge with frame dragging: first ray captured, second escaped', () => {
+  // Close to a fast-spinning hole the ZAMO frame's rotation moves the edge by
+  // about 1 % (omega xi ~ 0.012 at camera 10, a 0.9), several times the first
+  // sample interval; at camera 38 it is too small to test.
+  for (const params of [{ M: 1, a: 0.9, q: 0 }, { M: 1, a: 0.6, q: 0.48 }]) {
+    const [edge, next] = P.computeLensingTable(params, { cameraRadius: 10 }).samples;
+    assert.equal(edge.deflection, null, `a ${params.a} q ${params.q}: ${edge.angle}° escaped (${edge.stopReason})`);
+    assert.equal(next.stopReason, 'escapedToLarge', `a ${params.a} q ${params.q}: ${next.angle}° captured`);
   }
 });
 

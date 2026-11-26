@@ -355,13 +355,12 @@
   `;
 
   function buildDisk(params) {
-    // ISCO anchors the inner edge physically. Kerr-Newman (spin and charge
-    // both nonzero) and an over-extremal Reissner-Nordstrom have no ISCO in
-    // this project (see P.iscoRadius); a documented fallback uses the spin-only Kerr value
-    // (charge dropped) for placement, while rotation/redshift/temperature
-    // still use the real charged params, since keplerianAngularVelocity and
-    // diskRedshiftFactor are derived directly from the metric and stay valid
-    // for any (M, a, q).
+    // ISCO anchors the inner edge physically. Without a horizon there is no
+    // ISCO in this project (see P.iscoRadius); a documented fallback then
+    // uses the spin-only Kerr value (charge dropped), or 6 M, for placement,
+    // while rotation/redshift/temperature still use the real charged params,
+    // since keplerianAngularVelocity and diskRedshiftFactor are derived
+    // directly from the metric and stay valid for any (M, a, q).
     const fallbackParams = { M: params.M, a: params.a, q: 0 };
     const isco = P.iscoRadius(params) ?? P.iscoRadius(fallbackParams) ?? 6;
     const outer = isco * 4;
@@ -383,7 +382,7 @@
       const angle0 = Math.random() * 2 * Math.PI;
       const omega = P.keplerianAngularVelocity(params, r, "prograde") ?? 0;
       const redshift = P.diskRedshiftFactor(params, r, "prograde");
-      const temperature = P.diskTemperature(params, r, "prograde", 20000, isco) ?? 0;
+      const temperature = P.diskTemperature(params, r, "prograde", 6500, isco) ?? 0;
       const frame = P.zamoFrame(params, r, Math.PI / 2);
       const beta = Math.min(0.999, Math.abs((omega - frame.omega) * frame.azimuthalScale / frame.lapse));
       const color = P.blackbodyColor(temperature * (redshift ?? 1));
@@ -487,16 +486,15 @@
 
   // Photon-sphere visual. Unlike the ergosphere (a single well-defined
   // theta-dependent surface for any spin), only the *equatorial* circular
-  // photon orbits have a simple closed form in this engine (see
+  // photon orbits have a simple radius in this engine (see
   // P.photonSphereRadius) -- Kerr's full "photon shell" of inclined
   // spherical photon orbits depends on latitude via a more involved
   // construction this module does not implement. Rendered honestly rather
   // than approximated: a genuine sphere for a=0 (Schwarzschild/Reissner-
   // Nordstrom, where spherical symmetry really does make it one), or two
-  // thin rings in the equatorial plane (prograde/retrograde) for Kerr --
-  // never a full sphere where the physics does not actually guarantee one.
-  // Kerr-Newman (spin and charge both nonzero) has no closed form here
-  // either (photonSphereRadius returns null): nothing is drawn, the same
+  // thin rings in the equatorial plane (prograde/retrograde) for Kerr and
+  // Kerr-Newman -- never a full sphere where the physics does not actually
+  // guarantee one. Without a horizon nothing is drawn, the same
   // graceful-degradation pattern buildErgosphere/buildPlungingRegion use.
   function buildPhotonSphere(params, horizons) {
     for (const object of [photonSphere, photonSphereWire, photonSphereRingPrograde, photonSphereRingRetrograde]) {
@@ -523,7 +521,7 @@
         color, wireframe: true, transparent: true, opacity: 0.3, depthWrite: false
       }));
       scene.add(photonSphere, photonSphereWire);
-    } else if (type === "kerr") {
+    } else {
       // A torus (a genuine 3D tube), not a flat ring/annulus, so the orbit
       // locus reads as a curve in space from any camera angle rather than
       // a disc that vanishes edge-on or looks like a filled surface.
@@ -587,7 +585,7 @@
     plungingStreams = [];
     const orbit = P.circularOrbitFourVelocity(params, isco, "prograde");
     if (!orbit) return;
-    const baseTemperature = P.diskTemperature(params, isco * 1.05, "prograde", 20000, isco);
+    const baseTemperature = P.diskTemperature(params, isco * 1.05, "prograde", 6500, isco);
     if (!baseTemperature) return;
     // Seed 99% of the way from the horizon to the ISCO (i.e. just inside the
     // ISCO), expressed as a fraction of the horizon-ISCO *gap* so it stays
@@ -626,8 +624,9 @@
         // A longer window (was maxLambda:100) is needed to actually reach
         // the horizon from this much closer seed -- verified numerically
         // (node) across a*=0..0.99 (the full range presets and custom
-        // launches can reach) and Reissner-Nordstrom q*=0.3..0.999 (at most
-        // lambda~350): worst case (Schwarzschild) needs
+        // launches can reach), Reissner-Nordstrom q*=0.3..0.999 and
+        // Kerr-Newman a*=0.1..0.99 with q*=0.05..0.95 (at most lambda~350):
+        // worst case (Schwarzschild) needs
         // lambda~360, all cases reach the horizon margin within 400. The
         // coarser step (was 0.01) is a deliberate cost/precision trade-off
         // specific to this illustrative background element -- it is
