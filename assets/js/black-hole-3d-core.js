@@ -1,7 +1,7 @@
 /* The 3D view's logic that needs neither the DOM nor WebGL, kept apart from
  * black-hole-3d.js so the tests can load it in node: sampling a solved
- * trajectory for the scene, interpolating along it in lambda, the star-field
- * lensing shift and the status line. Scene axes follow three.js: y is the
+ * trajectory for the scene, interpolating along it in lambda, the lensed
+ * images of the star field and the status line. Scene axes follow three.js: y is the
  * spin axis (theta = 0), x-z the equatorial plane, 1 M = 1 scene unit.
  */
 (function () {
@@ -51,69 +51,129 @@
     return { index, nextIndex, fraction };
   }
 
-  // The samples of a P.computeLensingTable table whose ray escaped, the only
-  // ones with a deflection.
-  const escapedSamples = (table) => table?.samples.filter((sample) => sample.deflection !== null) ?? [];
+  const DEGREE = Math.PI / 180;
 
-  // Deflection (degrees) at a viewing angle from the black hole, linear in the
-  // escaped samples: 0 up to the first one (captured rays have no
-  // deflection), the last value beyond the last one.
-  function angularDeflectionFor(table, angleDegrees) {
-    return interpolatedDeflection(escapedSamples(table), angleDegrees);
+  // The escaped rays of a P.computeLensingTable table as a map from the
+  // viewing angle alpha (degrees from the hole) to the true direction of the
+  // star seen there, psi = alpha + deflection. psi grows with alpha: below
+  // -160 at the first escaped sample, next to the shadow edge, where the ray
+  // has wound around the hole; 0 at the Einstein ring; about 180 straight
+  // away from the hole. A star at true angle psi has its primary image where
+  // the map reaches psi and its secondary image, across the hole, where it
+  // reaches -psi. Each sample with psi < 0 also carries the brightness of a
+  // secondary image there, min(1, magnification), the magnification
+  // (sin alpha / |sin psi|) dalpha/dpsi being the ratio of the image's solid
+  // angle to the star's, with dalpha/dpsi from the neighbouring samples: it
+  // falls below 0.01 within a few degrees of the shadow edge. Primary images
+  // keep full brightness: their magnification is at least 0.97 at the usual
+  // camera distances of 40-80 M (0.8 at 10 M, for stars behind the camera).
+  // null without two escaped samples.
+  function lensingImageMap(table) {
+    const escaped = table?.samples.filter((sample) => sample.deflection !== null) ?? [];
+    if (escaped.length < 2) return null;
+    const alphas = escaped.map((sample) => sample.angle);
+    const psis = escaped.map((sample) => sample.angle + sample.deflection);
+    const last = alphas.length - 1;
+    const brightness = alphas.map((alpha, i) => {
+      if (psis[i] >= 0) return 1;
+      const lo = Math.max(0, i - 1), hi = Math.min(last, i + 1);
+      const slope = (alphas[hi] - alphas[lo]) / (psis[hi] - psis[lo]);
+      const magnification = Math.sin(alpha * DEGREE) / Math.abs(Math.sin(psis[i] * DEGREE)) * slope;
+      return Number.isFinite(magnification) ? Math.min(1, Math.abs(magnification)) : 1;
+    });
+    return { alphas, psis, brightness };
   }
 
-  function interpolatedDeflection(escaped, angleDegrees) {
-    if (escaped.length < 2 || angleDegrees <= escaped[0].angle) return 0;
-    if (angleDegrees >= escaped[escaped.length - 1].angle) return escaped[escaped.length - 1].deflection;
-    let lo = escaped[0];
-    let hi = escaped[escaped.length - 1];
-    for (let i = 1; i < escaped.length; i += 1) {
-      if (escaped[i].angle >= angleDegrees) { hi = escaped[i]; lo = escaped[i - 1]; break; }
+  // The image of true angle psi: its viewing angle and brightness, linear in
+  // psi between samples, written into `image`. Past the last sample the last
+  // deflection holds; before the first, the image lies closer to the shadow
+  // edge than the table resolves: null.
+  function lensedImage(map, psi, image = {}) {
+    const { alphas, psis, brightness } = map;
+    const last = psis.length - 1;
+    if (psi < psis[0]) return null;
+    if (psi >= psis[last]) {
+      image.angle = alphas[last] + psi - psis[last];
+      image.brightness = brightness[last];
+      return image;
     }
-    const t = (angleDegrees - lo.angle) / (hi.angle - lo.angle);
-    return lo.deflection + t * (hi.deflection - lo.deflection);
+    let lo = 0, hi = last;
+    while (hi - lo > 1) {
+      const middle = (lo + hi) >> 1;
+      if (psis[middle] <= psi) lo = middle; else hi = middle;
+    }
+    const t = (psi - psis[lo]) / (psis[hi] - psis[lo]);
+    image.angle = alphas[lo] + t * (alphas[hi] - alphas[lo]);
+    image.brightness = brightness[lo] + t * (brightness[hi] - brightness[lo]);
+    return image;
   }
 
-  // Writes into `out` each star of `original` (flat x, y, z) moved, at its own
-  // distance from the camera and in the plane through camera, target and star,
-  // from its true angle ψ from the camera→target direction to ψ − deflection(ψ).
-  // Beyond the table's last angle the last deflection holds; the default table
-  // reaches 180 degrees, so every star of the 3D view moves by a traced value.
-  // The escaped samples are picked once per call, not per star: the scene
-  // relenses its 4000 stars every frame. Using the true angle as if
-  // it were the viewing angle is a first-order approximation of the harder
-  // inversion, and the 1-D table cannot represent multiple imaging (both in
-  // the comment above P.computeLensingTable).
-  // `camera` and `target` need only x, y, z. The vector arithmetic repeats
-  // three.js's own (normalizing multiplies by the reciprocal length), so the
-  // result is the one the scene drew when this lived on THREE.Vector3.
-  function lensStarField(original, out, camera, target, table) {
-    if (!table) { out.set(original); return; }
-    let bx = target.x - camera.x, by = target.y - camera.y, bz = target.z - camera.z;
+  // Writes into `out` the primary image of each star of `original` (flat x,
+  // y, z) and, given `secondary` ({ positions, colors, baseColors }), the
+  // secondary image there, its color the star's dimmed to the image's
+  // brightness, or black where the table does not resolve it. Each image
+  // keeps the star's distance from the camera and lies in the plane through
+  // camera, hole and star, at the viewing angle lensedImage gives for the
+  // star's true angle psi from the camera-to-hole direction: on the star's
+  // side for psi, across the hole for -psi. No star then shows inside the
+  // shadow, and the ring between the shadow edge and the Einstein ring holds
+  // the secondary images. A star exactly behind the hole goes to one point
+  // of its Einstein ring. The stars are taken at infinity, as the table's
+  // escaping rays; higher-order images, within a fraction of a degree of the
+  // shadow edge, are not drawn, and the one-sided table is applied all
+  // around the hole (see P.computeLensingTable). Without a table the stars
+  // keep their true positions and the secondary images are black.
+  // The map is built once per call and one image object reused, not one per
+  // star: the scene relenses its 4000 stars every frame. `camera` and `hole`
+  // need only x, y, z.
+  function lensStarField(original, out, camera, hole, table, secondary = null) {
+    const map = lensingImageMap(table);
+    if (!map) {
+      out.set(original);
+      if (secondary) { secondary.positions.set(original); secondary.colors.fill(0); }
+      return;
+    }
+    let bx = hole.x - camera.x, by = hole.y - camera.y, bz = hole.z - camera.z;
     const inverseLength = 1 / (Math.sqrt(bx * bx + by * by + bz * bz) || 1);
     bx *= inverseLength; by *= inverseLength; bz *= inverseLength;
-    const escaped = escapedSamples(table);
+    const scratch = {};
+    // Any direction across the camera-to-hole axis, for a star on that axis.
+    const [ax, ay, az] = Math.abs(by) < 0.9 ? [0, 1, 0] : [1, 0, 0];
+    const place = (target, i, angle, side, x, y, z, distance) => {
+      const cos = Math.cos(angle * DEGREE), sin = side * Math.sin(angle * DEGREE);
+      target[i] = camera.x + (bx * cos + x * sin) * distance;
+      target[i + 1] = camera.y + (by * cos + y * sin) * distance;
+      target[i + 2] = camera.z + (bz * cos + z * sin) * distance;
+    };
     for (let i = 0; i < original.length; i += 3) {
-      let sx = original[i] - camera.x, sy = original[i + 1] - camera.y, sz = original[i + 2] - camera.z;
-      const starDistance = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1;
-      const inverseDistance = 1 / starDistance;
-      sx *= inverseDistance; sy *= inverseDistance; sz *= inverseDistance;
-      const cosAngle = Math.min(1, Math.max(-1, sx * bx + sy * by + sz * bz));
-      const angleDeg = Math.acos(cosAngle) * 180 / Math.PI;
-      const deflection = angleDeg > 0 ? interpolatedDeflection(escaped, angleDeg) : 0;
-      if (!deflection) {
-        out[i] = original[i]; out[i + 1] = original[i + 1]; out[i + 2] = original[i + 2];
-        continue;
+      const sx = original[i] - camera.x, sy = original[i + 1] - camera.y, sz = original[i + 2] - camera.z;
+      const distance = Math.sqrt(sx * sx + sy * sy + sz * sz) || 1;
+      const cosAngle = Math.min(1, Math.max(-1, (sx * bx + sy * by + sz * bz) / distance));
+      const psi = Math.acos(cosAngle) / DEGREE;
+      let px = sx / distance - bx * cosAngle, py = sy / distance - by * cosAngle, pz = sz / distance - bz * cosAngle;
+      let across = Math.sqrt(px * px + py * py + pz * pz);
+      if (across < 1e-9) {
+        px = ay * bz - az * by; py = az * bx - ax * bz; pz = ax * by - ay * bx;
+        across = Math.sqrt(px * px + py * py + pz * pz);
       }
-      const correctedRad = Math.max(0.01, angleDeg - deflection) * Math.PI / 180;
-      let px = sx + bx * -cosAngle, py = sy + by * -cosAngle, pz = sz + bz * -cosAngle;
-      const inversePerpLength = 1 / (Math.sqrt(px * px + py * py + pz * pz) || 1);
-      px *= inversePerpLength; py *= inversePerpLength; pz *= inversePerpLength;
-      const cos = Math.cos(correctedRad), sin = Math.sin(correctedRad);
-      out[i] = camera.x + (bx * cos + px * sin) * starDistance;
-      out[i + 1] = camera.y + (by * cos + py * sin) * starDistance;
-      out[i + 2] = camera.z + (bz * cos + pz * sin) * starDistance;
+      px /= across; py /= across; pz /= across;
+      place(out, i, lensedImage(map, psi, scratch)?.angle ?? map.alphas[0], 1, px, py, pz, distance);
+      if (!secondary) continue;
+      const image = lensedImage(map, -psi, scratch);
+      const shade = image ? image.brightness : 0;
+      if (image) place(secondary.positions, i, image.angle, -1, px, py, pz, distance);
+      else { secondary.positions[i] = out[i]; secondary.positions[i + 1] = out[i + 1]; secondary.positions[i + 2] = out[i + 2]; }
+      for (let c = 0; c < 3; c += 1) secondary.colors[i + c] = secondary.baseColors[i + c] * shade;
     }
+  }
+
+  // The camera radius to trace a lensing table at: the camera's distance from
+  // the hole, but at least 4 M, as the view has always clamped it. null while
+  // the table traced at `tracedRadius` is within 5 % of that, so the view
+  // does not retrace (about a second in a worker) for every small zoom step.
+  function lensingTraceRadius(distance, tracedRadius = null) {
+    const radius = Math.max(distance, 4);
+    return tracedRadius !== null && Math.abs(radius - tracedRadius) <= 0.05 * tracedRadius ? null : radius;
   }
 
   // The scene status line: the threeD message for `key`, then why the shown
@@ -128,6 +188,6 @@
   }
 
   window.BlackHole3DCore = Object.freeze({
-    scenePosition, trajectorySamples, sampleCursor, angularDeflectionFor, lensStarField, statusMessage
+    scenePosition, trajectorySamples, sampleCursor, lensingImageMap, lensedImage, lensStarField, lensingTraceRadius, statusMessage
   });
 }());
