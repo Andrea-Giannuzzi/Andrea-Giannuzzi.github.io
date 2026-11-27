@@ -246,7 +246,7 @@ function renderResearch(language) {
           </section>` : ""}
           <section>
             <h3>${item.referenceTitle || content.research.referenceTitle}</h3>
-            <p><a class="text-link inline-link" href="${item.reference.url}" target="_blank" rel="noopener">${item.reference.title}</a><br><span class="muted">${item.reference.identifier}</span></p>
+            ${(item.references || [item.reference]).map((reference) => `<p><a class="text-link inline-link" href="${reference.url}" target="_blank" rel="noopener">${reference.title}</a><br><span class="muted">${reference.identifier}</span>${reference.note ? `<br>${reference.note}` : ""}</p>`).join("")}
           </section>
           <section>
             <h3>${item.documentTitle || content.research.noteTitle}</h3>
@@ -286,7 +286,8 @@ function academicDistinctionsMarkup(content) {
     [content.academic.averageLabel, profile.weightedAverage],
     [content.academic.fullMarksLabel, `${profile.gradedExamsAtFullMarks}/${profile.gradedExamsCompleted}`],
     [content.academic.honoursLabel, profile.honours],
-    [content.academic.creditsLabel, `${profile.earnedCredits} ${profile.creditUnit}`]
+    [content.academic.creditsLabel, `${profile.earnedCredits} ${profile.creditUnit}`],
+    ...(content.cv.awards || []).map((award) => [award.title, award.detail])
   ];
   return `<dl class="academic-facts">${distinctions.map(([label, value]) =>
     `<div><dt>${label}</dt><dd>${value}</dd></div>`

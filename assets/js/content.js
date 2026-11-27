@@ -754,10 +754,16 @@ window.PORTFOLIO_CONTENT = {
       activitiesTitle: "Attività accademiche / scuole",
       schoolTitle: "Physics in Ljubljana 2026",
       schoolDetails: "International Summer School, Ljubljana, 5–11 luglio 2026.",
+      outreachTitle: "PONYS — Physics and Optics Naples Young Students",
+      outreachDetails: "Science communicator dal 2026: partecipante e organizzatore di «Physics in Fabula», eventi in librerie e biblioteche in cui i concetti di fisica sono spiegati ai bambini attraverso le fiabe.",
+      awards: [
+        { title: "Borsa di merito INPS «Supermedia»", detail: "2023, 2024" },
+        { title: "Mensa Italia — QI 151 (99,97° percentile)", detail: "Dal 2025" }
+      ],
       languagesTitle: "Languages",
-      languagesText: "Italiano — madrelingua; Inglese — Cambridge C1 Advanced (C1).",
+      languagesText: "Italiano — madrelingua; inglese — fluente (IELTS 8).",
       additionalTitle: "Additional interests",
-      additionalText: "Scacchi; storia; divulgazione scientifica.",
+      additionalText: "Scacchi; storia; LLM.",
       viewResearch: "Approfondisci in Research",
       viewProject: "Apri progetto"
     },
@@ -789,7 +795,7 @@ window.PORTFOLIO_CONTENT = {
     skills: {
       Physics: ["Elettromagnetismo", "Relatività generale", "Cosmologia", "Analisi dati di laboratorio"],
       Mathematics: ["Geometria differenziale", "Algebra lineare", "Metodi matematici per la fisica"],
-      Programming: ["Python", "HTML", "CSS"],
+      Programming: ["Python", "JavaScript", "HTML", "CSS"],
       "Python Libraries": ["NumPy", "SciPy", "Matplotlib", "Pandas", "SymPy"],
       Tools: ["LaTeX", "GitHub", "Jupyter Notebook"],
       Languages: ["Italiano", "Inglese"]
@@ -948,6 +954,94 @@ window.PORTFOLIO_CONTENT = {
     ],
     researchItems: [
       {
+        "id": "emr-horizon-mergers-null-geodesics",
+        "title": "Geodetiche nulle e fusione degli orizzonti nel limite di rapporto di massa estremo",
+        "summary": "Fusione degli orizzonti di due buchi neri quando uno è molto più massiccio dell'altro: la costruzione di Emparan e Martínez estesa a metriche statiche e sfericamente simmetriche, in vista della gravità modificata.",
+        "date": "15 novembre 2026",
+        "status": "Progetto di ricerca in corso",
+        "formatLabel": "Documento",
+        "format": "PDF in inglese",
+        "context": "Quando uno dei due buchi neri è molto più massiccio dell'altro, l'orizzonte della fusione si costruisce seguendo a ritroso le geodetiche nulle a partire dall'orizzonte finale, localmente planare: è la costruzione di Emparan e Martínez in Schwarzschild. Il problema è capire quali ipotesi servano per applicarla a una specifica teoria di gravità modificata. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
+        "contribution": "Correzioni al primo ordine attorno a Schwarzschild per una famiglia di soluzioni della teoria, trattando correttamente gli estremi che si spostano con la perturbazione, e condizioni esplicite, non automatiche, sotto cui la costruzione descrive l'orizzonte di una fusione reale in gravità modificata. Le formule integrali per metriche statiche, sfericamente simmetriche e asintoticamente piatte sono ricavate senza postulare la lagrangiana geodetica.",
+        "methods": [
+          "Limite di Rindler dell'orizzonte del buco nero grande e gravità superficiale.",
+          "Lagrangiana geodetica ricavata dall'azione della particella libera; integrali primi nel piano dell'orbita.",
+          "Quadrature delle geodetiche nulle con condizioni al contorno nel futuro.",
+          "Caustiche e generatori critici della superficie di fusione.",
+          "Esempio: equazioni di campo della gravità f(R) metrica ricavate variazionalmente.",
+          "Perturbazioni al primo ordine con estremi mobili: teorema della funzione implicita e regola di Leibniz."
+        ],
+        "results": [
+          "Spostamento dell'orizzonte al primo ordine: δr_h = −r₀ a(r₀) = −r₀ b(r₀), che richiede a(r₀) = b(r₀).",
+          "Variazione dei generatori critici q_c e q_* con il teorema della funzione implicita e la regola di Leibniz, includendo il contributo dell'estremo mobile anziché una divergenza apparente.",
+          "Sei condizioni per applicare la costruzione a una teoria specifica: metrica da una soluzione effettiva, separazione delle scale nel limite EMR, propagazione causale lungo le geodetiche nulle della metrica, classificazione dei generatori, osservabilità delle durate, degenerazione tra gravità modificata e materia in relatività generale.",
+          "Verifica esatta del limite di Schwarzschild e formulazione integrale della durata geometrica della fusione e del rapporto delle aree."
+        ],
+        "referenceTitle": "Lavori di riferimento",
+        "references": [
+          {
+            "title": "Exact Event Horizon of a Black Hole Merger",
+            "identifier": "R. Emparan, M. Martínez (2016) · arXiv:1603.00712v3",
+            "url": "https://arxiv.org/abs/1603.00712v3",
+            "note": "Costruzione di partenza dell'orizzonte e confronto in Schwarzschild."
+          },
+          {
+            "title": "f(R) Theories of Gravity, §II",
+            "identifier": "T. P. Sotiriou, V. Faraoni (2010) · arXiv:0805.1726",
+            "url": "https://arxiv.org/abs/0805.1726",
+            "note": "Azione ed equazioni di campo nel formalismo metrico f(R)."
+          },
+          {
+            "title": "f(R) Theories, §2",
+            "identifier": "A. De Felice, S. Tsujikawa (2010) · arXiv:1002.4928",
+            "url": "https://arxiv.org/abs/1002.4928",
+            "note": "Azione ed equazioni di campo nel formalismo metrico f(R)."
+          }
+        ],
+        "abstract": "Il contenuto geometrico del metodo di Emparan e Martínez viene reso esplicito, e se ne ricava una possibile generalizzazione a metriche statiche, sfericamente simmetriche e asintoticamente piatte senza assumere come postulato la lagrangiana geodetica. Le identità che discendono dalla sola geometria sono distinte dalle ipotesi, non automatiche, necessarie perché la congruenza costruita rappresenti l'orizzonte di una fusione reale in gravità modificata. Si ricavano le quadrature geodetiche, le condizioni per i generatori critici, una formulazione integrale della durata geometrica della fusione e le correzioni perturbative al primo ordine. Come esempio, le equazioni di campo delle teorie f(R) metriche sono ricavate variazionalmente, senza scegliere prematuramente una specifica teoria alternativa.",
+        "pdf": "assets/research-emr-horizon-mergers-null-geodesics.pdf"
+      },
+      {
+        "id": "truncated-rezzolla-zhidenko-vacuum",
+        "title": "Parametrizzazione di Rezzolla–Zhidenko troncata ed equazioni di Einstein nel vuoto",
+        "summary": "Quali metriche della famiglia di Rezzolla–Zhidenko, troncata a un ordine finito, risolvono esattamente le equazioni di Einstein nel vuoto: soltanto Schwarzschild.",
+        "date": "16 novembre 2026",
+        "status": "Nota di ricerca completata",
+        "formatLabel": "Documento",
+        "format": "PDF in italiano",
+        "context": "La parametrizzazione di Rezzolla e Zhidenko descrive le metriche statiche e sfericamente simmetriche di buchi neri nelle teorie metriche della gravità tramite una coordinata radiale compatta e frazioni continue. La nota determina quali metriche della famiglia, troncata a un ordine finito arbitrario, soddisfano esattamente le equazioni di Einstein nel vuoto con costante cosmologica nulla. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
+        "contribution": "Calcolo diretto della connessione, del tensore di Ricci e del tensore di Einstein per funzioni metriche generiche, e condizioni necessarie e sufficienti sui coefficienti RZ, valide a ogni livello di troncamento.",
+        "methods": [
+          "Metrica in coordinate areali con F = N_i² e H = F/B_i²; coordinata compatta x = 1 − r₀/r.",
+          "Simboli di Christoffel e tutte le componenti del tensore di Ricci, comprese quelle fuori diagonale.",
+          "Tensore di Einstein in componenti miste e soluzione del sistema del vuoto.",
+          "Traduzione delle condizioni nei coefficienti delle frazioni continue a un livello arbitrario."
+        ],
+        "results": [
+          "G_μν = 0 per r > r₀ se e solo se la metrica è Schwarzschild con M = r₀/2, cioè ε = a₀ = b₀ = a₁ = b₁ = 0.",
+          "Necessità e sufficienza verificate sostituendo la soluzione in tutte le equazioni.",
+          "Ogni livello contiene Schwarzschild, ma non ogni scelta dei coefficienti è una soluzione.",
+          "Controesempio: un troncamento regolare che non risolve le equazioni del vuoto."
+        ],
+        "referenceTitle": "Lavori di riferimento",
+        "references": [
+          {
+            "title": "New Parametrization for Spherically Symmetric Black Holes in Metric Theories of Gravity",
+            "identifier": "L. Rezzolla, A. Zhidenko (2014) · arXiv:1407.3086v2",
+            "url": "https://arxiv.org/abs/1407.3086v2",
+            "note": "Sezione II: forma della metrica, coordinata radiale compatta e parametrizzazione a frazioni continue."
+          },
+          {
+            "title": "Lecture Notes on General Relativity, §7: The Schwarzschild Solution and Black Holes",
+            "identifier": "S. M. Carroll (1997)",
+            "url": "https://www.preposterousuniverse.com/wp-content/uploads/grnotes-seven.pdf",
+            "note": "Teorema di Birkhoff; nella nota il risultato è ricavato direttamente dalle equazioni del vuoto."
+          }
+        ],
+        "abstract": "Si determina quali metriche della famiglia di Rezzolla–Zhidenko, troncata a un livello finito, soddisfano esattamente le equazioni di Einstein nel vuoto, nel caso statico, in quattro dimensioni e con costante cosmologica nulla. La dimostrazione calcola la connessione, il tensore di Ricci, lo scalare di curvatura e il tensore di Einstein, risolve tutte le equazioni del vuoto e traduce il risultato nei coefficienti RZ. Sotto le ipotesi di regolarità e le condizioni al bordo della nota, a ogni livello l'unica geometria ammessa è Schwarzschild, con M = r₀/2.",
+        "pdf": "assets/research-truncated-rezzolla-zhidenko-vacuum.pdf"
+      },
+      {
         "id": "de-sitter-scalar-vacuum-polarization",
         "reference": {
           "title": "Classical constant electric fields and the Schwinger effect in de Sitter",
@@ -958,7 +1052,7 @@ window.PORTFOLIO_CONTENT = {
         "summary": "Studio della polarizzazione del vuoto a un loop nella QED scalare in de Sitter, dai propagatori liberi alla rinormalizzazione e alla risposta a campo elettrico debole.",
         "date": "10 settembre 2026",
         "status": "Progetto di ricerca in corso",
-        "context": "Il progetto studia come formulare il contributo scalare alla funzione a due punti del fotone direttamente nello spaziotempo di de Sitter, distinguendo il controtermine ultravioletto locale dalla risposta finita dipendente dalla curvatura e dalla prescrizione di rinormalizzazione.",
+        "context": "Il progetto studia come formulare il contributo scalare alla funzione a due punti del fotone direttamente nello spaziotempo di de Sitter, distinguendo il controtermine ultravioletto locale dalla risposta finita dipendente dalla curvatura e dalla prescrizione di rinormalizzazione. Lavoro svolto con la supervisione del dott. Lorenzo Ubaldi.",
         "contribution": "Ho sviluppato quattro note collegate: costruzione e controlli del propagatore scalare di Bunch–Davies, derivazione del controtermine locale con heat kernel, analisi del propagatore vettoriale e dei suoi limiti fisici, e costruzione del kernel di polarizzazione con estrazione della risposta lineare dalla corrente esatta.",
         "methods": [
           "Modi di Hankel, forma ipergeometrica invariante e formalismo closed-time-path.",
@@ -1895,10 +1989,16 @@ window.PORTFOLIO_CONTENT = {
       activitiesTitle: "Academic activities / schools",
       schoolTitle: "Physics in Ljubljana 2026",
       schoolDetails: "International Summer School, Ljubljana, 5–11 July 2026.",
+      outreachTitle: "PONYS — Physics and Optics Naples Young Students",
+      outreachDetails: "Science communicator since 2026: participant and organiser of “Physics in Fabula”, events in bookshops and libraries where physics concepts are explained to children through fairy tales.",
+      awards: [
+        { title: "INPS “Supermedia” merit scholarship", detail: "2023, 2024" },
+        { title: "Mensa Italia — IQ 151 (99.97th percentile)", detail: "Since 2025" }
+      ],
       languagesTitle: "Languages",
-      languagesText: "Italian — native; English — Cambridge C1 Advanced (C1).",
+      languagesText: "Italian — native; English — fluent (IELTS 8).",
       additionalTitle: "Additional interests",
-      additionalText: "Chess; history; science communication.",
+      additionalText: "Chess; history; LLMs.",
       viewResearch: "View Research",
       viewProject: "Open project"
     },
@@ -1930,7 +2030,7 @@ window.PORTFOLIO_CONTENT = {
     skills: {
       Physics: ["Electromagnetism", "General Relativity", "Cosmology", "Laboratory Data Analysis"],
       Mathematics: ["Differential Geometry", "Linear Algebra", "Mathematical Methods for Physics"],
-      Programming: ["Python", "HTML", "CSS"],
+      Programming: ["Python", "JavaScript", "HTML", "CSS"],
       "Python Libraries": ["NumPy", "SciPy", "Matplotlib", "Pandas", "SymPy"],
       Tools: ["LaTeX", "GitHub", "Jupyter Notebook"],
       Languages: ["Italian", "English"]
@@ -2089,6 +2189,94 @@ window.PORTFOLIO_CONTENT = {
     ],
     researchItems: [
       {
+        "id": "emr-horizon-mergers-null-geodesics",
+        "title": "Null Geodesics and Horizon Mergers in the Extreme Mass-Ratio Limit",
+        "summary": "The horizon merger of two black holes when one is much heavier than the other: the Emparan–Martínez construction extended to static, spherically symmetric metrics, with modified gravity in view.",
+        "date": "November 15, 2026",
+        "status": "Ongoing Research project",
+        "formatLabel": "Document",
+        "format": "PDF in English",
+        "context": "When one black hole is much heavier than the other, the merger horizon is built by following null geodesics backwards from the final, locally planar horizon: this is the Emparan–Martínez construction in Schwarzschild. The question is which assumptions are needed to apply it to a specific theory of modified gravity. Work supervised by Prof. Noemi Frusciante.",
+        "contribution": "First-order corrections around Schwarzschild for a family of solutions of the theory, with a correct treatment of the endpoints that move with the perturbation, and explicit, non-automatic conditions under which the construction describes the horizon of an actual merger in modified gravity. The integral formulas for static, spherically symmetric, asymptotically flat metrics are derived without postulating the geodesic Lagrangian.",
+        "methods": [
+          "Rindler limit of the large black hole's horizon and surface gravity.",
+          "Geodesic Lagrangian derived from the free-particle action; first integrals in the orbital plane.",
+          "Quadratures of the null geodesics with future boundary conditions.",
+          "Caustics and critical generators of the merger surface.",
+          "Example: field equations of metric f(R) gravity derived variationally.",
+          "First-order perturbations with moving endpoints: implicit function theorem and Leibniz's rule."
+        ],
+        "results": [
+          "First-order horizon displacement: δr_h = −r₀ a(r₀) = −r₀ b(r₀), which requires a(r₀) = b(r₀).",
+          "Variation of the critical generators q_c and q_* through the implicit function theorem and Leibniz's rule, including the moving-endpoint contribution instead of an apparent divergence.",
+          "Six conditions for applying the construction to a specific theory: a metric from an actual solution, scale separation in the EMR limit, causal propagation along the metric's null geodesics, classification of the generators, observability of the durations, and the degeneracy between modified gravity and matter in general relativity.",
+          "Exact check of the Schwarzschild limit and integral formulation of the geometric merger duration and of the area ratio."
+        ],
+        "referenceTitle": "References",
+        "references": [
+          {
+            "title": "Exact Event Horizon of a Black Hole Merger",
+            "identifier": "R. Emparan, M. Martínez (2016) · arXiv:1603.00712v3",
+            "url": "https://arxiv.org/abs/1603.00712v3",
+            "note": "Starting construction of the horizon and the Schwarzschild benchmark."
+          },
+          {
+            "title": "f(R) Theories of Gravity, §II",
+            "identifier": "T. P. Sotiriou, V. Faraoni (2010) · arXiv:0805.1726",
+            "url": "https://arxiv.org/abs/0805.1726",
+            "note": "Action and field equations in the metric f(R) formalism."
+          },
+          {
+            "title": "f(R) Theories, §2",
+            "identifier": "A. De Felice, S. Tsujikawa (2010) · arXiv:1002.4928",
+            "url": "https://arxiv.org/abs/1002.4928",
+            "note": "Action and field equations in the metric f(R) formalism."
+          }
+        ],
+        "abstract": "The geometric content of the method of Emparan and Martínez is made explicit, and a possible generalization to static, spherically symmetric, asymptotically flat metrics is derived without assuming the geodesic Lagrangian as a postulate. Identities established from geometry alone are distinguished from the assumptions, which are not automatic, required for the constructed congruence to represent the horizon of an actual merger in modified gravity. The geodesic quadratures, the conditions for the critical generators, an integral formulation of the geometric merger duration, and first-order perturbative corrections are derived. The field equations of metric f(R) theories are derived variationally as an example, without prematurely choosing a specific alternative theory.",
+        "pdf": "assets/research-emr-horizon-mergers-null-geodesics.pdf"
+      },
+      {
+        "id": "truncated-rezzolla-zhidenko-vacuum",
+        "title": "The Truncated Rezzolla–Zhidenko Parametrization and the Vacuum Einstein Equations",
+        "summary": "Which metrics of the Rezzolla–Zhidenko family, truncated at a finite order, solve the vacuum Einstein equations exactly: only Schwarzschild.",
+        "date": "November 16, 2026",
+        "status": "Completed research note",
+        "formatLabel": "Document",
+        "format": "PDF in Italian",
+        "context": "The Rezzolla–Zhidenko parametrization describes static, spherically symmetric black-hole metrics in metric theories of gravity through a compact radial coordinate and continued fractions. The note determines which metrics of the family, truncated at an arbitrary finite order, satisfy the vacuum Einstein equations exactly, with zero cosmological constant. Work supervised by Prof. Noemi Frusciante.",
+        "contribution": "Direct computation of the connection, the Ricci tensor and the Einstein tensor for generic metric functions, and necessary and sufficient conditions on the RZ coefficients, valid at every truncation level.",
+        "methods": [
+          "Metric in areal coordinates with F = N_i² and H = F/B_i²; compact coordinate x = 1 − r₀/r.",
+          "Christoffel symbols and all components of the Ricci tensor, including the off-diagonal ones.",
+          "Einstein tensor in mixed components and solution of the vacuum system.",
+          "Translation of the conditions into the continued-fraction coefficients at an arbitrary level."
+        ],
+        "results": [
+          "G_μν = 0 for r > r₀ if and only if the metric is Schwarzschild with M = r₀/2, that is ε = a₀ = b₀ = a₁ = b₁ = 0.",
+          "Necessity and sufficiency checked by substituting the solution into every equation.",
+          "Every level contains Schwarzschild, but not every choice of coefficients is a solution.",
+          "Counterexample: a regular truncation that does not solve the vacuum equations."
+        ],
+        "referenceTitle": "References",
+        "references": [
+          {
+            "title": "New Parametrization for Spherically Symmetric Black Holes in Metric Theories of Gravity",
+            "identifier": "L. Rezzolla, A. Zhidenko (2014) · arXiv:1407.3086v2",
+            "url": "https://arxiv.org/abs/1407.3086v2",
+            "note": "Section II: form of the metric, compact radial coordinate and continued-fraction parametrization."
+          },
+          {
+            "title": "Lecture Notes on General Relativity, §7: The Schwarzschild Solution and Black Holes",
+            "identifier": "S. M. Carroll (1997)",
+            "url": "https://www.preposterousuniverse.com/wp-content/uploads/grnotes-seven.pdf",
+            "note": "Birkhoff's theorem; in the note the result is derived directly from the vacuum equations."
+          }
+        ],
+        "abstract": "The note determines which metrics of the Rezzolla–Zhidenko family, truncated at a finite level, satisfy the vacuum Einstein equations exactly, in the static case, in four dimensions and with zero cosmological constant. The proof computes the connection, the Ricci tensor, the curvature scalar and the Einstein tensor, solves all the vacuum equations and translates the result into the RZ coefficients. Under the regularity assumptions and boundary conditions of the note, the only geometry allowed at every level is Schwarzschild, with M = r₀/2.",
+        "pdf": "assets/research-truncated-rezzolla-zhidenko-vacuum.pdf"
+      },
+      {
         "id": "de-sitter-scalar-vacuum-polarization",
         "reference": {
           "title": "Classical constant electric fields and the Schwinger effect in de Sitter",
@@ -2099,7 +2287,7 @@ window.PORTFOLIO_CONTENT = {
         "summary": "A study of one-loop vacuum polarization in de Sitter scalar QED, from free propagators to renormalization and the weak-electric-field response.",
         "date": "September 10, 2026",
         "status": "Ongoing Research project",
-        "context": "The project studies how to formulate the scalar contribution to the photon two-point function directly in de Sitter spacetime, separating the local ultraviolet counterterm from the finite response that depends on curvature and the renormalization prescription.",
+        "context": "The project studies how to formulate the scalar contribution to the photon two-point function directly in de Sitter spacetime, separating the local ultraviolet counterterm from the finite response that depends on curvature and the renormalization prescription. Work supervised by Dr Lorenzo Ubaldi.",
         "contribution": "I developed four connected notes: construction and checks of the Bunch–Davies scalar propagator, derivation of the local counterterm using the heat kernel, analysis of the vector propagator and its physical limitations, and construction of the polarization kernel with extraction of the linear response from the exact current.",
         "methods": [
           "Hankel modes, the invariant hypergeometric form and the closed-time-path formalism.",
