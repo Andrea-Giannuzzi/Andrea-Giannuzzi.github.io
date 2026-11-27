@@ -1,4 +1,4 @@
-/* Three.js r128 visual foundation from 3D-Simulator_Good_Graphic.html.
+/* Three.js r128 scene of the 3D Kerr-Newman simulator.
  * The disk and stars are illustrations; geodesics come from the shared solver.
  */
 (function () {

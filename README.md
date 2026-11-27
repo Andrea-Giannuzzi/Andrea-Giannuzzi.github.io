@@ -49,13 +49,13 @@ All page text is in `assets/js/content.js`, in two parallel blocks (`it` and `en
 
 ## Running locally
 
-Requires Python 3; Node.js is needed only for the tests.
+Requires Python 3; Node.js is needed only for the tests and the `npm` shortcuts.
 
 ```bash
-npm run dev     # or: python3 -m http.server 8000 --bind 127.0.0.1
+python3 -m http.server 8000 --bind 127.0.0.1     # with Node.js: npm run dev
 ```
 
-Then open `http://127.0.0.1:8000`. To use another port: `npm run dev -- 8001`.
+Then open `http://127.0.0.1:8000`. To use another port, change `8000` (or run `npm run dev -- 8001`).
 
 ```bash
 npm test
