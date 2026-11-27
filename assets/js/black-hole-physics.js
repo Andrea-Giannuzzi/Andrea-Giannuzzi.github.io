@@ -998,15 +998,26 @@
   // maxAngle, they keep the linear interpolation within 0.03 degrees of the
   // traced curve at camera 38 and 0.35 at camera 4, for ~40% more time per
   // table. An explicit maxAngle samples from 0 to it, with no tail.
+  //
+  // Up to a camera at 225 M the rays escape at 450 M with step 0.3. Farther
+  // out, escape radius, interval and step all grow with the camera radius,
+  // so the escape radius stays twice the camera's, every ray keeps its
+  // 4000-step budget and a table costs the same at any distance; with a
+  // fixed 450 M a camera beyond it got no lensing at all, its rays counted
+  // as escaped at launch. The larger step loses little, since a far camera's
+  // rays pass the hole at many M: against a 4x finer step the ray closest
+  // to the shadow is off by 5e-4 degrees at 1000 M and 0.011 at 20000 M,
+  // 0.3 % of its deflection, a fraction that stops growing farther out.
   function computeLensingTable(params, options = {}) {
+    const distanceScale = Math.max(1, options.cameraRadius / 225);
     const {
       cameraRadius,
       // All but the edge sample escape: at camera radius 38 the 20 rays cost
       // about what 28 from the center did, 8 of them captured in the shadow.
       samples = 20,
-      escapeRadius = 450,
-      maxLambda = 1200,
-      step = 0.3,
+      escapeRadius = 450 * distanceScale,
+      maxLambda = 1200 * distanceScale,
+      step = 0.3 * distanceScale,
       maxSteps = 4000
     } = options;
     if (!Number.isFinite(cameraRadius) || cameraRadius <= 0) {

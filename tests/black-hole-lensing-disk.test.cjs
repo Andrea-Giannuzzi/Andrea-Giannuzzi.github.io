@@ -373,3 +373,30 @@ test('Lensing far-field geodesics conserve invariants and converge at RK4 order'
   const fine = distance(results[1].finalState, results[2].finalState);
   assert.ok(coarse / fine > 8, `convergence ratio ${coarse / fine} (expected roughly 16 for 4th-order RK4)`);
 });
+
+test('A camera beyond the old 450 M escape radius still lenses, at the same step budget and converged', () => {
+  // Up to 225 M the settings are the fixed ones every table had.
+  const near = P.computeLensingTable(schwarzschild, { cameraRadius: 225, samples: 2, maxAngle: 30 }).settings;
+  assert.deepEqual([near.escapeRadius, near.maxLambda, near.step, near.maxSteps], [450, 1200, 0.3, 4000]);
+  // At 460 M a fixed 450 M escape radius counted every ray as escaped at launch.
+  const cameraRadius = 460;
+  const table = P.computeLensingTable(schwarzschild, { cameraRadius });
+  const { settings, samples } = table;
+  assert.ok(Math.abs(settings.escapeRadius - 2 * cameraRadius) < 1e-9, `escape radius ${settings.escapeRadius}`);
+  assert.equal(settings.maxSteps, 4000);
+  assert.equal(samples[0].stopReason, 'outerHorizon', 'the first ray, at the shadow edge, is captured');
+  assert.ok(samples.slice(1).every((sample) => sample.stopReason === 'escapedToLarge' && Number.isFinite(sample.deflection)),
+    samples.map((sample) => sample.stopReason).join(' '));
+  // The larger step: the ray nearest the shadow, one further out and one leaving
+  // outward against a step four times finer.
+  for (const index of [1, 8, 24]) {
+    const { angle, deflection } = samples[index];
+    const initial = P.initialStateFromLocal(schwarzschild, {
+      radius: cameraRadius, latitude: 0, azimuth: angle - 180, elevation: 0, speed: 1, massive: false, photonEnergy: 1
+    });
+    const fine = P.integrateGeodesic(schwarzschild, initial, { ...settings, step: settings.step / 4, maxSteps: 4 * settings.maxSteps });
+    assert.equal(fine.stopReason, 'escapedToLarge');
+    const gap = Math.abs(P.escapeDeflection(fine.finalState, angle) - deflection);
+    assert.ok(gap < 1e-4, `sample ${index} at ${angle.toFixed(3)}°: deflection ${deflection}, off by ${gap}° from the finer step`);
+  }
+});
