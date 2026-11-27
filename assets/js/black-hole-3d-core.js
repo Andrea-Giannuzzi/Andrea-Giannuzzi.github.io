@@ -60,51 +60,61 @@
   // has wound around the hole; 0 at the Einstein ring; about 180 straight
   // away from the hole. A star at true angle psi has its primary image where
   // the map reaches psi and its secondary image, across the hole, where it
-  // reaches -psi. Each sample with psi < 0 also carries the brightness of a
-  // secondary image there, min(1, magnification), the magnification
-  // (sin alpha / |sin psi|) dalpha/dpsi being the ratio of the image's solid
-  // angle to the star's, with dalpha/dpsi from the neighbouring samples: it
-  // falls below 0.01 within a few degrees of the shadow edge. Primary images
-  // keep full brightness: their magnification is at least 0.97 at the usual
-  // camera distances of 40-80 M (0.8 at 10 M, for stars behind the camera).
-  // null without two escaped samples.
+  // reaches -psi. Inverting the table needs psi to grow with alpha and to
+  // start at or below 0, so that every star, at psi 0 to 180, has its
+  // primary image in the map. A hole with a horizon gives both (the first
+  // psi is -3.6 even at 20000 M); without one, the map is null and the stars
+  // keep their true positions, rather than fold onto a ring: the escape
+  // directions wind back and forth (over-extremal Kerr-Newman, a 0.8,
+  // q 0.7), or every inward ray ends at the singularity and the first escaped
+  // one leaves at psi 44 (Kerr a 1.1, camera 4). null without two escaped samples.
   function lensingImageMap(table) {
     const escaped = table?.samples.filter((sample) => sample.deflection !== null) ?? [];
     if (escaped.length < 2) return null;
     const alphas = escaped.map((sample) => sample.angle);
     const psis = escaped.map((sample) => sample.angle + sample.deflection);
-    const last = alphas.length - 1;
-    const brightness = alphas.map((alpha, i) => {
-      if (psis[i] >= 0) return 1;
-      const lo = Math.max(0, i - 1), hi = Math.min(last, i + 1);
-      const slope = (alphas[hi] - alphas[lo]) / (psis[hi] - psis[lo]);
-      const magnification = Math.sin(alpha * DEGREE) / Math.abs(Math.sin(psis[i] * DEGREE)) * slope;
-      return Number.isFinite(magnification) ? Math.min(1, Math.abs(magnification)) : 1;
-    });
-    return { alphas, psis, brightness };
+    if (!(psis[0] <= 0) || !psis.every((psi, i) => i === 0 || psi > psis[i - 1])) return null;
+    return { alphas, psis };
   }
 
-  // The image of true angle psi: its viewing angle and brightness, linear in
-  // psi between samples, written into `image`. Past the last sample the last
-  // deflection holds; before the first, the image lies closer to the shadow
-  // edge than the table resolves: null.
+  // The image of true angle psi, written into `image`: its viewing angle,
+  // linear in psi between samples, and its brightness. Past the last sample
+  // the last deflection holds; before the first, the image lies closer to the
+  // shadow edge than the table resolves: null. A secondary image (psi < 0)
+  // has brightness min(1, magnification), the magnification
+  // (sin alpha / |sin psi|) dalpha/dpsi being the ratio of the image's solid
+  // angle to the star's: it falls below 0.01 within a few degrees of the
+  // shadow edge, and rises again only for stars within a few degrees of
+  // straight behind the camera (psi near -180), whose secondary images
+  // crowd into a ring there. It is evaluated at this psi, with dalpha/dpsi the slope of
+  // the interval, because 1/|sin psi| diverges at psi = 0 and -180: taken at
+  // the samples and interpolated, a sample next to -180 made every image of
+  // its interval bright, up to 8 times too bright at camera 6, and the band
+  // came and went as the camera moved and the table was retraced. Primary
+  // images keep full brightness: their magnification is at least 0.97 at
+  // the usual camera distances of 40-80 M (0.8 at 10 M, for stars behind the
+  // camera).
   function lensedImage(map, psi, image = {}) {
-    const { alphas, psis, brightness } = map;
+    const { alphas, psis } = map;
     const last = psis.length - 1;
     if (psi < psis[0]) return null;
+    let slope = 1;
     if (psi >= psis[last]) {
       image.angle = alphas[last] + psi - psis[last];
-      image.brightness = brightness[last];
-      return image;
+    } else {
+      let lo = 0, hi = last;
+      while (hi - lo > 1) {
+        const middle = (lo + hi) >> 1;
+        if (psis[middle] <= psi) lo = middle; else hi = middle;
+      }
+      slope = (alphas[hi] - alphas[lo]) / (psis[hi] - psis[lo]);
+      image.angle = alphas[lo] + (psi - psis[lo]) * slope;
     }
-    let lo = 0, hi = last;
-    while (hi - lo > 1) {
-      const middle = (lo + hi) >> 1;
-      if (psis[middle] <= psi) lo = middle; else hi = middle;
+    image.brightness = 1;
+    if (psi < 0) {
+      const magnification = Math.sin(image.angle * DEGREE) / Math.abs(Math.sin(psi * DEGREE)) * slope;
+      if (Number.isFinite(magnification)) image.brightness = Math.min(1, Math.abs(magnification));
     }
-    const t = (psi - psis[lo]) / (psis[hi] - psis[lo]);
-    image.angle = alphas[lo] + t * (alphas[hi] - alphas[lo]);
-    image.brightness = brightness[lo] + t * (brightness[hi] - brightness[lo]);
     return image;
   }
 
@@ -157,7 +167,7 @@
         across = Math.sqrt(px * px + py * py + pz * pz);
       }
       px /= across; py /= across; pz /= across;
-      place(out, i, lensedImage(map, psi, scratch)?.angle ?? map.alphas[0], 1, px, py, pz, distance);
+      place(out, i, lensedImage(map, psi, scratch).angle, 1, px, py, pz, distance);
       if (!secondary) continue;
       const image = lensedImage(map, -psi, scratch);
       const shade = image ? image.brightness : 0;

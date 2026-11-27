@@ -129,28 +129,66 @@ test('The playback cursor finds the interval and the fraction through it', () =>
   }
 });
 
-test('The lensing map inverts the table: viewing angle and brightness linear in the true angle', () => {
+test('The lensing map inverts the table: viewing angle linear in the true angle, brightness from the magnification there', () => {
   // psi = angle + deflection: -190, -100, -40, 0, 36.
   const table = { samples: [{ angle: 5, deflection: null }, { angle: 10, deflection: -200 }, { angle: 12, deflection: -112 },
     { angle: 16, deflection: -56 }, { angle: 20, deflection: -20 }, { angle: 40, deflection: -4 }] };
   const map = C.lensingImageMap(table);
   assert.deepEqual([...map.alphas], [10, 12, 16, 20, 40]);
   assert.deepEqual([...map.psis], [-190, -100, -40, 0, 36]);
-  // Secondary images (psi < 0): (sin alpha / |sin psi|) dalpha/dpsi, from the
-  // samples either side, at most 1; primary images: 1.
-  const sine = (degrees) => Math.sin(degrees * Math.PI / 180);
-  const brightness = [sine(10) / sine(190 - 180) * 2 / 90, sine(12) / sine(100) * 6 / 150, sine(16) / sine(40) * 8 / 100, 1, 1];
-  map.brightness.forEach((value, i) => assertClose(value, brightness[i], 1e-12, `brightness ${i}`));
   const image = (psi) => C.lensedImage(map, psi);
   assert.equal(image(0).angle, 20, 'Einstein ring');
   assertClose(image(18).angle, 30, 1e-12, 'primary, mid interval');
   assertClose(image(-70).angle, 14, 1e-12, 'secondary, mid interval');
-  assertClose(image(-70).brightness, (brightness[1] + brightness[2]) / 2, 1e-12, 'secondary brightness');
   assert.equal(image(-190).angle, 10, 'first sample');
   assert.equal(image(-191), null, 'closer to the shadow edge than the first sample');
   assert.equal(image(50).angle, 54, 'beyond the last sample the last deflection holds');
+  // Secondary images (psi < 0): (sin alpha / |sin psi|) dalpha/dpsi at the
+  // image's own psi and alpha, dalpha/dpsi the slope of its interval, at
+  // most 1; primary images: 1.
+  const sine = (degrees) => Math.sin(degrees * Math.PI / 180);
+  assertClose(image(-70).brightness, sine(14) / sine(70) * 4 / 60, 1e-12, 'secondary, mid interval');
+  assertClose(image(-190).brightness, sine(10) / sine(10) * 2 / 90, 1e-12, 'secondary, first sample');
+  assert.equal(image(-1).brightness, 1, 'secondary next to the Einstein ring, capped');
+  for (const psi of [0, 18, 50]) assert.equal(image(psi).brightness, 1, `primary at psi ${psi}`);
   assert.equal(C.lensingImageMap(null), null, 'no table');
   assert.equal(C.lensingImageMap({ samples: table.samples.slice(0, 2) }), null, 'one escaped sample');
+  // psi must grow with alpha for the inversion: a table whose escape
+  // directions fold back, or stall, gives no map.
+  const folded = table.samples.map((sample, i) => (i === 1 ? { angle: 10, deflection: 400 } : sample));
+  assert.equal(C.lensingImageMap({ samples: folded }), null, 'psi folds back');
+  const stalled = table.samples.map((sample, i) => (i === 2 ? { angle: 12, deflection: -202 } : sample));
+  assert.equal(C.lensingImageMap({ samples: stalled }), null, 'psi stalls');
+});
+
+test('Without a horizon the escape directions fold, and the stars keep their true positions instead of one ring', () => {
+  // Over-extremal tables the 3D view accepts (it warns that there is no
+  // horizon). Inverted, the first one put all stars at 0.17 degrees from the
+  // hole. In the last one psi grows, but every inward ray ends at the
+  // singularity and the first escaped one has psi 44: stars nearer the hole
+  // than that have no image in the table, and piled up at 106.9 degrees.
+  for (const [params, cameraRadius] of [[{ M: 1, a: 0.8, q: 0.7 }, 120], [{ M: 1, a: 0.8, q: 0.7 }, 10],
+    [{ M: 1, a: 0, q: 1.05 }, 38], [{ M: 1, a: 1.1, q: 0 }, 4]]) {
+    const label = `a ${params.a}, q ${params.q}, camera ${cameraRadius}`;
+    assert.equal(P.geometryProperties(params).hasHorizon, false, `${label}: no horizon`);
+    assert.equal(C.lensingImageMap(P.computeLensingTable(params, { cameraRadius })), null, label);
+  }
+});
+
+test('A secondary image is as bright as the magnification at its own angle, with a sample next to psi = -180', () => {
+  // Schwarzschild, camera 6: a sample lands at psi -181.2, where 1/|sin psi|
+  // is large. Interpolated from the samples, the image at psi -170 got 0.24.
+  const params = { M: 1, a: 0, q: 0 };
+  const cameraRadius = 6;
+  const map = C.lensingImageMap(P.computeLensingTable(params, { cameraRadius }));
+  assert.ok(map.psis.some((psi) => psi > -182 && psi < -180), `a sample next to -180: ${map.psis.map((psi) => psi.toFixed(1))}`);
+  const psi = -170;
+  const { angle, brightness } = C.lensedImage(map, psi);
+  // Reference: rays traced 0.05 degrees either side of the drawn image.
+  const traced = (alpha) => alpha + P.computeLensingTable(params, { cameraRadius, samples: 2, maxAngle: alpha }).samples[1].deflection;
+  const slope = 0.1 / (traced(angle + 0.05) - traced(angle - 0.05));
+  const reference = Math.sin(angle * Math.PI / 180) / Math.abs(Math.sin(psi * Math.PI / 180)) * slope;
+  assert.ok(Math.abs(brightness - reference) < 0.3 * reference, `brightness ${brightness}, traced ${reference}`);
 });
 
 test('Inverting a real table puts each image within 0.2 degrees of the traced one, with no fold', () => {
@@ -182,11 +220,18 @@ test('Inverting a real table puts each image within 0.2 degrees of the traced on
   }
   assert.ok(ring > edge + 5, `Einstein ring ${ring}° beyond the shadow edge ${edge}°`);
   // Magnified next to the Einstein ring, the secondary images are capped at
-  // full brightness there and fade toward the shadow edge.
-  const secondaryBrightness = map.brightness.filter((_, i) => map.psis[i] < 0);
-  assert.equal(secondaryBrightness[secondaryBrightness.length - 1], 1, 'capped next to the ring');
-  assert.ok(secondaryBrightness.every((value) => value > 0 && value <= 1) && secondaryBrightness[0] < 0.01,
-    `secondary brightness ${secondaryBrightness.map((value) => value.toFixed(3))}`);
+  // full brightness there and fade toward the shadow edge, below 0.01 for
+  // stars at 120-150 degrees; they brighten again only for stars almost
+  // straight behind the camera (psi near -180).
+  const brightness = (psi) => C.lensedImage(map, -psi).brightness;
+  assert.equal(brightness(0.25), 1, 'capped next to the ring');
+  // Checked at spaced points: dalpha/dpsi is constant within an interval, so
+  // where the brightness is nearly flat (about 0.0032 at 90-105) it wavers
+  // by 1-2 % from one degree to the next.
+  const fade = [1, 10, 30, 60, 90, 120, 150].map(brightness);
+  assert.ok(fade.every((value, i) => value > 0 && (i === 0 || value < fade[i - 1])), `secondary brightness ${fade}`);
+  assert.ok(brightness(120) < 0.01 && brightness(150) < 0.01, `secondary brightness ${brightness(120)}, ${brightness(150)}`);
+  assert.ok(brightness(179.5) > brightness(170), 'brighter again straight behind the camera');
 });
 
 test('Stars move to their images, at the same distance: the primary on their side, the secondary across the hole', () => {
