@@ -791,9 +791,10 @@
   let convergencePlotCount = 0;
 
   // Log-log plot of a quantity against the step, with the slope-4 line a
-  // fourth-order method follows, drawn through the finest point. The values
-  // are also in each point's tooltip and in the caption, so the plot is not
-  // the only way to read them.
+  // fourth-order method follows, drawn through the finest point. The caption
+  // says which line is which, since the points of a converging run lie on the
+  // reference line, and lists the values, which are also in each point's
+  // tooltip, so the plot is not the only way to read them.
   function convergencePlot(points, { title, desc, yLabel }) {
     const copy = content().convergence;
     convergencePlotCount += 1;
@@ -834,7 +835,7 @@
         <text class="cp-axis-text" x="${(margin.left + width - margin.right) / 2}" y="${height - 6}" text-anchor="middle">${copy.stepAxis}</text>
         <text class="cp-axis-text" transform="translate(12 ${(margin.top + height - margin.bottom) / 2}) rotate(-90)" text-anchor="middle">${yLabel}</text>
       </svg>
-      <figcaption>${title}: ${caption}</figcaption>
+      <figcaption><span class="cp-legend">${copy.legend}</span>${title}: ${caption}</figcaption>
     </figure>`;
   }
 

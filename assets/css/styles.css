@@ -1632,6 +1632,10 @@ code {
 }
 
 .cp-axis-text,
+.cp-legend {
+  display: block;
+}
+
 .cp-reference-label {
   fill: var(--muted);
   font-size: 11px;
