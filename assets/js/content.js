@@ -961,7 +961,7 @@ window.PORTFOLIO_CONTENT = {
         "status": "Progetto di ricerca in corso",
         "formatLabel": "Documento",
         "format": "PDF in inglese",
-        "context": "Quando uno dei due buchi neri è molto più massiccio dell'altro, l'orizzonte della fusione si costruisce seguendo a ritroso le geodetiche nulle a partire dall'orizzonte finale, localmente planare: è la costruzione di Emparan e Martínez in Schwarzschild. Il problema è capire quali ipotesi servano per applicarla a una specifica teoria di gravità modificata. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
+        "context": "Quando uno dei due buchi neri è molto più massiccio dell'altro, l'orizzonte della fusione si costruisce seguendo a ritroso le geodetiche nulle a partire dall'orizzonte finale, localmente planare: è la costruzione di Emparan e Martínez in Schwarzschild. Il problema è capire quali ipotesi servano per applicarla a una specifica teoria di gravità modificata. Insieme alla nota sulla parametrizzazione di Rezzolla–Zhidenko troncata, è un lavoro preparatorio per uno studio di famiglie di azioni di gravità modificata le cui soluzioni di buco nero si descrivono con la parametrizzazione di Rezzolla–Zhidenko. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
         "contribution": "Correzioni al primo ordine attorno a Schwarzschild per una famiglia di soluzioni della teoria, trattando correttamente gli estremi che si spostano con la perturbazione, e condizioni esplicite, non automatiche, sotto cui la costruzione descrive l'orizzonte di una fusione reale in gravità modificata. Le formule integrali per metriche statiche, sfericamente simmetriche e asintoticamente piatte sono ricavate senza postulare la lagrangiana geodetica.",
         "methods": [
           "Limite di Rindler dell'orizzonte del buco nero grande e gravità superficiale.",
@@ -1009,7 +1009,7 @@ window.PORTFOLIO_CONTENT = {
         "status": "Nota di ricerca completata",
         "formatLabel": "Documento",
         "format": "PDF in italiano",
-        "context": "La parametrizzazione di Rezzolla e Zhidenko descrive le metriche statiche e sfericamente simmetriche di buchi neri nelle teorie metriche della gravità tramite una coordinata radiale compatta e frazioni continue. La nota determina quali metriche della famiglia, troncata a un ordine finito arbitrario, soddisfano esattamente le equazioni di Einstein nel vuoto con costante cosmologica nulla. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
+        "context": "La parametrizzazione di Rezzolla e Zhidenko descrive le metriche statiche e sfericamente simmetriche di buchi neri nelle teorie metriche della gravità tramite una coordinata radiale compatta e frazioni continue. La nota determina quali metriche della famiglia, troncata a un ordine finito arbitrario, soddisfano esattamente le equazioni di Einstein nel vuoto con costante cosmologica nulla. Insieme alla nota sulla fusione degli orizzonti nel limite di rapporto di massa estremo, è un lavoro preparatorio per uno studio di famiglie di azioni di gravità modificata le cui soluzioni di buco nero si descrivono con questa parametrizzazione. Lavoro svolto con la supervisione della prof.ssa Noemi Frusciante.",
         "contribution": "Calcolo diretto della connessione, del tensore di Ricci e del tensore di Einstein per funzioni metriche generiche, e condizioni necessarie e sufficienti sui coefficienti RZ, valide a ogni livello di troncamento.",
         "methods": [
           "Metrica in coordinate areali con F = N_i² e H = F/B_i²; coordinata compatta x = 1 − r₀/r.",
@@ -1052,6 +1052,8 @@ window.PORTFOLIO_CONTENT = {
         "summary": "Studio della polarizzazione del vuoto a un loop nella QED scalare in de Sitter, dai propagatori liberi alla rinormalizzazione e alla risposta a campo elettrico debole.",
         "date": "10 settembre 2026",
         "status": "Progetto di ricerca in corso",
+        "formatLabel": "Documento",
+        "format": "PDF in inglese",
         "context": "Il progetto studia come formulare il contributo scalare alla funzione a due punti del fotone direttamente nello spaziotempo di de Sitter, distinguendo il controtermine ultravioletto locale dalla risposta finita dipendente dalla curvatura e dalla prescrizione di rinormalizzazione. Lavoro svolto con la supervisione del dott. Lorenzo Ubaldi.",
         "contribution": "Ho sviluppato quattro note collegate: costruzione e controlli del propagatore scalare di Bunch–Davies, derivazione del controtermine locale con heat kernel, analisi del propagatore vettoriale e dei suoi limiti fisici, e costruzione del kernel di polarizzazione con estrazione della risposta lineare dalla corrente esatta.",
         "methods": [
@@ -1095,6 +1097,8 @@ window.PORTFOLIO_CONTENT = {
         summary: "Studio analitico del contributo di ordine e^0 a F_φ nella corrente scalare regolarizzata di Pauli–Villars.",
         date: "15 agosto 2026",
         status: "Progetto di ricerca",
+        formatLabel: "Documento",
+        format: "PDF in inglese",
         context: "Indagine sulla corrente di Schwinger nello spaziotempo di de Sitter, oltre e migliorando l'approssimazione di Minkowski usata nel calcolo del controtermine di polarizzazione del vuoto. Questo è l'obiettivo complessivo della ricerca, non un risultato concluso.",
         contribution: "Estrazione e studio analitico del contributo di ordine e^0 alla funzione F_φ, che entra nella corrente scalare di Schwinger di ordine e^2.",
         methods: ["Espansione in λ = eE/H² = O(e).", "Dipendenza μ² = μ₀² − λ².", "Identità della funzione digamma e relazione di riflessione."],
@@ -2196,7 +2200,7 @@ window.PORTFOLIO_CONTENT = {
         "status": "Ongoing Research project",
         "formatLabel": "Document",
         "format": "PDF in English",
-        "context": "When one black hole is much heavier than the other, the merger horizon is built by following null geodesics backwards from the final, locally planar horizon: this is the Emparan–Martínez construction in Schwarzschild. The question is which assumptions are needed to apply it to a specific theory of modified gravity. Work supervised by Prof. Noemi Frusciante.",
+        "context": "When one black hole is much heavier than the other, the merger horizon is built by following null geodesics backwards from the final, locally planar horizon: this is the Emparan–Martínez construction in Schwarzschild. The question is which assumptions are needed to apply it to a specific theory of modified gravity. Together with the note on the truncated Rezzolla–Zhidenko parametrization, it is preparatory work for a study of families of modified-gravity actions whose black-hole solutions are described with the Rezzolla–Zhidenko parametrization. Work supervised by Prof. Noemi Frusciante.",
         "contribution": "First-order corrections around Schwarzschild for a family of solutions of the theory, with a correct treatment of the endpoints that move with the perturbation, and explicit, non-automatic conditions under which the construction describes the horizon of an actual merger in modified gravity. The integral formulas for static, spherically symmetric, asymptotically flat metrics are derived without postulating the geodesic Lagrangian.",
         "methods": [
           "Rindler limit of the large black hole's horizon and surface gravity.",
@@ -2244,7 +2248,7 @@ window.PORTFOLIO_CONTENT = {
         "status": "Completed research note",
         "formatLabel": "Document",
         "format": "PDF in Italian",
-        "context": "The Rezzolla–Zhidenko parametrization describes static, spherically symmetric black-hole metrics in metric theories of gravity through a compact radial coordinate and continued fractions. The note determines which metrics of the family, truncated at an arbitrary finite order, satisfy the vacuum Einstein equations exactly, with zero cosmological constant. Work supervised by Prof. Noemi Frusciante.",
+        "context": "The Rezzolla–Zhidenko parametrization describes static, spherically symmetric black-hole metrics in metric theories of gravity through a compact radial coordinate and continued fractions. The note determines which metrics of the family, truncated at an arbitrary finite order, satisfy the vacuum Einstein equations exactly, with zero cosmological constant. Together with the note on horizon mergers in the extreme mass-ratio limit, it is preparatory work for a study of families of modified-gravity actions whose black-hole solutions are described with this parametrization. Work supervised by Prof. Noemi Frusciante.",
         "contribution": "Direct computation of the connection, the Ricci tensor and the Einstein tensor for generic metric functions, and necessary and sufficient conditions on the RZ coefficients, valid at every truncation level.",
         "methods": [
           "Metric in areal coordinates with F = N_i² and H = F/B_i²; compact coordinate x = 1 − r₀/r.",
@@ -2287,6 +2291,8 @@ window.PORTFOLIO_CONTENT = {
         "summary": "A study of one-loop vacuum polarization in de Sitter scalar QED, from free propagators to renormalization and the weak-electric-field response.",
         "date": "September 10, 2026",
         "status": "Ongoing Research project",
+        "formatLabel": "Document",
+        "format": "PDF in English",
         "context": "The project studies how to formulate the scalar contribution to the photon two-point function directly in de Sitter spacetime, separating the local ultraviolet counterterm from the finite response that depends on curvature and the renormalization prescription. Work supervised by Dr Lorenzo Ubaldi.",
         "contribution": "I developed four connected notes: construction and checks of the Bunch–Davies scalar propagator, derivation of the local counterterm using the heat kernel, analysis of the vector propagator and its physical limitations, and construction of the polarization kernel with extraction of the linear response from the exact current.",
         "methods": [
@@ -2330,6 +2336,8 @@ window.PORTFOLIO_CONTENT = {
         summary: "Analytical study of the order-e^0 contribution to F_φ in the Pauli–Villars regularized scalar current.",
         date: "August 15, 2026",
         status: "Research project",
+        formatLabel: "Document",
+        format: "PDF in English",
         context: "Investigation of the Schwinger current in de Sitter spacetime beyond and improving the Minkowski approximation used in the vacuum-polarization counterterm calculation. This is the overall research objective, not a completed result.",
         contribution: "Extraction and analytical study of the order-(e^0) contribution to the scalar function F_φ, which enters the order-(e^2) scalar Schwinger current.",
         methods: ["Expansion in λ = eE/H² = O(e).", "Dependence μ² = μ₀² − λ².", "Digamma-function identities and the reflection relation."],
