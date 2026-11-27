@@ -286,8 +286,7 @@ function academicDistinctionsMarkup(content) {
     [content.academic.averageLabel, profile.weightedAverage],
     [content.academic.fullMarksLabel, `${profile.gradedExamsAtFullMarks}/${profile.gradedExamsCompleted}`],
     [content.academic.honoursLabel, profile.honours],
-    [content.academic.creditsLabel, `${profile.earnedCredits} ${profile.creditUnit}`],
-    ...(content.cv.awards || []).map((award) => [award.title, award.detail])
+    [content.academic.creditsLabel, `${profile.earnedCredits} ${profile.creditUnit}`]
   ];
   return `<dl class="academic-facts">${distinctions.map(([label, value]) =>
     `<div><dt>${label}</dt><dd>${value}</dd></div>`

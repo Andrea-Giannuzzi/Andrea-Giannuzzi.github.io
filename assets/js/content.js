@@ -26,10 +26,10 @@ window.ACADEMIC_PROFILE = Object.freeze({
   }),
   currentYear: 2,
   weightedAverage: "30.0/30",
-  gradedExamsCompleted: 12,
-  gradedExamsAtFullMarks: 12,
+  gradedExamsCompleted: 13,
+  gradedExamsAtFullMarks: 13,
   honours: 9,
-  earnedCredits: 111,
+  earnedCredits: 120,
   creditUnit: "CFU",
   expectedGraduation: Object.freeze({
     it: "settembre 2027",
@@ -48,7 +48,8 @@ window.ACADEMIC_PROFILE = Object.freeze({
       { it: "Metodi Matematici per la Fisica", en: "Mathematical Methods for Physics", honours: true },
       { it: "Elettromagnetismo", en: "Electromagnetism", honours: true },
       { it: "Laboratorio di Fisica II", en: "Physics Laboratory II", honours: false },
-      { it: "Relatività Generale e Cosmologia", en: "General Relativity and Cosmology", honours: true }
+      { it: "Relatività Generale e Cosmologia", en: "General Relativity and Cosmology", honours: true },
+      { it: "Onde e Ottica con Laboratorio", en: "Waves and Optics with Laboratory", honours: false }
     ]),
     current: Object.freeze([]),
     planned: Object.freeze([
@@ -756,14 +757,12 @@ window.PORTFOLIO_CONTENT = {
       schoolDetails: "International Summer School, Ljubljana, 5–11 luglio 2026.",
       outreachTitle: "PONYS — Physics and Optics Naples Young Students",
       outreachDetails: "Science communicator dal 2026: partecipante e organizzatore di «Physics in Fabula», eventi in librerie e biblioteche in cui i concetti di fisica sono spiegati ai bambini attraverso le fiabe.",
-      awards: [
-        { title: "Borsa di merito INPS «Supermedia»", detail: "2023, 2024" },
-        { title: "Mensa Italia — QI 151 (99,97° percentile)", detail: "Dal 2025" }
-      ],
       languagesTitle: "Languages",
       languagesText: "Italiano — madrelingua; inglese — fluente (IELTS 8).",
       additionalTitle: "Additional interests",
       additionalText: "Scacchi; storia; LLM.",
+      curiositiesTitle: "Curiosità su di me",
+      curiositiesText: "Socio di Mensa Italia dal 2025, con un QI di 151 (99,97° percentile).",
       viewResearch: "Approfondisci in Research",
       viewProject: "Apri progetto"
     },
@@ -1995,14 +1994,12 @@ window.PORTFOLIO_CONTENT = {
       schoolDetails: "International Summer School, Ljubljana, 5–11 July 2026.",
       outreachTitle: "PONYS — Physics and Optics Naples Young Students",
       outreachDetails: "Science communicator since 2026: participant and organiser of “Physics in Fabula”, events in bookshops and libraries where physics concepts are explained to children through fairy tales.",
-      awards: [
-        { title: "INPS “Supermedia” merit scholarship", detail: "2023, 2024" },
-        { title: "Mensa Italia — IQ 151 (99.97th percentile)", detail: "Since 2025" }
-      ],
       languagesTitle: "Languages",
       languagesText: "Italian — native; English — fluent (IELTS 8).",
       additionalTitle: "Additional interests",
       additionalText: "Chess; history; LLMs.",
+      curiositiesTitle: "Fun facts about me",
+      curiositiesText: "Member of Mensa Italia since 2025, with an IQ of 151 (99.97th percentile).",
       viewResearch: "View Research",
       viewProject: "Open project"
     },
