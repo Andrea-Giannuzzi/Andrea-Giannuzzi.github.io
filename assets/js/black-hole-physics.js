@@ -224,14 +224,20 @@
   }
 
   // The outermost root of fn outside the horizon: stepping in from `start`,
-  // outside every root, to the first sign change, then bisecting. null when
-  // the steps reach the horizon first.
+  // outside every root, to the first sign change, then bisecting. The last
+  // interval ends on the horizon itself: near the extremal limit the prograde
+  // ISCO and photon orbit come closer to r_+ than one step (photon orbit at
+  // 1.000443 M for r_+ = 1.000346 M, a 0.8, q 0.5999999), and both functions
+  // have the inside sign at r_+, vanishing there at extremality. null only
+  // when fn keeps the outside sign down to r_+.
   function outermostRoot(fn, start, horizon, step) {
     const signOutside = Math.sign(fn(start));
+    let outer = start;
     for (let r = start - step; r > horizon; r -= step) {
-      if (Math.sign(fn(r)) !== signOutside) return bisectSignChange(fn, r, r + step);
+      if (Math.sign(fn(r)) !== signOutside) return bisectSignChange(fn, r, outer);
+      outer = r;
     }
-    return null;
+    return Math.sign(fn(horizon)) !== signOutside ? bisectSignChange(fn, horizon, outer) : null;
   }
 
   function photonSphereRadius(params, sense = "prograde", type = detectSpacetime(params)) {
@@ -401,17 +407,18 @@
     return { rpMin, rpMax, points: upper.concat(lower) };
   }
 
-  function formatOrbitPair(prograde, retrograde) {
-    return `prograde ${prograde.toFixed(6)} M; retrograde ${retrograde.toFixed(6)} M`;
-  }
+  const formatOrbitRadius = (radius) => radius === null ? "N/A" : `${radius.toFixed(6)} M`;
 
-  // With spin the prograde and retrograde orbits differ, so both are listed.
+  // With spin the prograde and retrograde orbits differ, so both are listed,
+  // each on its own: a missing prograde radius does not hide the retrograde one.
   function circularOrbitInformation(params, type = detectSpacetime(params)) {
     const spinning = type === "kerr" || type === "kerrNewman";
     const describe = (radiusFor) => {
       const prograde = radiusFor("prograde");
-      if (prograde === null) return "N/A";
-      return spinning ? formatOrbitPair(prograde, radiusFor("retrograde")) : `${prograde.toFixed(6)} M`;
+      if (!spinning) return formatOrbitRadius(prograde);
+      const retrograde = radiusFor("retrograde");
+      if (prograde === null && retrograde === null) return "N/A";
+      return `prograde ${formatOrbitRadius(prograde)}; retrograde ${formatOrbitRadius(retrograde)}`;
     };
     return {
       isco: describe((sense) => iscoRadius(params, sense, type)),
@@ -675,8 +682,12 @@
     }
   }
 
+  // The ZAMO frame wherever it exists, outside the horizon and off the axis.
+  // The coordinate margins of the solver are a launch rule, checked by the
+  // two launch-side callers below, not here: the 3D disk needs the frame
+  // down to a near-extremal ISCO, 1.008 M for r_+ = 1.000346 M (a 0.8,
+  // q 0.5999999), well inside the 0.12 M horizon margin.
   function zamoFrame(params, radius, theta) {
-    checkCoordinateState(params, [0, radius, theta, 0]);
     const g = metric(params, radius, theta);
     const lapseSquared = -(g[0][0] - g[0][3] ** 2 / g[3][3]);
     if (![g[1][1], g[2][2], g[3][3], lapseSquared].every((v) => Number.isFinite(v) && v > 0)) {
@@ -694,6 +705,7 @@
       throw physicsError("invalidLocalConditions", "Invalid local launch conditions.");
     }
     const theta = Math.PI / 2 - latitude * Math.PI / 180;
+    checkCoordinateState(params, [0, radius, theta, 0]);
     const frame = zamoFrame(params, radius, theta);
     const alpha = azimuth * Math.PI / 180;
     const beta = elevation * Math.PI / 180;
@@ -715,6 +727,7 @@
   }
 
   function localConditionsFromState(params, state, massive) {
+    checkCoordinateState(params, [0, state[1], state[2], 0]);
     const frame = zamoFrame(params, state[1], state[2]);
     const energy = frame.lapse * state[4];
     const radial = frame.radialScale * state[5];

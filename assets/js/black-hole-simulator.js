@@ -291,8 +291,8 @@
 
   function localizedOrbitValue(value) {
     const copy = content();
-    if (value === "N/A") return copy.notAvailable;
     return value
+      .replaceAll("N/A", copy.notAvailable)
       .replaceAll("prograde", copy.prograde)
       .replaceAll("retrograde", copy.retrograde);
   }

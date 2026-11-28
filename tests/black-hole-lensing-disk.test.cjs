@@ -154,6 +154,47 @@ test('Kerr-Newman ISCO: the circular orbit of least |L_z| in each sense, between
   assert.equal(result.stopReason, 'outerHorizon');
 });
 
+test('Kerr-Newman near the extremal limit: ISCO and photon orbit found down to the horizon, continuous with Kerr', () => {
+  // The prograde orbits there lie closer to r_+ than one 0.01 M search step
+  // and came out null (AND-20): the 3D disk then fell back to the uncharged
+  // Kerr ISCO, 2.907 M at a 0.8, and the 2D panel showed "N/A" for both
+  // senses. Checked against the metric, as above.
+  for (const params of [{ M: 1, a: 0.8, q: 0.5999 }, { M: 1, a: 0.999999, q: 0.001 }, { M: 1, a: 0.8, q: 0.5999999 }]) {
+    const label = `a ${params.a} q ${params.q}`;
+    const horizon = P.horizonData(params).outer;
+    for (const sense of ['prograde', 'retrograde']) {
+      const photon = P.photonSphereRadius(params, sense);
+      const isco = P.iscoRadius(params, sense);
+      assert.ok(horizon < photon && photon < isco, `${label} ${sense}: r+ ${horizon}, photon ${photon}, ISCO ${isco}`);
+      const omega = P.keplerianAngularVelocity(params, photon, sense);
+      const g = P.metric(params, photon, Math.PI / 2);
+      assert.ok(Math.abs(g[0][0] + 2 * omega * g[0][3] + omega * omega * g[3][3]) < 1e-12, `${label} ${sense}: photon orbit not null`);
+      const angularMomentum = (r) => Math.abs(P.circularOrbitFourVelocity(params, r, sense).angularMomentum);
+      for (const offset of [-1e-3, 1e-3]) {
+        assert.ok(angularMomentum(isco * (1 + offset)) > angularMomentum(isco), `${label} ${sense}: |L_z| at ${offset} is not larger`);
+      }
+    }
+    const info = P.circularOrbitInformation(params);
+    assert.doesNotMatch(`${info.isco} ${info.photon}`, /N\/A/, label);
+  }
+  // At a 0.8, q 0.5999999 the prograde ISCO is about 1 M, not Kerr's 2.907 M.
+  // The 3D disk takes the ZAMO frame there, inside the solver's 0.12 M
+  // horizon margin, which still holds for launches.
+  const nearExtremal = { M: 1, a: 0.8, q: 0.5999999 };
+  const innerEdge = P.iscoRadius(nearExtremal);
+  assert.ok(Math.abs(innerEdge - 1.008207) < 1e-6);
+  assert.ok(P.zamoFrame(nearExtremal, innerEdge, Math.PI / 2).lapse > 0);
+  assert.throws(() => P.initialStateFromLocal(nearExtremal, {
+    radius: innerEdge, latitude: 0, azimuth: 90, elevation: 0, speed: 0.5, massive: true
+  }), (error) => error.code === 'outerHorizon');
+  for (const sense of ['prograde', 'retrograde']) {
+    const kerrLimit = { M: 1, a: 0.999999, q: 0 };
+    const charged = { M: 1, a: 0.999999, q: 1e-6 };
+    assert.ok(Math.abs(P.iscoRadius(charged, sense) - P.iscoRadius(kerrLimit, sense)) < 1e-7, `${sense}: ISCO Kerr limit`);
+    assert.ok(Math.abs(P.photonSphereRadius(charged, sense) - P.photonSphereRadius(kerrLimit, sense)) < 1e-7, `${sense}: photon orbit Kerr limit`);
+  }
+});
+
 test('The ergosphere drawn in 3D is where g_tt = 0, outside the horizon except at the poles', () => {
   const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
   const horizon = P.horizonData(kerrNewman).outer;
