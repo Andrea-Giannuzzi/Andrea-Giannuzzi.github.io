@@ -648,7 +648,11 @@
       const { states, lambdas } = C.trajectorySamples(result, { stride, minRadius: horizonOuter });
       // Need at least two samples to interpolate between; a stream reduced
       // to a single valid sample (an extremely short-lived near-extremal
-      // fall) cannot be animated and is dropped.
+      // fall) cannot be animated and is dropped. When the ISCO itself lies
+      // within the 0.12 M horizon margin (a spin within about 7e-4 of its
+      // extremal value: Kerr a > 0.9993, Kerr-Newman a > 0.9533 at q 0.3),
+      // every seed is already inside it, all streams stop at once and no
+      // plunging gas is drawn: these coordinates give nothing to integrate.
       if (lambdas.length < 2) continue;
       const streamPositions = states.map((state) => new THREE.Vector3(...C.scenePosition(state)));
       const streamColors = states.map((state) => P.blackbodyColor(baseTemperature * (state[4] > 0 ? 1 / state[4] : 0)));

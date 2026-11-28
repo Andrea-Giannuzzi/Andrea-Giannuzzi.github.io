@@ -187,6 +187,15 @@ test('Kerr-Newman near the extremal limit: ISCO and photon orbit found down to t
   assert.throws(() => P.initialStateFromLocal(nearExtremal, {
     radius: innerEdge, latitude: 0, azimuth: 90, elevation: 0, speed: 0.5, massive: true
   }), (error) => error.code === 'outerHorizon');
+  // Exactly extremal (25 - 16 - 9 is exactly 0 in floating point): where the
+  // prograde orbit coincides with the horizon it is r_+ = M exactly, as
+  // Kerr's closed form gives at a = 1, not M plus rounding noise; where it
+  // lies above, it is found there.
+  assert.equal(P.iscoRadius({ M: 5, a: 4, q: 3 }), 5);
+  assert.equal(P.photonSphereRadius({ M: 5, a: 4, q: 3 }), 5);
+  assert.equal(P.iscoRadius({ M: 13, a: 12, q: 5 }), 13);
+  assert.equal(P.photonSphereRadius({ M: 41, a: 40, q: 9 }), 41);
+  assert.ok(Math.abs(P.iscoRadius({ M: 5, a: 3, q: 4 }) / 5 - 1.413517) < 1e-6);
   for (const sense of ['prograde', 'retrograde']) {
     const kerrLimit = { M: 1, a: 0.999999, q: 0 };
     const charged = { M: 1, a: 0.999999, q: 1e-6 };

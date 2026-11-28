@@ -219,25 +219,35 @@
       const side = sense === "retrograde" ? -1 : 1;
       return outermostRoot((r) => M * r * (6 * M * r - r * r - 9 * q * q + 3 * spin * spin)
         + 4 * q * q * (q * q - spin * spin) - side * 8 * spin * Math.pow(M * r - q * q, 1.5),
-      10 * M, horizons.outer, 0.01 * M);
+      10 * M, horizons.outer, 0.01 * M, horizons.extremality === 0);
     }
     return null;
   }
 
   // The outermost root of fn outside the horizon: stepping in from `start`,
-  // outside every root, to the first sign change, then bisecting. The last
-  // interval ends on the horizon itself: near the extremal limit the prograde
+  // outside every root, to the first sign change, then bisecting. The steps
+  // stop half a step above r_+ and the last interval, up to 1.5 steps long,
+  // ends on the horizon itself: near the extremal limit the prograde
   // ISCO and photon orbit come closer to r_+ than one step (photon orbit at
   // 1.000443 M for r_+ = 1.000346 M, a 0.8, q 0.5999999), and both functions
-  // have the inside sign at r_+, vanishing there at extremality. null only
-  // when fn keeps the outside sign down to r_+.
-  function outermostRoot(fn, start, horizon, step) {
+  // have the inside sign at r_+. null only when fn keeps the outside sign down
+  // to r_+. At exact extremality (`rootAtHorizon`) both vanish at r_+ = M for
+  // any a and q, so with no root above it the orbit is the horizon itself,
+  // the Boyer-Lindquist degeneracy of extremal Kerr (Bardeen, Press &
+  // Teukolsky 1972): returned exactly, since fn there is flat and its sign is
+  // rounding noise, which bisection turned into r = M + 1.5e-5 M or null. A
+  // grid point within rounding of r_+ did the same, hence the half step. The
+  // price, at exact extremality only: an orbit less than half a step above
+  // r_+, for a/M just past the value where it leaves the horizon, is given
+  // at r_+.
+  function outermostRoot(fn, start, horizon, step, rootAtHorizon = false) {
     const signOutside = Math.sign(fn(start));
     let outer = start;
-    for (let r = start - step; r > horizon; r -= step) {
+    for (let r = start - step; r > horizon + 0.5 * step; r -= step) {
       if (Math.sign(fn(r)) !== signOutside) return bisectSignChange(fn, r, outer);
       outer = r;
     }
+    if (rootAtHorizon) return horizon;
     return Math.sign(fn(horizon)) !== signOutside ? bisectSignChange(fn, horizon, outer) : null;
   }
 
@@ -265,7 +275,7 @@
       const spin = Math.abs(params.a);
       const side = sense === "retrograde" ? -1 : 1;
       return outermostRoot((r) => r * r - 3 * M * r + 2 * q * q + side * 2 * spin * Math.sqrt(M * r - q * q),
-        5 * M, horizons.outer, 0.01 * M);
+        5 * M, horizons.outer, 0.01 * M, horizons.extremality === 0);
     }
     return null;
   }
