@@ -743,7 +743,21 @@ window.PORTFOLIO_CONTENT = {
       downloadCv: "Scarica CV",
       educationTitle: "Education",
       distinctionsTitle: "Risultati accademici",
-      researchTitle: "Esperienza di ricerca",
+      researchTitle: "Progetti di ricerca in corso",
+      researchLines: [
+        {
+          meta: "2026 – in corso · Supervisione della prof.ssa Noemi Frusciante",
+          title: "Buchi neri in gravità modificata e parametrizzazione di Rezzolla–Zhidenko",
+          description: "Lavoro preparatorio a uno studio di famiglie di azioni di gravità modificata le cui soluzioni di buco nero si descrivono con la parametrizzazione di Rezzolla–Zhidenko. Una prima nota, completata, mostra che nella parametrizzazione troncata a un ordine qualsiasi le equazioni di Einstein nel vuoto ammettono soltanto Schwarzschild: coefficienti di deviazione non nulli richiedono un'altra azione. Una seconda nota, in corso, estende a metriche statiche e sfericamente simmetriche la costruzione di Emparan e Martínez per la fusione degli orizzonti nel limite di rapporto di massa estremo, con le correzioni al primo ordine attorno a Schwarzschild e le condizioni sotto cui descrive una fusione reale in gravità modificata.",
+          notes: ["truncated-rezzolla-zhidenko-vacuum", "emr-horizon-mergers-null-geodesics"]
+        },
+        {
+          meta: "2026 – in corso · Supervisione del dott. Lorenzo Ubaldi",
+          title: "QED scalare e polarizzazione del vuoto in de Sitter",
+          description: "Studio della QED scalare in de Sitter, a partire dalla corrente di Schwinger indotta da un campo elettrico costante. Ho lavorato prima sulla corrente regolarizzata con Pauli–Villars: per ottenerne il contributo di ordine e² ho estratto analiticamente il termine di ordine e⁰ della funzione F_φ, mostrando che la divergenza apparente in 1/λ² a campo debole si cancella. In seguito ho studiato il controtermine δ₃ della polarizzazione del vuoto, che il lavoro di riferimento fissa con un fattore di forma di spazio piatto, ricavandolo direttamente in de Sitter: propagatori scalare e vettoriale, controtermine locale con l'heat kernel e kernel di polarizzazione a un loop.",
+          notes: ["order-e0-scalar-function-f-phi", "de-sitter-scalar-vacuum-polarization"]
+        }
+      ],
       skillsTitle: "Technical skills",
       projectsTitle: "Progetti selezionati",
       courseworkTitle: "Corsi",
@@ -763,7 +777,6 @@ window.PORTFOLIO_CONTENT = {
       additionalText: "Scacchi; storia; LLM.",
       curiositiesTitle: "Curiosità su di me",
       curiositiesText: "Socio di Mensa Italia dal 2025, con un QI di 151 (99,97° percentile).",
-      viewResearch: "Approfondisci in Research",
       viewProject: "Apri progetto"
     },
     contact: {
@@ -1980,7 +1993,21 @@ window.PORTFOLIO_CONTENT = {
       downloadCv: "Download CV",
       educationTitle: "Education",
       distinctionsTitle: "Academic distinctions",
-      researchTitle: "Research experience",
+      researchTitle: "Ongoing research projects",
+      researchLines: [
+        {
+          meta: "2026 – ongoing · Supervised by Prof. Noemi Frusciante",
+          title: "Black Holes in Modified Gravity and the Rezzolla–Zhidenko Parametrization",
+          description: "Preparatory work for a study of families of modified-gravity actions whose black-hole solutions are described with the Rezzolla–Zhidenko parametrization. A first note, completed, shows that with the parametrization truncated at any order the vacuum Einstein equations admit only Schwarzschild: nonzero deviation coefficients require a different action. A second note, ongoing, extends the Emparan–Martínez construction of horizon mergers in the extreme mass-ratio limit to static, spherically symmetric metrics, with the first-order corrections around Schwarzschild and the conditions under which it describes an actual merger in modified gravity.",
+          notes: ["truncated-rezzolla-zhidenko-vacuum", "emr-horizon-mergers-null-geodesics"]
+        },
+        {
+          meta: "2026 – ongoing · Supervised by Dr Lorenzo Ubaldi",
+          title: "Scalar QED and Vacuum Polarization in de Sitter",
+          description: "A study of scalar QED in de Sitter, starting from the Schwinger current induced by a constant electric field. I first worked on the Pauli–Villars regularized current: to obtain its order-e² contribution I extracted analytically the order-e⁰ term of the function F_φ, showing that the apparent 1/λ² divergence at weak field cancels. I then studied the vacuum-polarization counterterm δ₃, which the reference work fixes with a flat-space form factor, deriving it directly in de Sitter: scalar and vector propagators, the local counterterm from the heat kernel and the one-loop polarization kernel.",
+          notes: ["order-e0-scalar-function-f-phi", "de-sitter-scalar-vacuum-polarization"]
+        }
+      ],
       skillsTitle: "Technical skills",
       projectsTitle: "Selected projects",
       courseworkTitle: "Coursework",
@@ -2000,7 +2027,6 @@ window.PORTFOLIO_CONTENT = {
       additionalText: "Chess; history; LLMs.",
       curiositiesTitle: "Fun facts about me",
       curiositiesText: "Member of Mensa Italia since 2025, with an IQ of 151 (99.97th percentile).",
-      viewResearch: "View Research",
       viewProject: "Open project"
     },
     contact: {

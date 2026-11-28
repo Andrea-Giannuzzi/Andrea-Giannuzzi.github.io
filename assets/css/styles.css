@@ -497,6 +497,11 @@ dd {
   padding-top: 24px;
 }
 
+.cv-research-list .project-actions {
+  flex-direction: column;
+  align-items: flex-start;
+}
+
 .cv-project-item {
   border-left: 1px solid var(--line);
   padding-left: 24px;

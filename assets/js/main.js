@@ -358,16 +358,18 @@ function renderAcademicContent(language) {
       <a class="text-link" href="${getBasePath()}research.html#${research.id}">${content.home.viewResearch}</a>`;
   });
 
-  const cvResearch = ["de-sitter-scalar-vacuum-polarization", "order-e0-scalar-function-f-phi"]
-    .map((id) => content.researchItems?.find((item) => item.id === id))
-    .filter(Boolean);
+  // One block per line of research; the links take their titles from the
+  // Research entries, so a renamed note stays in step here.
   document.querySelectorAll("[data-cv-research]").forEach((container) => {
-    container.innerHTML = cvResearch.map((research) => `
+    container.innerHTML = (content.cv.researchLines || []).map((line) => `
       <article>
-        <p class="status">${research.status}</p>
-        <h3>${research.title}</h3>
-        <p>${research.contribution}</p>
-        <a class="text-link" href="${getBasePath()}research.html#${research.id}">${content.cv.viewResearch}</a>
+        <p class="status">${line.meta}</p>
+        <h3>${line.title}</h3>
+        <p>${line.description}</p>
+        <div class="project-actions">
+          ${line.notes.map((id) => content.researchItems?.find((item) => item.id === id)).filter(Boolean).map((note) =>
+            `<a class="text-link" href="${getBasePath()}research.html#${note.id}">${note.title}</a>`).join("")}
+        </div>
       </article>`).join("");
   });
 
