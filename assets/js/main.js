@@ -476,6 +476,7 @@ function renderSubjectNotes(language) {
           : `<a class="text-link" href="${getBasePath()}${note.url}">${content.notes.openNote}</a>`;
         const sharedDocumentDetails = documentResource
           ? `${note.abstract ? `<p>${note.abstract}</p>` : ""}
+             ${documentResource.designNote ? `<p>${documentResource.designNote[language]}</p>` : ""}
              ${note.topics?.length ? `<div class="tag-list small">${note.topics.map((topic) => `<span>${topic}</span>`).join("")}</div>` : ""}`
           : "";
         return `
