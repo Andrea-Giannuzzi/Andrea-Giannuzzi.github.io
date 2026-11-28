@@ -1105,14 +1105,14 @@ window.PORTFOLIO_CONTENT = {
       },
       {
         id: "order-e0-scalar-function-f-phi",
-        title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
-        summary: "Studio analitico del contributo di ordine e^0 a F_φ nella corrente scalare regolarizzata di Pauli–Villars.",
+        title: "Estrazione del contributo di ordine e⁰ alla funzione scalare F_φ",
+        summary: "Studio analitico del contributo di ordine e⁰ a F_φ nella corrente scalare regolarizzata di Pauli–Villars.",
         date: "15 agosto 2026",
         status: "Progetto di ricerca",
         formatLabel: "Documento",
         format: "PDF in inglese",
         context: "Indagine sulla corrente di Schwinger nello spaziotempo di de Sitter, oltre e migliorando l'approssimazione di Minkowski usata nel calcolo del controtermine di polarizzazione del vuoto. Questo è l'obiettivo complessivo della ricerca, non un risultato concluso.",
-        contribution: "Estrazione e studio analitico del contributo di ordine e^0 alla funzione F_φ, che entra nella corrente scalare di Schwinger di ordine e^2.",
+        contribution: "Estrazione e studio analitico del contributo di ordine e⁰ alla funzione F_φ, che entra nella corrente scalare di Schwinger di ordine e².",
         methods: ["Espansione in λ = eE/H² = O(e).", "Dipendenza μ² = μ₀² − λ².", "Identità della funzione digamma e relazione di riflessione."],
         results: ["Cancellazione delle singolarità apparenti 1/λ².", "Riduzione analitica dell'integrale residuo.", "Controlli analitici di consistenza nei limiti rilevanti."],
         reference: {
@@ -1120,7 +1120,7 @@ window.PORTFOLIO_CONTENT = {
           identifier: "arXiv:2508.14973v2",
           url: "https://arxiv.org/abs/2508.14973v2"
         },
-        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
       },
       {
@@ -2355,14 +2355,14 @@ window.PORTFOLIO_CONTENT = {
       },
       {
         id: "order-e0-scalar-function-f-phi",
-        title: "Extraction of the order-(e^0) contribution to the scalar function (F_φ)",
-        summary: "Analytical study of the order-e^0 contribution to F_φ in the Pauli–Villars regularized scalar current.",
+        title: "Extraction of the order-e⁰ contribution to the scalar function F_φ",
+        summary: "Analytical study of the order-e⁰ contribution to F_φ in the Pauli–Villars regularized scalar current.",
         date: "August 15, 2026",
         status: "Research project",
         formatLabel: "Document",
         format: "PDF in English",
         context: "Investigation of the Schwinger current in de Sitter spacetime beyond and improving the Minkowski approximation used in the vacuum-polarization counterterm calculation. This is the overall research objective, not a completed result.",
-        contribution: "Extraction and analytical study of the order-(e^0) contribution to the scalar function F_φ, which enters the order-(e^2) scalar Schwinger current.",
+        contribution: "Extraction and analytical study of the order-e⁰ contribution to the scalar function F_φ, which enters the order-e² scalar Schwinger current.",
         methods: ["Expansion in λ = eE/H² = O(e).", "Dependence μ² = μ₀² − λ².", "Digamma-function identities and the reflection relation."],
         results: ["Cancellation of apparent 1/λ² singularities.", "Analytical reduction of the remaining integral.", "Analytical consistency checks in relevant limits."],
         reference: {
@@ -2370,7 +2370,7 @@ window.PORTFOLIO_CONTENT = {
           identifier: "arXiv:2508.14973v2",
           url: "https://arxiv.org/abs/2508.14973v2"
         },
-        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e^2. Consequently, its contribution of order e^2 is obtained from the term of order e^0 inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
       },
       {
