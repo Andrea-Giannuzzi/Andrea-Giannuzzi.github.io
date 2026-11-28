@@ -6,6 +6,10 @@ window.PORTFOLIO_DOCUMENTS = Object.freeze({
       en: "Kerr–Newman Metric: Theoretical Foundations of the Simulator"
     }),
     officialTitle: "Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric",
+    designNote: Object.freeze({
+      it: "Il design del documento è stato realizzato con l'aiuto dell'IA.",
+      en: "The design of the document was created with the help of AI."
+    }),
     pages: 86,
     language: "en",
     path: "assets/kerr-newman-metric-theoretical-background.pdf",
@@ -571,7 +575,6 @@ window.PORTFOLIO_CONTENT = {
       theoryDetails: "Titolo ufficiale: «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric». La trattazione comprende orizzonti, ergoregione, geodetiche e integrazione numerica.",
       theoryDocumentLabel: "PDF in inglese · 86 pagine",
       theoryDocumentDescription: "Documenta le formule, le convenzioni, le unità e le quantità fisiche effettivamente utilizzate dal simulatore.",
-      theoryDocumentDesign: "Il design del documento è stato realizzato con l'aiuto dell'IA.",
       demoEyebrow: "Simulatore 2D",
       demoTitle: "Geodetiche equatoriali di Kerr–Newman",
       demoIntro: "La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.",
@@ -1822,7 +1825,6 @@ window.PORTFOLIO_CONTENT = {
       theoryDetails: "Official title: “Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric”. It covers horizons, the ergoregion, geodesics, and numerical integration.",
       theoryDocumentLabel: "English PDF · 86 pages",
       theoryDocumentDescription: "It documents the formulas, conventions, units, and physical quantities actually used by the simulator.",
-      theoryDocumentDesign: "The design of the document was created with the help of AI.",
       demoEyebrow: "2D Simulator",
       demoTitle: "Equatorial Kerr–Newman geodesics",
       demoIntro: "Geometry updates immediately; the geodesic is recalculated only when Run Simulation is pressed.",

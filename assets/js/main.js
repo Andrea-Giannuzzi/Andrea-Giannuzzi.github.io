@@ -252,6 +252,7 @@ function renderResearch(language) {
             <h3>${item.documentTitle || content.research.noteTitle}</h3>
             <p class="status research-note-label">${item.abstractTitle || content.research.abstractTitle}</p>
             <p>${item.abstract}</p>
+            ${documentResource?.designNote ? `<p>${documentResource.designNote[language]}</p>` : ""}
             ${documentActions}
           </section>
         </div>
@@ -428,8 +429,10 @@ function renderSharedDocuments(language) {
     if (!documentResource) return;
     const title = documentResource.title?.[language] || "";
     const titleElement = container.querySelector("[data-shared-document-title]");
+    const noteElement = container.querySelector("[data-shared-document-note]");
     const actionElement = container.querySelector("[data-shared-document-action]");
     if (titleElement) titleElement.textContent = title;
+    if (noteElement) noteElement.textContent = documentResource.designNote?.[language] || "";
     if (!actionElement) return;
     actionElement.innerHTML = documentResource.available && documentResource.path
       ? `<a class="button ghost" href="${getBasePath()}${documentResource.path}" target="_blank" rel="noopener">${content.sharedDocuments.openPdf}</a>
