@@ -213,6 +213,43 @@ test('Without a horizon there is no ISCO or photon orbit, for every spacetime', 
   assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 1, q: 0 }) - 1) < 1e-12);
 });
 
+test('Negative spin (J < 0): prograde co-rotates with the hole in the ISCO, Omega and the four-velocity alike', () => {
+  // With "prograde" read as Omega > 0, the 3D disk of a hole with J < 0 started
+  // at the co-rotating ISCO (3.189 M at a -0.7, q 0.3) with every particle on
+  // the counter-rotating orbit, whose ISCO is at 8.024 M, and the plunging gas
+  // was never drawn (AND-21). Now everything is the mirror image of J > 0.
+  assert.ok(Math.abs(P.iscoRadius({ M: 1, a: -0.7, q: 0.3 }) - 3.188555) < 1e-5);
+  for (const positive of [{ M: 1, a: 0.7, q: 0 }, { M: 1, a: 0.7, q: 0.3 }]) {
+    const negative = { ...positive, a: -positive.a };
+    for (const sense of ['prograde', 'retrograde']) {
+      const label = `q ${positive.q} ${sense}`;
+      const isco = P.iscoRadius(negative, sense);
+      assert.equal(isco, P.iscoRadius(positive, sense), label);
+      for (const r of [isco, 1.5 * isco, 4 * isco]) {
+        const omega = P.keplerianAngularVelocity(positive, r, sense);
+        assert.ok(Math.abs(P.keplerianAngularVelocity(negative, r, sense) + omega) < 1e-12 * Math.abs(omega), `${label} r ${r}: Omega`);
+        const mirrored = P.circularOrbitFourVelocity(negative, r, sense);
+        const orbit = P.circularOrbitFourVelocity(positive, r, sense);
+        assert.ok(Math.abs(mirrored.energy - orbit.energy) < 1e-12, `${label} r ${r}: E`);
+        assert.ok(Math.abs(mirrored.angularMomentum + orbit.angularMomentum) < 1e-12 * Math.abs(orbit.angularMomentum), `${label} r ${r}: L_z`);
+        assert.ok(Math.abs(P.diskRedshiftFactor(negative, r, sense) - P.diskRedshiftFactor(positive, r, sense)) < 1e-12, `${label} r ${r}: redshift`);
+      }
+    }
+    // The plunging gas, seeded as in buildPlungingRegion just inside the
+    // co-rotating ISCO, falls into the hole as it does for J > 0.
+    const horizon = P.horizonData(negative).outer;
+    const isco = P.iscoRadius(negative);
+    const orbit = P.circularOrbitFourVelocity(negative, isco, 'prograde');
+    assert.ok(orbit.angularMomentum < 0, `q ${positive.q}: co-rotating L_z`);
+    const seed = P.initialStateFromConstants(negative, {
+      radius: horizon + (isco - horizon) * 0.99, energy: orbit.energy, angularMomentum: orbit.angularMomentum,
+      massive: true, radialDirection: 'ingoing'
+    });
+    const result = P.integrateGeodesic(negative, seed, { guardCoordinates: true, maxLambda: 400, step: 0.03, maxSteps: 14000 });
+    assert.equal(result.stopReason, 'outerHorizon', `q ${positive.q}: plunge`);
+  }
+});
+
 test('The ergosphere drawn in 3D is where g_tt = 0, outside the horizon except at the poles', () => {
   const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
   const horizon = P.horizonData(kerrNewman).outer;

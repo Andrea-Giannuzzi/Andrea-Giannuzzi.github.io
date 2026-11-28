@@ -574,12 +574,18 @@
   // Schwarzschild Omega = sqrt(M/r^3) and Kerr Omega = sqrt(M)/(r^1.5 +/- a*sqrt(M))
   // closed forms, both checked in runScientificValidation. Returns null where
   // no real circular orbit exists at this radius (inside the photon region).
+  // "prograde" co-rotates with the hole, Omega with the sign of a, as in
+  // iscoRadius and photonSphereRadius, which take |a|. With "prograde" read
+  // as Omega > 0, a hole with J < 0 got its disk at the co-rotating ISCO but
+  // every particle on the counter-rotating orbit, unstable or spacelike there,
+  // and no plunging gas at all (AND-21). For a < 0 both roots change sign:
+  // Omega_prograde(-a) = -Omega_prograde(a).
   function keplerianAngularVelocity(params, radius, sense = "prograde") {
     const derivatives = metricDerivatives(params, radius, Math.PI / 2);
     const dr = derivatives[1];
     const discriminant = dr[0][3] * dr[0][3] - dr[0][0] * dr[3][3];
     if (!(discriminant >= 0) || dr[3][3] === 0) return null;
-    const sign = sense === "retrograde" ? -1 : 1;
+    const sign = (sense === "retrograde" ? -1 : 1) * (params.a < 0 ? -1 : 1);
     const omega = (-dr[0][3] + sign * Math.sqrt(discriminant)) / dr[3][3];
     return Number.isFinite(omega) ? omega : null;
   }
