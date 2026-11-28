@@ -181,7 +181,7 @@
   // Kerr-Newman a root found by bisection, for the ISCO and the photon orbit
   // alike. Without a horizon both are null for every spacetime, as the 2D
   // panel's "N/A": Kerr with a > 1 used to get 1 M from a spin clamped to 1,
-  // while a 1.1 with q 1e-6 got null (AND-22).
+  // while a 1.1 with q 1e-6 got null.
   function iscoRadius(params, sense = "prograde", type = detectSpacetime(params)) {
     if (!horizonData(params).hasHorizon) return null;
     if (type === "schwarzschild") return 6;
@@ -578,7 +578,7 @@
   // iscoRadius and photonSphereRadius, which take |a|. With "prograde" read
   // as Omega > 0, a hole with J < 0 got its disk at the co-rotating ISCO but
   // every particle on the counter-rotating orbit, unstable or spacelike there,
-  // and no plunging gas at all (AND-21). For a < 0 both roots change sign:
+  // and no plunging gas at all. For a < 0 both roots change sign:
   // Omega_prograde(-a) = -Omega_prograde(a).
   function keplerianAngularVelocity(params, radius, sense = "prograde") {
     const derivatives = metricDerivatives(params, radius, Math.PI / 2);

@@ -156,7 +156,7 @@ test('Kerr-Newman ISCO: the circular orbit of least |L_z| in each sense, between
 
 test('Kerr-Newman near the extremal limit: ISCO and photon orbit found down to the horizon, continuous with Kerr', () => {
   // The prograde orbits there lie closer to r_+ than one 0.01 M search step
-  // and came out null (AND-20): the 3D disk then fell back to the uncharged
+  // and came out null: the 3D disk then fell back to the uncharged
   // Kerr ISCO, 2.907 M at a 0.8, and the 2D panel showed "N/A" for both
   // senses. Checked against the metric, as above.
   for (const params of [{ M: 1, a: 0.8, q: 0.5999 }, { M: 1, a: 0.999999, q: 0.001 }, { M: 1, a: 0.8, q: 0.5999999 }]) {
@@ -197,7 +197,7 @@ test('Kerr-Newman near the extremal limit: ISCO and photon orbit found down to t
 
 test('Without a horizon there is no ISCO or photon orbit, for every spacetime', () => {
   // Kerr with a > 1 used to give 1 M from a spin clamped to 1, while the same
-  // hole with q 1e-6 gave null and the 3D disk moved between the two (AND-22).
+  // hole with q 1e-6 gave null and the 3D disk moved between the two.
   for (const params of [{ M: 1, a: 1.1, q: 0 }, { M: 1, a: 1.1, q: 1e-6 }, { M: 1, a: 0, q: 1.05 }, { M: 1, a: 0.8, q: 0.7 }]) {
     const label = `a ${params.a} q ${params.q}`;
     assert.equal(P.horizonData(params).hasHorizon, false, label);
@@ -217,7 +217,7 @@ test('Negative spin (J < 0): prograde co-rotates with the hole in the ISCO, Omeg
   // With "prograde" read as Omega > 0, the 3D disk of a hole with J < 0 started
   // at the co-rotating ISCO (3.189 M at a -0.7, q 0.3) with every particle on
   // the counter-rotating orbit, whose ISCO is at 8.024 M, and the plunging gas
-  // was never drawn (AND-21). Now everything is the mirror image of J > 0.
+  // was never drawn. Now everything is the mirror image of J > 0.
   assert.ok(Math.abs(P.iscoRadius({ M: 1, a: -0.7, q: 0.3 }) - 3.188555) < 1e-5);
   for (const positive of [{ M: 1, a: 0.7, q: 0 }, { M: 1, a: 0.7, q: 0.3 }]) {
     const negative = { ...positive, a: -positive.a };
@@ -233,6 +233,13 @@ test('Negative spin (J < 0): prograde co-rotates with the hole in the ISCO, Omeg
         assert.ok(Math.abs(mirrored.energy - orbit.energy) < 1e-12, `${label} r ${r}: E`);
         assert.ok(Math.abs(mirrored.angularMomentum + orbit.angularMomentum) < 1e-12 * Math.abs(orbit.angularMomentum), `${label} r ${r}: L_z`);
         assert.ok(Math.abs(P.diskRedshiftFactor(negative, r, sense) - P.diskRedshiftFactor(positive, r, sense)) < 1e-12, `${label} r ${r}: redshift`);
+        // The speed relative to the ZAMO, which buildDisk passes to the
+        // beaming shader with its sign along +phi, changes sign too.
+        const zamoSpeed = (params) => {
+          const frame = P.zamoFrame(params, r, Math.PI / 2);
+          return (P.keplerianAngularVelocity(params, r, sense) - frame.omega) * frame.azimuthalScale / frame.lapse;
+        };
+        assert.ok(Math.abs(zamoSpeed(negative) + zamoSpeed(positive)) < 1e-12, `${label} r ${r}: ZAMO speed`);
       }
     }
     // The plunging gas, seeded as in buildPlungingRegion just inside the

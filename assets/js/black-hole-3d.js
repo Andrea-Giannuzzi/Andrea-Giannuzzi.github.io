@@ -323,7 +323,9 @@
       vec3 pos = vec3(aRadius * cos(angle), aHeight, aRadius * sin(angle));
       vec3 tangent = normalize(vec3(-sin(angle), 0.0, cos(angle)));
       vec3 toCamera = normalize(cameraPosition - pos);
-      float beta = clamp(aBeta, 0.0, 0.999);
+      // Signed along the +phi tangent: negative for a disk co-rotating with
+      // J < 0, so the approaching side stays the one moving toward the camera.
+      float beta = clamp(aBeta, -0.999, 0.999);
       float gamma = 1.0 / sqrt(1.0 - beta * beta);
       float cosAngle = dot(tangent, toCamera);
       vDoppler = 1.0 / (gamma * (1.0 - beta * cosAngle));
@@ -385,7 +387,7 @@
       const redshift = P.diskRedshiftFactor(params, r, "prograde");
       const temperature = P.diskTemperature(params, r, "prograde", 6500, isco) ?? 0;
       const frame = P.zamoFrame(params, r, Math.PI / 2);
-      const beta = Math.min(0.999, Math.abs((omega - frame.omega) * frame.azimuthalScale / frame.lapse));
+      const beta = Math.max(-0.999, Math.min(0.999, (omega - frame.omega) * frame.azimuthalScale / frame.lapse));
       const color = P.blackbodyColor(temperature * (redshift ?? 1));
       const height = (Math.random() - 0.5) * (outer - r) * 0.12;
       radii[i] = r;
