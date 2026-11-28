@@ -195,6 +195,24 @@ test('Kerr-Newman near the extremal limit: ISCO and photon orbit found down to t
   }
 });
 
+test('Without a horizon there is no ISCO or photon orbit, for every spacetime', () => {
+  // Kerr with a > 1 used to give 1 M from a spin clamped to 1, while the same
+  // hole with q 1e-6 gave null and the 3D disk moved between the two (AND-22).
+  for (const params of [{ M: 1, a: 1.1, q: 0 }, { M: 1, a: 1.1, q: 1e-6 }, { M: 1, a: 0, q: 1.05 }, { M: 1, a: 0.8, q: 0.7 }]) {
+    const label = `a ${params.a} q ${params.q}`;
+    assert.equal(P.horizonData(params).hasHorizon, false, label);
+    for (const sense of ['prograde', 'retrograde']) {
+      assert.equal(P.iscoRadius(params, sense), null, `${label} ${sense}: ISCO`);
+      assert.equal(P.photonSphereRadius(params, sense), null, `${label} ${sense}: photon orbit`);
+    }
+    const info = P.circularOrbitInformation(params);
+    assert.equal(`${info.isco} | ${info.photon}`, 'N/A | N/A', label);
+  }
+  // Extremal Kerr keeps its closed form, both orbits at r_+ = M prograde.
+  assert.ok(Math.abs(P.iscoRadius({ M: 1, a: 1, q: 0 }) - 1) < 1e-12);
+  assert.ok(Math.abs(P.photonSphereRadius({ M: 1, a: 1, q: 0 }) - 1) < 1e-12);
+});
+
 test('The ergosphere drawn in 3D is where g_tt = 0, outside the horizon except at the poles', () => {
   const kerrNewman = { M: 1, a: 0.6, q: 0.48 };
   const horizon = P.horizonData(kerrNewman).outer;

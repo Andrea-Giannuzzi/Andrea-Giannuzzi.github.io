@@ -179,11 +179,14 @@
   // closed forms (Kerr via the Bardeen-Press-Teukolsky z1/z2 construction).
   // Reissner-Nordstrom has one too, below, up to the extremal charge, and
   // Kerr-Newman a root found by bisection, for the ISCO and the photon orbit
-  // alike; without a horizon both are null.
+  // alike. Without a horizon both are null for every spacetime, as the 2D
+  // panel's "N/A": Kerr with a > 1 used to get 1 M from a spin clamped to 1,
+  // while a 1.1 with q 1e-6 got null (AND-22).
   function iscoRadius(params, sense = "prograde", type = detectSpacetime(params)) {
+    if (!horizonData(params).hasHorizon) return null;
     if (type === "schwarzschild") return 6;
     if (type === "kerr") {
-      const spin = Math.min(Math.abs(params.a), 1);
+      const spin = Math.abs(params.a);
       const z1 = 1 + Math.cbrt(1 - spin * spin)
         * (Math.cbrt(1 + spin) + Math.cbrt(1 - spin));
       const z2 = Math.sqrt(3 * spin * spin + z1 * z1);
@@ -198,7 +201,6 @@
       // 0 < q < 1 (one real root, Cardano) and 0 at both ends, where the
       // other two roots meet at r = 0 and at the horizon r = 1.
       const q2 = params.q * params.q;
-      if (q2 > 1) return null;
       const p = 9 * q2 - 12;
       const c = 18 * q2 - 4 * q2 * q2 - 16;
       const root = Math.sqrt(Math.max(0, c * c / 4 + p * p * p / 27));
@@ -212,7 +214,6 @@
       // a = 0; the tests check it against the least L_z of the circular orbits.
       // The root lies inside 9M (extremal Kerr, retrograde).
       const horizons = horizonData(params);
-      if (!horizons.hasHorizon) return null;
       const { M, q } = params;
       const spin = Math.abs(params.a);
       const side = sense === "retrograde" ? -1 : 1;
@@ -240,14 +241,14 @@
     return Math.sign(fn(horizon)) !== signOutside ? bisectSignChange(fn, horizon, outer) : null;
   }
 
+  // Null without a horizon, as iscoRadius: Reissner-Nordstrom with
+  // 1 < q^2 <= 9/8 still has a photon sphere but no horizon.
   function photonSphereRadius(params, sense = "prograde", type = detectSpacetime(params)) {
+    if (!horizonData(params).hasHorizon) return null;
     if (type === "schwarzschild") return 3;
-    if (type === "reissnerNordstrom") {
-      const discriminant = 9 - 8 * params.q * params.q;
-      return discriminant >= 0 ? (3 + Math.sqrt(discriminant)) / 2 : null;
-    }
+    if (type === "reissnerNordstrom") return (3 + Math.sqrt(9 - 8 * params.q * params.q)) / 2;
     if (type === "kerr") {
-      const spin = Math.min(Math.abs(params.a), 1);
+      const spin = Math.abs(params.a);
       return sense === "retrograde"
         ? 2 * (1 + Math.cos((2 / 3) * Math.acos(spin)))
         : 2 * (1 + Math.cos((2 / 3) * Math.acos(-spin)));
@@ -260,7 +261,6 @@
       // check it against the null circular orbits and the shadow contour's
       // photon-orbit range. The root lies inside 4M (extremal Kerr, retrograde).
       const horizons = horizonData(params);
-      if (!horizons.hasHorizon) return null;
       const { M, q } = params;
       const spin = Math.abs(params.a);
       const side = sense === "retrograde" ? -1 : 1;

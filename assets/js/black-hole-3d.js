@@ -357,10 +357,11 @@
   function buildDisk(params) {
     // ISCO anchors the inner edge physically. Without a horizon there is no
     // ISCO in this project (see P.iscoRadius); a documented fallback then
-    // uses the spin-only Kerr value (charge dropped), or 6 M, for placement,
-    // while rotation/redshift/temperature still use the real charged params,
-    // since keplerianAngularVelocity and diskRedshiftFactor are derived
-    // directly from the metric and stay valid for any (M, a, q).
+    // uses the spin-only Kerr value (charge dropped) when that hole has a
+    // horizon, |a| <= M, or else 6 M, for placement (a 1.1: 6 M, with q 0 and
+    // q 1e-6 alike), while rotation/redshift/temperature still use the real
+    // charged params, since keplerianAngularVelocity and diskRedshiftFactor
+    // are derived directly from the metric and stay valid for any (M, a, q).
     const fallbackParams = { M: params.M, a: params.a, q: 0 };
     const isco = P.iscoRadius(params) ?? P.iscoRadius(fallbackParams) ?? 6;
     const outer = isco * 4;
