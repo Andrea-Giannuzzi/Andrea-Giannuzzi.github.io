@@ -91,7 +91,7 @@ window.PORTFOLIO_CONTENT = {
       skip: "Salta al contenuto",
       menuLabel: "Apri o chiudi menu",
       github: "GitHub",
-      footer: "Costruito con HTML, CSS e JavaScript puri. Pubblicato con GitHub Pages.",
+      footer: "Costruito con HTML, CSS e JavaScript puri, anche con l'aiuto dell'IA. Pubblicato con GitHub Pages.",
       profilePlaceholder: "Foto profilo",
       focusLabel: "Focus",
       locationLabel: "Situato a"
@@ -571,6 +571,7 @@ window.PORTFOLIO_CONTENT = {
       theoryDetails: "Titolo ufficiale: «Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric». La trattazione comprende orizzonti, ergoregione, geodetiche e integrazione numerica.",
       theoryDocumentLabel: "PDF in inglese · 86 pagine",
       theoryDocumentDescription: "Documenta le formule, le convenzioni, le unità e le quantità fisiche effettivamente utilizzate dal simulatore.",
+      theoryDocumentDesign: "Il design del documento è stato realizzato con l'aiuto dell'IA.",
       demoEyebrow: "Simulatore 2D",
       demoTitle: "Geodetiche equatoriali di Kerr–Newman",
       demoIntro: "La geometria viene aggiornata immediatamente; la geodetica viene ricalcolata soltanto premendo Esegui simulazione.",
@@ -1120,7 +1121,7 @@ window.PORTFOLIO_CONTENT = {
           identifier: "arXiv:2508.14973v2",
           url: "https://arxiv.org/abs/2508.14973v2"
         },
-        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1] already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
       },
       {
@@ -1341,7 +1342,7 @@ window.PORTFOLIO_CONTENT = {
       skip: "Skip to content",
       menuLabel: "Open or close menu",
       github: "GitHub",
-      footer: "Built with plain HTML, CSS, and JavaScript. Hosted with GitHub Pages.",
+      footer: "Built with plain HTML, CSS, and JavaScript, also with the help of AI. Hosted with GitHub Pages.",
       profilePlaceholder: "Profile photo",
       focusLabel: "Focus",
       locationLabel: "Based in"
@@ -1821,6 +1822,7 @@ window.PORTFOLIO_CONTENT = {
       theoryDetails: "Official title: “Mass, Charge, and Angular Momentum: From Einstein–Maxwell to the Kerr–Newman Metric”. It covers horizons, the ergoregion, geodesics, and numerical integration.",
       theoryDocumentLabel: "English PDF · 86 pages",
       theoryDocumentDescription: "It documents the formulas, conventions, units, and physical quantities actually used by the simulator.",
+      theoryDocumentDesign: "The design of the document was created with the help of AI.",
       demoEyebrow: "2D Simulator",
       demoTitle: "Equatorial Kerr–Newman geodesics",
       demoIntro: "Geometry updates immediately; the geodesic is recalculated only when Run Simulation is pressed.",
@@ -2370,7 +2372,7 @@ window.PORTFOLIO_CONTENT = {
           identifier: "arXiv:2508.14973v2",
           url: "https://arxiv.org/abs/2508.14973v2"
         },
-        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1]. already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
+        abstract: "The Pauli–Villars regularized scalar current in Eq. (3.11) of Ref. [1] already contains an overall factor e². Consequently, its contribution of order e² is obtained from the term of order e⁰ inside the square brackets. In this note I extract the corresponding constant term of the function Fφ(λ, μ) defined in Eq. (3.9), taking into account both λ = eE/H² = O(e) and the implicit dependence μ² = μ₀² − λ². The apparent 1/λ² singularities cancel, and the remaining integral can be reduced analytically by means of the reflection identity for the digamma function.",
         pdf: "assets/research-order-e0-scalar-function-f-phi.pdf"
       },
       {
